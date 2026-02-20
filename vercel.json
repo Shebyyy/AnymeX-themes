@@ -1,8 +1,5 @@
 {
   "buildCommand": "bun run build",
   "outputDirectory": ".next",
-  "framework": "nextjs",
-  "env": {
-    "DATABASE_URL": "@DATABASE_URL"
-  }
+  "framework": "nextjs"
 }
