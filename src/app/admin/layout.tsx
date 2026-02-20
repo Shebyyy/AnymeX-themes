@@ -48,9 +48,23 @@ export default function AdminLayout({
   const [newPassword, setNewPassword] = useState("");
   const [changingPassword, setChangingPassword] = useState(false);
 
+  // Skip auth check for login page
+  const isLoginPage = pathname === "/admin/login";
+
   useEffect(() => {
-    checkAuth();
-  }, []);
+    if (!isLoginPage) {
+      checkAuth();
+    } else {
+      // Check if already logged in when on login page
+      const token = localStorage.getItem("admin_token");
+      const userStr = localStorage.getItem("admin_user");
+      if (token && userStr) {
+        // Already logged in, redirect to dashboard
+        router.push("/admin/dashboard");
+      }
+      setLoading(false);
+    }
+  }, [isLoginPage]);
 
   const checkAuth = async () => {
     const token = localStorage.getItem("admin_token");
@@ -159,8 +173,14 @@ export default function AdminLayout({
     );
   }
 
-  if (!user) {
+  // If not logged in and not on login page, return null (redirect handled in checkAuth)
+  if (!user && !isLoginPage) {
     return null;
+  }
+
+  // On login page, just render children without the admin UI
+  if (isLoginPage) {
+    return children;
   }
 
   const isAdmin = user.role === "ADMIN" || user.role === "SUPER_ADMIN";
