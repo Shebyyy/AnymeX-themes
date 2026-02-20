@@ -1,36 +1,48 @@
-import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { NextRequest, NextResponse } from 'next/server';
+import { db } from '@/lib/db';
+import { validateSession } from '@/lib/auth';
 
-// GET /api/themes - Search and filter themes
+// GET /api/creator/themes - List themes (own themes for creators, all for admins)
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const search = searchParams.get("search") || "";
-    const category = searchParams.get("category") || "";
+    const token = request.headers.get('authorization')?.replace('Bearer ', '');
 
-    const where: any = {};
-
-    if (category && category !== "All") {
-      where.category = category;
+    if (!token) {
+      return NextResponse.json(
+        { error: 'No token provided' },
+        { status: 401 }
+      );
     }
 
-    if (search && search.trim() !== "") {
-      const searchCondition = [
-        { name: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } },
-        { creatorName: { contains: search, mode: "insensitive" } },
-      ];
+    const currentUser = await validateSession(token);
 
-      if (Object.keys(where).length > 0) {
-        where.AND = [{ ...where }, { OR: searchCondition }];
-      } else {
-        where.OR = searchCondition;
-      }
+    if (!currentUser) {
+      return NextResponse.json(
+        { error: 'Invalid or expired token' },
+        { status: 401 }
+      );
+    }
+
+    const isAdmin = currentUser.role === 'ADMIN' || currentUser.role === 'SUPER_ADMIN';
+    const isCreator = currentUser.role === 'THEME_CREATOR' || isAdmin;
+
+    if (!isCreator) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Creator access required' },
+        { status: 403 }
+      );
+    }
+
+    // Build where clause
+    const where: any = {};
+    
+    // If THEME_CREATOR (not admin), only show own themes
+    if (currentUser.role === 'THEME_CREATOR') {
+      where.createdBy = currentUser.id;
     }
 
     const themes = await db.theme.findMany({
       where,
-      orderBy: { likesCount: "desc" },
       include: {
         creator: {
           select: {
@@ -40,38 +52,69 @@ export async function GET(request: NextRequest) {
           },
         },
       },
+      orderBy: { createdAt: 'desc' },
     });
 
-    return NextResponse.json(themes);
+    return NextResponse.json({ success: true, themes, canEditAll: isAdmin });
   } catch (error) {
-    console.error("Error fetching themes:", error);
+    console.error('Get creator themes error:', error);
     return NextResponse.json(
-      { error: "Failed to fetch themes" },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
 }
 
-// POST /api/themes - Upload a new theme
+// POST /api/creator/themes - Create a new theme
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { name, creatorName, description, category, themeJson } = body;
+    const token = request.headers.get('authorization')?.replace('Bearer ', '');
 
-    // Validate required fields
-    if (!name || !creatorName || !themeJson) {
+    if (!token) {
       return NextResponse.json(
-        { error: "Missing required fields: name, creatorName, themeJson" },
+        { error: 'No token provided' },
+        { status: 401 }
+      );
+    }
+
+    const currentUser = await validateSession(token);
+
+    if (!currentUser) {
+      return NextResponse.json(
+        { error: 'Invalid or expired token' },
+        { status: 401 }
+      );
+    }
+
+    const isAdmin = currentUser.role === 'ADMIN' || currentUser.role === 'SUPER_ADMIN';
+    const isCreator = currentUser.role === 'THEME_CREATOR' || isAdmin;
+
+    if (!isCreator) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Creator access required' },
+        { status: 403 }
+      );
+    }
+
+    const body = await request.json();
+    const { name, description, themeJson, category, previewData } = body;
+
+    if (!name || !themeJson) {
+      return NextResponse.json(
+        { error: 'Name and theme JSON are required' },
         { status: 400 }
       );
     }
 
-    // Validate themeJson is valid JSON
+    // Parse and validate JSON
     try {
       JSON.parse(themeJson);
-    } catch {
+      if (previewData) {
+        JSON.parse(previewData);
+      }
+    } catch (e) {
       return NextResponse.json(
-        { error: "Invalid themeJson format" },
+        { error: 'Invalid JSON format' },
         { status: 400 }
       );
     }
@@ -79,18 +122,21 @@ export async function POST(request: NextRequest) {
     const theme = await db.theme.create({
       data: {
         name,
-        creatorName,
         description: description || null,
-        category: category || "Dark",
         themeJson,
+        creatorName: currentUser.username,
+        category: category || null,
+        previewData: previewData || null,
+        status: isAdmin ? 'APPROVED' : 'PENDING',
+        createdBy: currentUser.id,
       },
     });
 
-    return NextResponse.json(theme, { status: 201 });
+    return NextResponse.json({ success: true, theme }, { status: 201 });
   } catch (error) {
-    console.error("Error creating theme:", error);
+    console.error('Create theme error:', error);
     return NextResponse.json(
-      { error: "Failed to create theme" },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
