@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
           select: {
             id: true,
             username: true,
-            name: true,
+            profileUrl: true,
           },
         },
       },
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
         name,
         description: description || null,
         themeJson,
-        creatorName: currentUser.name || currentUser.username,
+        creatorName: currentUser.username,
         category: category || null,
         previewData: previewData || null,
         status: isAdmin ? 'APPROVED' : 'PENDING',
