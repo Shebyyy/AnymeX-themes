@@ -386,6 +386,13 @@ export default function Home() {
               >
                 Docs
               </a>
+              <a
+                href="/admin/login"
+                className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
+              >
+                <Icon icon="solar:login-3-linear" width={16} />
+                Login
+              </a>
               <Dialog
                 open={uploadOpen}
                 onOpenChange={(open) => {
@@ -558,7 +565,7 @@ export default function Home() {
                   </form>
                 </DialogContent>
               </Dialog>
-              <div className="h-4 w-px bg-neutral-800 hidden sm:block mx-2"></div>
+              <div className="h-4 w-px bg-neutral-800 mx-2"></div>
               <a
                 href="https://github.com/RyanYuuki/AnymeX"
                 target="_blank"
