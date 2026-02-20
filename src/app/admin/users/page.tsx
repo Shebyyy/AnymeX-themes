@@ -325,7 +325,7 @@ export default function UsersPage() {
         </div>
         <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-white text-black hover:bg-neutral-200">
+            <Button className="bg-neutral-800 text-white hover:bg-neutral-700">
               <Icon icon="solar:user-plus-bold" width={18} className="mr-2" />
               Create User
             </Button>
@@ -422,7 +422,7 @@ export default function UsersPage() {
                 <Button
                   type="submit"
                   disabled={creating}
-                  className="bg-white text-black hover:bg-neutral-200"
+                  className="bg-neutral-800 text-white hover:bg-neutral-700"
                 >
                   {creating ? "Creating..." : "Create User"}
                 </Button>
@@ -631,7 +631,7 @@ export default function UsersPage() {
               <Button
                 type="submit"
                 disabled={editing}
-                className="bg-white text-black hover:bg-neutral-200"
+                className="bg-neutral-800 text-white hover:bg-neutral-700"
               >
                 {editing ? "Updating..." : "Update User"}
               </Button>
@@ -677,7 +677,7 @@ export default function UsersPage() {
               <Button
                 type="submit"
                 disabled={resetting}
-                className="bg-white text-black hover:bg-neutral-200"
+                className="bg-neutral-800 text-white hover:bg-neutral-700"
               >
                 {resetting ? "Resetting..." : "Reset Password"}
               </Button>

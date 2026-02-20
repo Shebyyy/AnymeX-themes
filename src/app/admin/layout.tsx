@@ -249,7 +249,7 @@ export default function AdminLayout({
                   href={item.href}
                   className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     isActive
-                      ? "bg-white text-black"
+                      ? "bg-neutral-800 text-white"
                       : "text-neutral-400 hover:text-white hover:bg-neutral-800"
                   }`}
                 >
@@ -438,7 +438,7 @@ export default function AdminLayout({
               <Button
                 type="submit"
                 disabled={changingPassword}
-                className="bg-white text-black hover:bg-neutral-200"
+                className="bg-neutral-800 text-white hover:bg-neutral-700"
               >
                 {changingPassword ? "Changing..." : "Change Password"}
               </Button>
