@@ -1,5 +1,5 @@
 {
-  "buildCommand": "prisma generate && prisma migrate deploy && bun run build",
+  "buildCommand": "prisma generate && prisma db push --skip-generate && bun run build",
   "outputDirectory": ".next",
   "framework": "nextjs"
 }
