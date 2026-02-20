@@ -31,6 +31,7 @@ model User {
 
 enum UserRole {
   USER
+  THEME_CREATOR
   ADMIN
   SUPER_ADMIN
 }
