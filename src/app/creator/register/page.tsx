@@ -17,8 +17,7 @@ export default function CreatorRegisterPage() {
     username: "",
     password: "",
     confirmPassword: "",
-    name: "",
-    email: "",
+    profileUrl: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,8 +53,7 @@ export default function CreatorRegisterPage() {
         body: JSON.stringify({
           username: formData.username,
           password: formData.password,
-          name: formData.name,
-          email: formData.email,
+          profileUrl: formData.profileUrl,
           role: "THEME_CREATOR",
         }),
       });
@@ -159,36 +157,23 @@ export default function CreatorRegisterPage() {
                 />
               </div>
 
-              <div>
-                <Label htmlFor="name" className="text-neutral-200">
-                  Full Name
+              <div className="col-span-2">
+                <Label htmlFor="profileUrl" className="text-neutral-200">
+                  Profile URL
                 </Label>
                 <Input
-                  id="name"
-                  type="text"
-                  placeholder="Your name"
-                  value={formData.name}
+                  id="profileUrl"
+                  type="url"
+                  placeholder="https://github.com/yourusername"
+                  value={formData.profileUrl}
                   onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
+                    setFormData({ ...formData, profileUrl: e.target.value })
                   }
                   className="bg-slate-800/50 border-purple-900/30 text-white placeholder:text-neutral-500 mt-2"
                 />
-              </div>
-
-              <div>
-                <Label htmlFor="email" className="text-neutral-200">
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="your@email.com"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  className="bg-slate-800/50 border-purple-900/30 text-white placeholder:text-neutral-500 mt-2"
-                />
+                <p className="text-xs text-neutral-500 mt-1">
+                  Link shown when users click on your name
+                </p>
               </div>
             </div>
 

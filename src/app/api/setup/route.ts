@@ -5,7 +5,7 @@ import { hashPassword } from '@/lib/auth';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { username, password, name, email } = body;
+    const { username, password } = body;
 
     if (!username || !password) {
       return NextResponse.json(
@@ -36,20 +36,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if email already exists (if provided)
-    if (email) {
-      const existingEmail = await db.user.findUnique({
-        where: { email },
-      });
-
-      if (existingEmail) {
-        return NextResponse.json(
-          { error: 'Email already exists' },
-          { status: 409 }
-        );
-      }
-    }
-
     const passwordHash = await hashPassword(password);
 
     // Create the first SUPER_ADMIN user
@@ -57,16 +43,12 @@ export async function POST(request: NextRequest) {
       data: {
         username,
         passwordHash,
-        name,
-        email,
         role: 'SUPER_ADMIN',
         isActive: true,
       },
       select: {
         id: true,
         username: true,
-        email: true,
-        name: true,
         role: true,
         isActive: true,
         createdAt: true,

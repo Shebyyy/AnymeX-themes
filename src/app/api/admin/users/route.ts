@@ -27,8 +27,6 @@ export async function GET(request: NextRequest) {
       select: {
         id: true,
         username: true,
-        email: true,
-        name: true,
         role: true,
         isActive: true,
         createdAt: true,
@@ -74,7 +72,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { username, password, name, email, role } = body;
+    const { username, password, role } = body;
 
     if (!username || !password) {
       return NextResponse.json(
@@ -102,20 +100,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if email already exists (if provided)
-    if (email) {
-      const existingEmail = await db.user.findUnique({
-        where: { email },
-      });
-
-      if (existingEmail) {
-        return NextResponse.json(
-          { error: 'Email already exists' },
-          { status: 409 }
-        );
-      }
-    }
-
     // Only SUPER_ADMIN can create SUPER_ADMIN users
     if (role === 'SUPER_ADMIN' && currentUser.role !== 'SUPER_ADMIN') {
       return NextResponse.json(
@@ -130,15 +114,11 @@ export async function POST(request: NextRequest) {
       data: {
         username,
         passwordHash,
-        name,
-        email,
         role: role || 'USER',
       },
       select: {
         id: true,
         username: true,
-        email: true,
-        name: true,
         role: true,
         isActive: true,
         createdAt: true,

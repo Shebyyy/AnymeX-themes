@@ -7,8 +7,8 @@ The AnymeX admin panel provides comprehensive management capabilities for the th
 ## Features
 
 ### 1. User Management
-- **Create Users**: Add new admin or user accounts with username, password, name, email, and role
-- **Edit Users**: Update user information, change roles, activate/deactivate accounts
+- **Create Users**: Add new admin or user accounts with username, password, and role
+- **Edit Users**: Update user roles, activate/deactivate accounts
 - **Delete Users**: Remove user accounts (except your own)
 - **Reset Passwords**: Reset passwords for users who have forgotten theirs
 
@@ -51,8 +51,6 @@ The AnymeX admin panel provides comprehensive management capabilities for the th
 2. Create your super admin account:
    - Username (required)
    - Password (minimum 6 characters)
-   - Full Name (optional)
-   - Email (optional)
 3. Click "Create Super Admin"
 4. You'll be automatically logged in and redirected to the dashboard
 
@@ -105,10 +103,9 @@ Or access it from the main page by clicking the "Login" button in the navigation
 ### User Model
 - `id`: Unique identifier
 - `username`: Unique username (required)
-- `email`: Optional email address
-- `name`: Optional full name
 - `passwordHash`: Hashed password
-- `role`: USER, ADMIN, or SUPER_ADMIN
+- `profileUrl`: Optional profile URL (for theme creators)
+- `role`: USER, THEME_CREATOR, ADMIN, or SUPER_ADMIN
 - `isActive`: Account status
 - `createdAt`: Creation timestamp
 - `updatedAt`: Last update timestamp
@@ -132,7 +129,6 @@ Or access it from the main page by clicking the "Login" button in the navigation
    - Username: required
    - Password: minimum 6 characters
    - Role: Select "ADMIN"
-   - Name and Email: optional
 4. Click "Create User"
 
 ### Resetting a User's Password

@@ -41,10 +41,10 @@ export default function DocsPage() {
       <main className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="relative py-24 md:py-32 flex flex-col items-center text-center px-4">
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-white max-w-4xl mb-6">
-            Theme Creation Guide
+            Documentation
           </h1>
           <p className="text-neutral-400 max-w-2xl text-base md:text-lg leading-relaxed">
-            Learn how to create custom themes for AnymeX player and share them with the community.
+            Complete guide to creating, uploading, and applying themes for AnymeX player.
           </p>
         </div>
 
@@ -57,6 +57,63 @@ export default function DocsPage() {
               It includes colors, fonts, sizes, and other styling properties that determine how the player
               interface looks and feels.
             </p>
+          </section>
+
+          {/* Quick Start Guide */}
+          <section className="rounded-xl border border-neutral-800 bg-neutral-900/30 p-6">
+            <h2 className="text-2xl font-semibold text-white mb-4">Quick Start Guide</h2>
+            <p className="text-neutral-400 mb-6">
+              Get started with AnymeX themes in 3 simple steps:
+            </p>
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="rounded-lg border border-neutral-800 bg-neutral-950/50 p-4 text-center">
+                <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center mx-auto mb-3">
+                  <span className="text-xl font-bold">1</span>
+                </div>
+                <h3 className="text-base font-medium text-white mb-2">Register</h3>
+                <p className="text-sm text-neutral-400">
+                  Sign up as a creator in the Creator Hub
+                </p>
+              </div>
+              <div className="rounded-lg border border-neutral-800 bg-neutral-950/50 p-4 text-center">
+                <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center mx-auto mb-3">
+                  <span className="text-xl font-bold">2</span>
+                </div>
+                <h3 className="text-base font-medium text-white mb-2">Upload</h3>
+                <p className="text-sm text-400">
+                  Upload your theme JSON through Creator Dashboard
+                </p>
+              </div>
+              <div className="rounded-lg border border-neutral-800 bg-neutral-950/50 p-4 text-center">
+                <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center mx-auto mb-3">
+                  <span className="text-xl font-bold">3</span>
+                </div>
+                <h3 className="text-base font-medium text-white mb-2">Share</h3>
+                <p className="text-sm text-neutral-400">
+                  Get approved and your theme goes live!
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* Becoming a Creator Section */}
+          <section className="rounded-xl border border-neutral-800 bg-neutral-900/30 p-6">
+            <h2 className="text-2xl font-semibold text-white mb-4">Becoming a Theme Creator</h2>
+            <p className="text-neutral-400 mb-4">
+              To share your themes with the community, you'll need to register as a theme creator first. Here's how:
+            </p>
+            <ol className="space-y-3 text-neutral-300 list-decimal list-inside">
+              <li>Go to the main page and click on <strong>Creator Hub</strong> in the navigation menu</li>
+              <li>Click <strong>Register as Creator</strong> to create your account</li>
+              <li>Fill in your details:
+                <ul className="list-disc list-inside ml-6 mt-2 text-neutral-400 space-y-1">
+                  <li><strong>Username</strong> (required) - Your unique identifier</li>
+                  <li><strong>Password</strong> (required) - At least 6 characters</li>
+                  <li><strong>Profile URL</strong> (optional) - Your GitHub, social media, or any profile link. This link will be shown when users click on your name next to your themes</li>
+                </ul>
+              </li>
+              <li>Submit and you'll be redirected to the Creator Dashboard</li>
+            </ol>
           </section>
 
           {/* Theme Structure */}
@@ -269,27 +326,89 @@ export default function DocsPage() {
             </ul>
           </section>
 
-          {/* Upload Section */}
-          <section className="rounded-xl border border-indigo-900/50 bg-indigo-950/20 p-6">
-            <h2 className="text-2xl font-semibold text-white mb-4">Upload Your Theme</h2>
+          {/* Uploading Your Theme Section */}
+          <section className="rounded-xl border border-neutral-800 bg-neutral-900/30 p-6">
+            <h2 className="text-2xl font-semibold text-white mb-4">Uploading Your Theme</h2>
             <p className="text-neutral-400 mb-4">
-              Ready to share your theme with the community? Follow these steps:
+              Once you've created your theme JSON and registered as a creator, you can upload it through the Creator Dashboard:
             </p>
             <ol className="space-y-3 text-neutral-300 list-decimal list-inside">
-              <li>Create your theme JSON following the structure above</li>
-              <li>Test it thoroughly in your AnymeX player</li>
-              <li>Click the "Upload" button on the themes page</li>
-              <li>Fill in the theme details and paste your JSON</li>
-              <li>Submit and share with the community!</li>
+              <li>Log in to your creator account at <strong>/creator/login</strong></li>
+              <li>Go to the <strong>Creator Dashboard</strong></li>
+              <li>Click the <strong>"Create New Theme"</strong> button</li>
+              <li>Fill in the theme details:
+                <ul className="list-disc list-inside ml-6 mt-2 text-neutral-400 space-y-1">
+                  <li><strong>Theme Name</strong> - Display name for your theme</li>
+                  <li><strong>Description</strong> - Brief description of your theme's style</li>
+                  <li><strong>Category</strong> - Dark, Light, or AMOLED</li>
+                </ul>
+              </li>
+              <li><strong>Upload your theme JSON file</strong> - Click or drag and drop your JSON file (it will auto-fill the name, description, and category if your JSON includes them)</li>
+              <li>Click <strong>"Upload Theme"</strong> to submit</li>
+              <li>Your theme will be <strong>pending approval</strong> until an admin approves it</li>
             </ol>
-            <div className="mt-6">
-              <Link
-                href="/"
-                className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-6 py-3 text-sm font-medium text-white hover:bg-indigo-500 transition-colors"
-              >
-                <Icon icon="solar:upload-minimalistic-linear" width={16} />
-                Upload Theme
-              </Link>
+            <div className="mt-6 p-4 rounded-lg border border-neutral-800 bg-neutral-950/50">
+              <p className="text-sm text-neutral-400 mb-2">
+                <Icon icon="solar:info-circle-linear" className="inline mr-2" width={16} />
+                <strong>Note:</strong> Themes must be approved by an admin before they become visible to the public.
+              </p>
+            </div>
+          </section>
+
+          {/* Applying Themes Section */}
+          <section className="rounded-xl border border-neutral-800 bg-neutral-900/30 p-6">
+            <h2 className="text-2xl font-semibold text-white mb-4">Applying Themes to AnymeX Player</h2>
+            <p className="text-neutral-400 mb-4">
+              Once your theme is approved and visible on the main page, users can apply it to their AnymeX player with a single click:
+            </p>
+            <ol className="space-y-3 text-neutral-300 list-decimal list-inside">
+              <li>Find your theme in the <strong>Themes Gallery</strong> on the main page</li>
+              <li>Click the <strong>"Apply"</strong> button on the theme card</li>
+              <li>The AnymeX app will open automatically and apply the theme to your player</li>
+              <li>Enjoy your new theme! 🎨</li>
+            </ol>
+            <div className="mt-6 p-4 rounded-lg border border-neutral-800 bg-neutral-950/50">
+              <p className="text-sm text-neutral-400 mb-2">
+                <Icon icon="solar:info-circle-linear" className="inline mr-2" width={16} />
+                <strong>How it works:</strong> The Apply button uses a deep link (anymex://theme) that tells the AnymeX app which theme to download and apply.
+              </p>
+              <p className="text-sm text-neutral-500 mt-2">
+                If AnymeX doesn't open, make sure you have the AnymeX player installed on your device.
+              </p>
+            </div>
+          </section>
+
+          {/* Profile URL for Creators */}
+          <section className="rounded-xl border border-neutral-800 bg-neutral-900/30 p-6">
+            <h2 className="text-2xl font-semibold text-white mb-4">Profile URL Feature</h2>
+            <p className="text-neutral-400 mb-4">
+              As a theme creator, you can add a profile URL that will be displayed when users click on your name in the theme listings:
+            </p>
+            <ul className="space-y-2 text-neutral-400">
+              <li className="flex items-start gap-3">
+                <Icon icon="solar:link-horizontal-linear" className="text-blue-400 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-neutral-300">During Registration</strong> - Add your profile URL when signing up as a creator
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <Icon icon="solar:link-horizontal-linear" className="text-blue-400 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-neutral-300">Visibility</strong> - Your profile link appears next to your name under each theme you create
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <Icon icon="solar:link-horizontal-linear" className="text-blue-400 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-neutral-300">Flexibility</strong> - You can link to GitHub, Twitter, personal website, or any other profile
+                </span>
+              </li>
+            </ul>
+            <div className="mt-6 p-4 rounded-lg border border-neutral-800 bg-neutral-950/50">
+              <p className="text-sm text-neutral-400 mb-2">
+                <Icon icon="solar:lightbulb-linear" className="inline mr-2 width={16} />
+                <strong>Pro Tip:</strong> Use your GitHub profile URL so users can explore more of your work!
+              </p>
             </div>
           </section>
         </div>

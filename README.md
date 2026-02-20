@@ -103,7 +103,7 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed Vercel deployment instructions
 - **Theme** - Theme metadata, JSON configuration, stats
 - **ThemeLike** - User likes (unique per theme+user)
 - **ThemeView** - Theme views (unique per theme+user)
-- **User** - User accounts (for future features)
+- **User** - User accounts with username, password, role, and profile URL
 
 ## 🚢 API Endpoints
 

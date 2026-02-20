@@ -31,8 +31,6 @@ export async function GET(
       select: {
         id: true,
         username: true,
-        email: true,
-        name: true,
         role: true,
         isActive: true,
         createdAt: true,
@@ -87,7 +85,7 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { name, email, role, isActive } = body;
+    const { role, isActive } = body;
 
     // Check if target user exists
     const targetUser = await db.user.findUnique({
@@ -117,33 +115,15 @@ export async function PUT(
       );
     }
 
-    // Check if email already exists (if being changed)
-    if (email && email !== targetUser.email) {
-      const existingEmail = await db.user.findUnique({
-        where: { email },
-      });
-
-      if (existingEmail) {
-        return NextResponse.json(
-          { error: 'Email already exists' },
-          { status: 409 }
-        );
-      }
-    }
-
     const updatedUser = await db.user.update({
       where: { id: params.id },
       data: {
-        ...(name !== undefined && { name }),
-        ...(email !== undefined && { email }),
         ...(role !== undefined && { role }),
         ...(isActive !== undefined && { isActive }),
       },
       select: {
         id: true,
         username: true,
-        email: true,
-        name: true,
         role: true,
         isActive: true,
         createdAt: true,

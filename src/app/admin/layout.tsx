@@ -27,8 +27,6 @@ import Link from "next/link";
 interface User {
   id: string;
   username: string;
-  name: string | null;
-  email: string | null;
   role: string;
 }
 
@@ -273,7 +271,7 @@ export default function AdminLayout({
                   </div>
                   <div className="flex-1 text-left">
                     <p className="text-sm font-medium text-white">
-                      {user.name || user.username}
+                      {user.username}
                     </p>
                     <p className="text-xs text-neutral-500">{user.role}</p>
                   </div>

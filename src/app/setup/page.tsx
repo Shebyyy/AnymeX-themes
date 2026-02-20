@@ -13,8 +13,6 @@ export default function SetupPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -46,7 +44,7 @@ export default function SetupPage() {
       const response = await fetch("/api/setup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, name, email }),
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await response.json();
@@ -129,35 +127,6 @@ export default function SetupPage() {
                   className="bg-neutral-800 border-neutral-700 text-white pl-10"
                   placeholder="Choose a username"
                   required
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="bg-neutral-800 border-neutral-700 text-white"
-                placeholder="Your full name"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-500">
-                  <Icon icon="solar:letter-linear" width={18} />
-                </div>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="bg-neutral-800 border-neutral-700 text-white pl-10"
-                  placeholder="your@email.com"
                 />
               </div>
             </div>

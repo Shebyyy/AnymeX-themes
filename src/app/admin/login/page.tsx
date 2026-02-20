@@ -39,7 +39,7 @@ export default function AdminLogin() {
 
       toast({
         title: "Login successful! 🎉",
-        description: `Welcome back, ${data.user.name || data.user.username}!`,
+        description: `Welcome back, ${data.user.username}!`,
       });
 
       // Redirect to admin dashboard

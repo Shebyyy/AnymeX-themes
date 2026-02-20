@@ -46,8 +46,6 @@ import {
 interface User {
   id: string;
   username: string;
-  email: string | null;
-  name: string | null;
   role: string;
   isActive: boolean;
   createdAt: string;
@@ -71,16 +69,12 @@ export default function UsersPage() {
   const [createForm, setCreateForm] = useState({
     username: "",
     password: "",
-    name: "",
-    email: "",
     role: "USER",
   });
   const [creating, setCreating] = useState(false);
 
   // Edit user form
   const [editForm, setEditForm] = useState({
-    name: "",
-    email: "",
     role: "USER",
     isActive: true,
   });
@@ -145,8 +139,6 @@ export default function UsersPage() {
       setCreateForm({
         username: "",
         password: "",
-        name: "",
-        email: "",
         role: "USER",
       });
       fetchUsers();
@@ -277,8 +269,6 @@ export default function UsersPage() {
   const openEditDialog = (user: User) => {
     setSelectedUser(user);
     setEditForm({
-      name: user.name || "",
-      email: user.email || "",
       role: user.role,
       isActive: user.isActive,
     });
@@ -385,30 +375,24 @@ export default function UsersPage() {
                   required
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input
-                    id="name"
-                    value={createForm.name}
-                    onChange={(e) =>
-                      setCreateForm({ ...createForm, name: e.target.value })
-                    }
-                    className="bg-neutral-800 border-neutral-700 text-white"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={createForm.email}
-                    onChange={(e) =>
-                      setCreateForm({ ...createForm, email: e.target.value })
-                    }
-                    className="bg-neutral-800 border-neutral-700 text-white"
-                  />
-                </div>
+              <div>
+                <Label htmlFor="role">Role *</Label>
+                <Select
+                  value={createForm.role}
+                  onValueChange={(value) =>
+                    setCreateForm({ ...createForm, role: value })
+                  }
+                >
+                  <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-neutral-800 border-neutral-700">
+                    <SelectItem value="USER">User</SelectItem>
+                    <SelectItem value="THEME_CREATOR">Theme Creator</SelectItem>
+                    <SelectItem value="ADMIN">Admin</SelectItem>
+                    <SelectItem value="SUPER_ADMIN">Super Admin</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="flex gap-2 justify-end pt-4">
                 <Button
@@ -476,15 +460,7 @@ export default function UsersPage() {
                       className="border-neutral-800 hover:bg-neutral-800/50"
                     >
                       <TableCell>
-                        <div>
-                          <p className="font-medium text-white">{user.username}</p>
-                          {user.name && (
-                            <p className="text-sm text-neutral-500">{user.name}</p>
-                          )}
-                          {user.email && (
-                            <p className="text-xs text-neutral-600">{user.email}</p>
-                          )}
-                        </div>
+                        <p className="font-medium text-white">{user.username}</p>
                       </TableCell>
                       <TableCell>{getRoleBadge(user.role)}</TableCell>
                       <TableCell>
@@ -556,31 +532,6 @@ export default function UsersPage() {
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleUpdateUser} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="edit-name">Full Name</Label>
-                <Input
-                  id="edit-name"
-                  value={editForm.name}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, name: e.target.value })
-                  }
-                  className="bg-neutral-800 border-neutral-700 text-white"
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-email">Email</Label>
-                <Input
-                  id="edit-email"
-                  type="email"
-                  value={editForm.email}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, email: e.target.value })
-                  }
-                  className="bg-neutral-800 border-neutral-700 text-white"
-                />
-              </div>
-            </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="edit-role">Role</Label>

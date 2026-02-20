@@ -31,6 +31,15 @@ export async function GET(request: NextRequest) {
     const themes = await db.theme.findMany({
       where,
       orderBy: { likesCount: "desc" },
+      include: {
+        creator: {
+          select: {
+            id: true,
+            username: true,
+            profileUrl: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json(themes);

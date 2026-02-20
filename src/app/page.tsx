@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,23 +8,19 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import Link from "next/link";
+
+interface Creator {
+  id: string;
+  username: string;
+  profileUrl: string | null;
+}
 
 interface Theme {
   id: string;
@@ -38,6 +34,7 @@ interface Theme {
   viewsCount: number;
   createdAt: string;
   isLiked?: boolean;
+  creator?: Creator | null;
 }
 
 interface Maintainer {
@@ -52,24 +49,9 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [uploadOpen, setUploadOpen] = useState(false);
   const [userToken, setUserToken] = useState<string>("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { toast } = useToast();
-
-  // Upload form state
-  const [uploadForm, setUploadForm] = useState({
-    name: "",
-    creatorName: "",
-    description: "",
-    category: "Dark",
-    themeJson: "",
-  });
-
-  // Drag and drop state
-  const [isDragging, setIsDragging] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Get or create user token
   useEffect(() => {
@@ -192,63 +174,15 @@ export default function Home() {
     }
   };
 
-  const handleUpload = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const applyTheme = (themeId: string) => {
+    // Construct the JSON URL for the theme
+    const jsonUrl = `${window.location.origin}/api/themes/${themeId}/json`;
 
-    try {
-      JSON.parse(uploadForm.themeJson); // Validate JSON
-    } catch {
-      toast({
-        variant: "destructive",
-        title: "Invalid JSON",
-        description: "Please provide valid theme JSON",
-      });
-      return;
-    }
+    // Create the deep link URL
+    const deepLink = `anymex://theme?type=player&url=${encodeURIComponent(jsonUrl)}`;
 
-    try {
-      const response = await fetch("/api/themes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(uploadForm),
-      });
-
-      if (!response.ok) throw new Error("Failed to upload theme");
-
-      const newTheme = await response.json();
-      setThemes([newTheme, ...themes]);
-      setUploadOpen(false);
-      setUploadForm({
-        name: "",
-        creatorName: "",
-        description: "",
-        category: "Dark",
-        themeJson: "",
-      });
-      setSelectedFile(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-
-      toast({
-        title: "Theme uploaded successfully! 🎉",
-        description: "Your theme is now live",
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to upload theme",
-      });
-    }
-  };
-
-  const applyTheme = (themeJson: string) => {
-    console.log("Applying theme:", themeJson);
-    toast({
-      title: "Theme applied! ✨",
-      description: "The theme has been applied to your player",
-    });
+    // Open the deep link
+    window.location.href = deepLink;
   };
 
   const downloadJson = (theme: Theme) => {
@@ -261,95 +195,6 @@ export default function Home() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  };
-
-  // File handling functions
-  const processFile = (file: File) => {
-    if (file.type !== "application/json" && !file.name.endsWith(".json")) {
-      toast({
-        variant: "destructive",
-        title: "Invalid file type",
-        description: "Please upload a JSON file",
-      });
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const content = e.target?.result as string;
-      try {
-        const json = JSON.parse(content);
-
-        // Auto-fill form fields if possible
-        const updatedForm = { ...uploadForm, themeJson: content };
-
-        if (json.name && !uploadForm.name) {
-          updatedForm.name = json.name;
-        }
-
-        if (json.creatorName && !uploadForm.creatorName) {
-          updatedForm.creatorName = json.creatorName;
-        }
-
-        if (json.description && !uploadForm.description) {
-          updatedForm.description = json.description;
-        }
-
-        setUploadForm(updatedForm);
-        setSelectedFile(file);
-
-        toast({
-          title: "File uploaded successfully! 📁",
-          description: `${file.name} has been loaded`,
-        });
-      } catch {
-        toast({
-          variant: "destructive",
-          title: "Invalid JSON",
-          description: "The file contains invalid JSON",
-        });
-      }
-    };
-    reader.readAsText(file);
-  };
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      processFile(file);
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-
-    const file = e.dataTransfer.files[0];
-    if (file) {
-      processFile(file);
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const openFileDialog = () => {
-    fileInputRef.current?.click();
-  };
-
-  const clearFile = () => {
-    setSelectedFile(null);
-    setUploadForm({ ...uploadForm, themeJson: "" });
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
   };
 
   // Fetch maintainers
@@ -428,178 +273,6 @@ export default function Home() {
                 <Icon icon="solar:login-3-linear" width={16} />
                 Admin
               </a>
-              <Dialog
-                open={uploadOpen}
-                onOpenChange={(open) => {
-                  setUploadOpen(open);
-                  if (!open) {
-                    setSelectedFile(null);
-                    if (fileInputRef.current) {
-                      fileInputRef.current.value = "";
-                    }
-                  }
-                }}
-              >
-                <DialogTrigger asChild>
-                  <button className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors">
-                    Upload
-                  </button>
-                </DialogTrigger>
-                <DialogContent className="bg-neutral-900 border-neutral-800 text-neutral-200 max-w-lg">
-                  <DialogHeader>
-                    <DialogTitle className="text-white">Upload Theme</DialogTitle>
-                    <DialogDescription className="text-neutral-400">
-                      Share your custom theme with the community
-                    </DialogDescription>
-                  </DialogHeader>
-                  <form onSubmit={handleUpload} className="space-y-4">
-                    <div>
-                      <Label htmlFor="name">Theme Name</Label>
-                      <Input
-                        id="name"
-                        value={uploadForm.name}
-                        onChange={(e) =>
-                          setUploadForm({ ...uploadForm, name: e.target.value })
-                        }
-                        className="bg-neutral-800 border-neutral-700 text-white"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="creatorName">Creator Name</Label>
-                      <Input
-                        id="creatorName"
-                        value={uploadForm.creatorName}
-                        onChange={(e) =>
-                          setUploadForm({
-                            ...uploadForm,
-                            creatorName: e.target.value,
-                          })
-                        }
-                        className="bg-neutral-800 border-neutral-700 text-white"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="description">Description</Label>
-                      <Textarea
-                        id="description"
-                        value={uploadForm.description}
-                        onChange={(e) =>
-                          setUploadForm({
-                            ...uploadForm,
-                            description: e.target.value,
-                          })
-                        }
-                        className="bg-neutral-800 border-neutral-700 text-white"
-                        rows={3}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="category">Category</Label>
-                      <select
-                        id="category"
-                        value={uploadForm.category}
-                        onChange={(e) =>
-                          setUploadForm({
-                            ...uploadForm,
-                            category: e.target.value,
-                          })
-                        }
-                        className="w-full rounded-md border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white"
-                      >
-                        <option value="Dark">Dark</option>
-                        <option value="Light">Light</option>
-                        <option value="AMOLED">AMOLED</option>
-                      </select>
-                    </div>
-                    <div>
-                      <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleFileSelect}
-                        accept=".json"
-                        className="hidden"
-                      />
-
-                      {/* Drag and Drop Zone */}
-                      <div
-                        onClick={openFileDialog}
-                        onDrop={handleDrop}
-                        onDragOver={handleDragOver}
-                        onDragLeave={handleDragLeave}
-                        className={`relative rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition-all mb-3 ${
-                          isDragging
-                            ? "border-indigo-500 bg-indigo-500/10"
-                            : selectedFile
-                            ? "border-green-500 bg-green-500/10"
-                            : "border-neutral-700 bg-neutral-800/30 hover:border-neutral-600 hover:bg-neutral-800/50"
-                        }`}
-                      >
-                        {selectedFile ? (
-                          <div className="flex items-center justify-center gap-3">
-                            <Icon
-                              icon="solar:file-check-bold"
-                              width={32}
-                              className="text-green-500"
-                            />
-                            <div className="text-left">
-                              <p className="text-sm font-medium text-white">
-                                {selectedFile.name}
-                              </p>
-                              <p className="text-xs text-neutral-400">
-                                {(selectedFile.size / 1024).toFixed(1)} KB
-                              </p>
-                            </div>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                clearFile();
-                              }}
-                              className="ml-auto text-neutral-400 hover:text-white transition-colors"
-                            >
-                              <Icon icon="solar:close-circle-bold" width={20} />
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col items-center gap-2">
-                            <Icon
-                              icon={
-                                isDragging
-                                  ? "solar:file-upload-bold"
-                                  : "solar:upload-minimalistic-linear"
-                              }
-                              width={32}
-                              className={`${isDragging ? "text-indigo-500" : "text-neutral-500"}`}
-                            />
-                            <div>
-                              <p className="text-sm font-medium text-neutral-300">
-                                {isDragging ? "Drop your file here" : "Drag & drop JSON file"}
-                              </p>
-                              <p className="text-xs text-neutral-500 mt-1">
-                                or click to browse
-                              </p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex gap-2 justify-end">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setUploadOpen(false)}
-                        className="border-neutral-700 text-neutral-300 hover:bg-neutral-800"
-                      >
-                        Cancel
-                      </Button>
-                      <Button type="submit" className="bg-neutral-800 text-white hover:bg-neutral-700 border border-neutral-700">
-                        Upload Theme
-                      </Button>
-                    </div>
-                  </form>
-                </DialogContent>
-              </Dialog>
               <div className="h-4 w-px bg-neutral-800 mx-2"></div>
               <a
                 href="https://github.com/RyanYuuki/AnymeX"
@@ -639,12 +312,6 @@ export default function Home() {
                       <Link href="/admin/login" className="cursor-pointer text-neutral-300 hover:text-white">
                         Admin Login
                       </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => setUploadOpen(true)}
-                      className="cursor-pointer text-neutral-300 hover:text-white"
-                    >
-                      Upload Theme
                     </DropdownMenuItem>
                     <DropdownMenuSeparator className="bg-neutral-800" />
                     <DropdownMenuItem asChild>
@@ -778,9 +445,21 @@ export default function Home() {
                         </h3>
                         <div className="flex items-center gap-1 mt-0.5">
                           <span className="text-xs text-neutral-500">by</span>
-                          <span className="text-xs text-neutral-400 hover:text-neutral-200 cursor-pointer hover:underline">
-                            {theme.creatorName}
-                          </span>
+                          {theme.creator?.profileUrl ? (
+                            <a
+                              href={theme.creator.profileUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-xs text-neutral-400 hover:text-neutral-200 cursor-pointer hover:underline"
+                            >
+                              {theme.creatorName}
+                            </a>
+                          ) : (
+                            <span className="text-xs text-neutral-400">
+                              {theme.creatorName}
+                            </span>
+                          )}
                         </div>
                       </div>
                       <button
@@ -801,7 +480,7 @@ export default function Home() {
                       <Button
                         onClick={(e) => {
                           e.stopPropagation();
-                          applyTheme(theme.themeJson);
+                          applyTheme(theme.id);
                         }}
                         className="flex items-center justify-center gap-2 rounded-lg bg-neutral-100 py-2 text-xs font-medium text-black hover:bg-white transition-colors"
                       >
