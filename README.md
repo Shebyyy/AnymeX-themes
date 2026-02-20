@@ -50,29 +50,6 @@ Visit [http://localhost:3000](http://localhost:3000) to see the application.
 
 See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed Vercel deployment instructions.
 
-## 📁 Project Structure
-
-```
-src/
-├── app/                      # Next.js App Router
-│   ├── page.tsx            # Main themes page
-│   ├── docs/page.tsx        # Documentation page
-│   ├── layout.tsx           # Root layout
-│   ├── globals.css           # Global styles
-│   └── api/                # API routes
-│       └── themes/          # Theme CRUD operations
-│           ├── route.ts           # GET themes, POST create
-│           └── [id]/            # Theme operations
-│               ├── like/route.ts   # Like/unlike theme
-│               └── view/route.ts   # Track theme view
-├── components/               # React components
-│   └── ui/               # shadcn/ui components
-├── hooks/                   # Custom React hooks
-├── lib/                     # Utilities
-│   ├── db.ts              # Prisma client
-│   └── utils.ts           # Helper functions
-```
-
 ## 🎨 Theme JSON Structure
 
 ```json
