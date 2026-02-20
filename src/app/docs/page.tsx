@@ -80,7 +80,7 @@ export default function DocsPage() {
                   <span className="text-xl font-bold">2</span>
                 </div>
                 <h3 className="text-base font-medium text-white mb-2">Upload</h3>
-                <p className="text-sm text-400">
+                <p className="text-sm text-neutral-400">
                   Upload your theme JSON through Creator Dashboard
                 </p>
               </div>
@@ -406,7 +406,7 @@ export default function DocsPage() {
             </ul>
             <div className="mt-6 p-4 rounded-lg border border-neutral-800 bg-neutral-950/50">
               <p className="text-sm text-neutral-400 mb-2">
-                <Icon icon="solar:lightbulb-linear" className="inline mr-2 width={16} />
+                <Icon icon="solar:lightbulb-linear" className="inline mr-2" width={16} />
                 <strong>Pro Tip:</strong> Use your GitHub profile URL so users can explore more of your work!
               </p>
             </div>
