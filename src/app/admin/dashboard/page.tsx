@@ -9,6 +9,9 @@ import Link from "next/link";
 
 interface Stats {
   totalUsers: number;
+  themeCreators: number;
+  admins: number;
+  superAdmins: number;
   totalThemes: number;
   pendingThemes: number;
   brokenThemes: number;
@@ -44,8 +47,13 @@ export default function AdminDashboard() {
 
       const themes = themesData.themes || [];
 
+      const users = usersData.users || [];
+
       setStats({
-        totalUsers: usersData.users?.length || 0,
+        totalUsers: users.length,
+        themeCreators: users.filter((u: any) => u.role === "THEME_CREATOR").length,
+        admins: users.filter((u: any) => u.role === "ADMIN").length,
+        superAdmins: users.filter((u: any) => u.role === "SUPER_ADMIN").length,
         totalThemes: themes.length,
         pendingThemes: themes.filter((t: any) => t.status === "PENDING").length,
         brokenThemes: themes.filter((t: any) => t.status === "BROKEN").length,
@@ -71,6 +79,13 @@ export default function AdminDashboard() {
       link: "/admin/users",
     },
     {
+      title: "Theme Creators",
+      value: stats?.themeCreators || 0,
+      icon: "solar:palette-bold",
+      color: "bg-emerald-500/10 text-emerald-500",
+      link: "/admin/users",
+    },
+    {
       title: "Total Themes",
       value: stats?.totalThemes || 0,
       icon: "solar:gallery-wide-bold",
@@ -83,13 +98,6 @@ export default function AdminDashboard() {
       icon: "solar:clock-circle-bold",
       color: "bg-yellow-500/10 text-yellow-500",
       link: "/admin/themes?status=PENDING",
-    },
-    {
-      title: "Broken Themes",
-      value: stats?.brokenThemes || 0,
-      icon: "solar:danger-triangle-bold",
-      color: "bg-red-500/10 text-red-500",
-      link: "/admin/themes?status=BROKEN",
     },
     {
       title: "Approved Themes",
@@ -152,7 +160,7 @@ export default function AdminDashboard() {
           <CardTitle className="text-white">Quick Actions</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
             <Link href="/admin/users?action=create">
               <button className="w-full flex items-center gap-3 p-4 rounded-xl border border-neutral-800 bg-neutral-900/60 hover:border-neutral-700 hover:bg-neutral-800 transition-all">
                 <div className="p-2 rounded-lg bg-green-500/10 text-green-500">
@@ -160,7 +168,31 @@ export default function AdminDashboard() {
                 </div>
                 <div className="text-left">
                   <p className="text-sm font-medium text-white">Create User</p>
-                  <p className="text-xs text-neutral-500">Add new admin user</p>
+                  <p className="text-xs text-neutral-500">Add new admin or creator</p>
+                </div>
+              </button>
+            </Link>
+
+            <Link href="/creator/register">
+              <button className="w-full flex items-center gap-3 p-4 rounded-xl border border-neutral-800 bg-neutral-900/60 hover:border-neutral-700 hover:bg-neutral-800 transition-all">
+                <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500">
+                  <Icon icon="solar:palette-bold" width={20} />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-medium text-white">Add Creator</p>
+                  <p className="text-xs text-neutral-500">Register new theme creator</p>
+                </div>
+              </button>
+            </Link>
+
+            <Link href="/creator/dashboard">
+              <button className="w-full flex items-center gap-3 p-4 rounded-xl border border-neutral-800 bg-neutral-900/60 hover:border-neutral-700 hover:bg-neutral-800 transition-all">
+                <div className="p-2 rounded-lg bg-purple-500/10 text-purple-500">
+                  <Icon icon="solar:gallery-wide-bold" width={20} />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-medium text-white">Creator Hub</p>
+                  <p className="text-xs text-neutral-500">Manage & upload themes</p>
                 </div>
               </button>
             </Link>

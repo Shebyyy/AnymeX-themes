@@ -90,6 +90,18 @@ export default function AdminLayout({
       }
 
       const data = await response.json();
+
+      // Check if user has admin access
+      const role = data.user.role;
+      const isAdmin = role === 'ADMIN' || role === 'SUPER_ADMIN';
+
+      if (!isAdmin) {
+        localStorage.removeItem("admin_token");
+        localStorage.removeItem("admin_user");
+        router.push("/admin/login");
+        return;
+      }
+
       setUser(data.user);
     } catch (error) {
       console.error("Auth check error:", error);
@@ -205,6 +217,11 @@ export default function AdminLayout({
           },
         ]
       : []),
+    {
+      href: "/creator/dashboard",
+      icon: "solar:palette-bold",
+      label: "Creator Hub",
+    },
   ];
 
   return (

@@ -300,6 +300,7 @@ export default function UsersPage() {
     const colors = {
       SUPER_ADMIN: "bg-purple-500/10 text-purple-500 border-purple-500/20",
       ADMIN: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+      THEME_CREATOR: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
       USER: "bg-neutral-500/10 text-neutral-500 border-neutral-500/20",
     };
     return (
@@ -363,6 +364,7 @@ export default function UsersPage() {
                     </SelectTrigger>
                     <SelectContent className="bg-neutral-800 border-neutral-700">
                       <SelectItem value="USER">User</SelectItem>
+                      <SelectItem value="THEME_CREATOR">Theme Creator</SelectItem>
                       <SelectItem value="ADMIN">Admin</SelectItem>
                       <SelectItem value="SUPER_ADMIN">Super Admin</SelectItem>
                     </SelectContent>
@@ -593,6 +595,7 @@ export default function UsersPage() {
                   </SelectTrigger>
                   <SelectContent className="bg-neutral-800 border-neutral-700">
                     <SelectItem value="USER">User</SelectItem>
+                    <SelectItem value="THEME_CREATOR">Theme Creator</SelectItem>
                     <SelectItem value="ADMIN">Admin</SelectItem>
                     <SelectItem value="SUPER_ADMIN">Super Admin</SelectItem>
                   </SelectContent>

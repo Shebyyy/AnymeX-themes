@@ -386,12 +386,36 @@ export default function Home() {
               >
                 Docs
               </a>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors">
+                    <Icon icon="solar:palette-bold" width={16} />
+                Creator Hub
+                    <Icon icon="solar:alt-arrow-down-linear" width={14} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-neutral-900 border-neutral-800 min-w-[160px]">
+                  <DropdownMenuItem asChild>
+                    <Link href="/creator/login" className="cursor-pointer">
+                      Sign In
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/creator/register" className="cursor-pointer">
+                      <span className="flex items-center gap-2">
+                        <Icon icon="solar:user-plus-bold" width={14} />
+                      Register
+                      </span>
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <a
                 href="/admin/login"
                 className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
               >
                 <Icon icon="solar:login-3-linear" width={16} />
-                Login
+                Admin
               </a>
               <Dialog
                 open={uploadOpen}

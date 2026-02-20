@@ -265,11 +265,19 @@ export default function CreatorDashboard() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">
-            {canEditAll ? "All Themes" : "My Themes"}
-          </h1>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-3xl font-bold text-white">
+              {canEditAll ? "All Themes" : "My Themes"}
+            </h1>
+            {canEditAll && (
+              <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20">
+                <Icon icon="solar:shield-check-bold" width={14} className="mr-1" />
+                Admin View
+              </Badge>
+            )}
+          </div>
           <p className="text-neutral-400">
-            {canEditAll 
+            {canEditAll
               ? "Manage all themes in the platform"
               : "Upload and manage your custom themes"
             }
