@@ -1,3 +1,16 @@
+-- Create Enum Types
+DO $$ BEGIN
+    CREATE TYPE "UserRole" AS ENUM ('USER', 'ADMIN', 'SUPER_ADMIN');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE "ThemeStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED', 'BROKEN');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
 -- Drop Post table (not needed)
 DROP TABLE IF EXISTS "Post";
 
@@ -9,7 +22,7 @@ CREATE TABLE "User" (
     "email" TEXT,
     "name" TEXT,
     "passwordHash" TEXT NOT NULL,
-    "role" TEXT NOT NULL DEFAULT 'USER',
+    "role" "UserRole" NOT NULL DEFAULT 'USER',
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -21,12 +34,12 @@ CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- Add new columns to Theme table
-ALTER TABLE "Theme" ADD COLUMN "status" TEXT NOT NULL DEFAULT 'PENDING';
+ALTER TABLE "Theme" ADD COLUMN "status" "ThemeStatus" NOT NULL DEFAULT 'PENDING';
 ALTER TABLE "Theme" ADD COLUMN "createdBy" TEXT;
 
 -- Create indexes for Theme
-CREATE INDEX "Theme_creatorName_idx" ON "Theme"("creatorName");
-CREATE INDEX "Theme_category_idx" ON "Theme"("category");
+CREATE INDEX IF NOT EXISTS "Theme_creatorName_idx" ON "Theme"("creatorName");
+CREATE INDEX IF NOT EXISTS "Theme_category_idx" ON "Theme"("category");
 
 -- Create PasswordReset table
 CREATE TABLE "PasswordReset" (
