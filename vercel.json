@@ -3,6 +3,6 @@
   "outputDirectory": ".next",
   "framework": "nextjs",
   "env": {
-    "DATABASE_URL": "@postgres-url"
+    "DATABASE_URL": "@DATABASE_URL"
   }
 }
