@@ -1,5 +1,5 @@
 {
-  "buildCommand": "bun run build",
+  "buildCommand": "prisma generate && bun run build",
   "outputDirectory": ".next",
   "framework": "nextjs"
 }
