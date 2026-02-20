@@ -13,9 +13,13 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "@iconify/react": "^5.0.0",
+    "@radix-ui/react-dialog": "^1.0.0",
+    "@radix-ui/react-label": "^2.0.0",
     "@radix-ui/react-slot": "^1.0.0",
+    "@radix-ui/react-toast": "^1.0.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
+    "lucide-react": "^0.400.0",
     "tailwind-merge": "^2.0.0"
   },
   "devDependencies": {
