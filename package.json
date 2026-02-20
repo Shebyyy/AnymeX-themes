@@ -21,7 +21,8 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "lucide-react": "^0.400.0",
-    "tailwind-merge": "^2.0.0"
+    "tailwind-merge": "^2.0.0",
+    "tw-animate-css": "^1.0.0"
   },
   "devDependencies": {
     "typescript": "^5.0.0",
