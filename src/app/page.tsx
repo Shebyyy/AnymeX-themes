@@ -382,7 +382,7 @@ export default function Home() {
             <div className="flex items-center gap-1">
               <a
                 href="/docs"
-                className="hidden sm:flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
               >
                 Docs
               </a>
@@ -399,7 +399,7 @@ export default function Home() {
                 }}
               >
                 <DialogTrigger asChild>
-                  <button className="hidden sm:flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors">
+                  <button className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors">
                     Upload
                   </button>
                 </DialogTrigger>
