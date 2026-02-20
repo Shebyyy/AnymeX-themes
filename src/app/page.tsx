@@ -20,6 +20,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -53,6 +54,7 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [uploadOpen, setUploadOpen] = useState(false);
   const [userToken, setUserToken] = useState<string>("");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { toast } = useToast();
 
   // Upload form state
@@ -387,6 +389,8 @@ export default function Home() {
 
             {/* Right Actions */}
             <div className="flex items-center gap-1">
+              {/* Desktop Navigation */}
+              <div className="hidden md:flex items-center gap-1">
               <a
                 href="/docs"
                 className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
@@ -605,6 +609,57 @@ export default function Home() {
               >
                 Get App
               </a>
+              </div>
+
+              {/* Mobile Menu */}
+              <div className="flex md:hidden">
+                <DropdownMenu open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors">
+                      <Icon icon="solar:hamburger-menu-linear" width={20} />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="bg-neutral-900 border-neutral-800 min-w-[200px]">
+                    <DropdownMenuItem asChild>
+                      <Link href="/docs" className="cursor-pointer">
+                        Docs
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/creator/login" className="cursor-pointer">
+                        Creator Hub
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/creator/register" className="cursor-pointer">
+                        Register as Creator
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin/login" className="cursor-pointer">
+                        Admin Login
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setUploadOpen(true)}
+                      className="cursor-pointer"
+                    >
+                      Upload Theme
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="bg-neutral-800" />
+                    <DropdownMenuItem asChild>
+                      <a
+                        href="https://github.com/RyanYuuki/AnymeX"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="cursor-pointer font-semibold text-white"
+                      >
+                        Get App
+                      </a>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
           </div>
         </div>

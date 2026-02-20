@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,7 +46,7 @@ interface Theme {
   viewsCount: number;
   createdAt: string;
   themeJson: string;
-  previewData: string | null;
+  creatorName: string | null;
 }
 
 export default function CreatorDashboard() {
@@ -65,9 +65,13 @@ export default function CreatorDashboard() {
     description: "",
     category: "",
     themeJson: "",
-    previewData: "",
   });
   const [creating, setCreating] = useState(false);
+
+  // Create dialog file upload
+  const [isDraggingCreate, setIsDraggingCreate] = useState(false);
+  const [selectedFileCreate, setSelectedFileCreate] = useState<File | null>(null);
+  const fileInputCreateRef = useRef<HTMLInputElement>(null);
 
   // Edit form
   const [editForm, setEditForm] = useState({
@@ -75,10 +79,14 @@ export default function CreatorDashboard() {
     description: "",
     category: "",
     themeJson: "",
-    previewData: "",
   });
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  // Edit dialog file upload
+  const [isDraggingEdit, setIsDraggingEdit] = useState(false);
+  const [selectedFileEdit, setSelectedFileEdit] = useState<File | null>(null);
+  const fileInputEditRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchThemes();
@@ -139,8 +147,11 @@ export default function CreatorDashboard() {
         description: "",
         category: "",
         themeJson: "",
-        previewData: "",
       });
+      setSelectedFileCreate(null);
+      if (fileInputCreateRef.current) {
+        fileInputCreateRef.current.value = "";
+      }
       fetchThemes();
     } catch (error) {
       toast({
@@ -233,8 +244,11 @@ export default function CreatorDashboard() {
       description: theme.description || "",
       category: theme.category || "",
       themeJson: theme.themeJson,
-      previewData: theme.previewData || "",
     });
+    setSelectedFileEdit(null);
+    if (fileInputEditRef.current) {
+      fileInputEditRef.current.value = "";
+    }
     setEditDialogOpen(true);
   };
 
@@ -258,6 +272,188 @@ export default function CreatorDashboard() {
         {status}
       </Badge>
     );
+  };
+
+  // File handling for create dialog
+  const processFileCreate = (file: File) => {
+    if (file.type !== "application/json" && !file.name.endsWith(".json")) {
+      toast({
+        variant: "destructive",
+        title: "Invalid file type",
+        description: "Please upload a JSON file",
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      try {
+        const json = JSON.parse(content);
+
+        // Auto-fill form fields if possible
+        const updatedForm = { ...createForm, themeJson: content };
+
+        if (json.name && !createForm.name) {
+          updatedForm.name = json.name;
+        }
+
+        if (json.creatorName) {
+          // creatorName is not stored in the form, but we could log it
+        }
+
+        if (json.description && !createForm.description) {
+          updatedForm.description = json.description;
+        }
+
+        if (json.category && !createForm.category) {
+          updatedForm.category = json.category;
+        }
+
+        setCreateForm(updatedForm);
+        setSelectedFileCreate(file);
+
+        toast({
+          title: "File uploaded successfully! 📁",
+          description: `${file.name} has been loaded`,
+        });
+      } catch {
+        toast({
+          variant: "destructive",
+          title: "Invalid JSON",
+          description: "The file contains invalid JSON",
+        });
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleFileSelectCreate = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processFileCreate(file);
+    }
+  };
+
+  const handleDropCreate = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDraggingCreate(false);
+
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      processFileCreate(file);
+    }
+  };
+
+  const handleDragOverCreate = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDraggingCreate(true);
+  };
+
+  const handleDragLeaveCreate = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDraggingCreate(false);
+  };
+
+  const openFileDialogCreate = () => {
+    fileInputCreateRef.current?.click();
+  };
+
+  const clearFileCreate = () => {
+    setSelectedFileCreate(null);
+    setCreateForm({ ...createForm, themeJson: "" });
+    if (fileInputCreateRef.current) {
+      fileInputCreateRef.current.value = "";
+    }
+  };
+
+  // File handling for edit dialog
+  const processFileEdit = (file: File) => {
+    if (file.type !== "application/json" && !file.name.endsWith(".json")) {
+      toast({
+        variant: "destructive",
+        title: "Invalid file type",
+        description: "Please upload a JSON file",
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      try {
+        const json = JSON.parse(content);
+
+        // Auto-fill form fields if possible
+        const updatedForm = { ...editForm, themeJson: content };
+
+        if (json.name && !editForm.name) {
+          updatedForm.name = json.name;
+        }
+
+        if (json.description && !editForm.description) {
+          updatedForm.description = json.description;
+        }
+
+        if (json.category && !editForm.category) {
+          updatedForm.category = json.category;
+        }
+
+        setEditForm(updatedForm);
+        setSelectedFileEdit(file);
+
+        toast({
+          title: "File uploaded successfully! 📁",
+          description: `${file.name} has been loaded`,
+        });
+      } catch {
+        toast({
+          variant: "destructive",
+          title: "Invalid JSON",
+          description: "The file contains invalid JSON",
+        });
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleFileSelectEdit = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processFileEdit(file);
+    }
+  };
+
+  const handleDropEdit = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDraggingEdit(false);
+
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      processFileEdit(file);
+    }
+  };
+
+  const handleDragOverEdit = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDraggingEdit(true);
+  };
+
+  const handleDragLeaveEdit = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDraggingEdit(false);
+  };
+
+  const openFileDialogEdit = () => {
+    fileInputEditRef.current?.click();
+  };
+
+  const clearFileEdit = () => {
+    setSelectedFileEdit(null);
+    setEditForm({ ...editForm, themeJson: "" });
+    if (fileInputEditRef.current) {
+      fileInputEditRef.current.value = "";
+    }
   };
 
   return (
@@ -285,12 +481,12 @@ export default function CreatorDashboard() {
         </div>
         <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600">
+            <Button className="bg-white text-black hover:bg-neutral-200">
               <Icon icon="solar:add-circle-bold" width={18} className="mr-2" />
               Upload Theme
             </Button>
           </DialogTrigger>
-          <DialogContent className="bg-slate-900 border-purple-900/30 text-neutral-200 max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="bg-neutral-900 border-neutral-800 text-neutral-200 max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-white">Upload New Theme</DialogTitle>
               <DialogDescription className="text-neutral-400">
@@ -306,7 +502,7 @@ export default function CreatorDashboard() {
                   onChange={(e) =>
                     setCreateForm({ ...createForm, name: e.target.value })
                   }
-                  className="bg-slate-800/50 border-purple-900/30 text-white mt-2"
+                  className="bg-neutral-800 border-neutral-700 text-white mt-2"
                   required
                 />
               </div>
@@ -318,7 +514,7 @@ export default function CreatorDashboard() {
                   onChange={(e) =>
                     setCreateForm({ ...createForm, description: e.target.value })
                   }
-                  className="bg-slate-800/50 border-purple-900/30 text-white mt-2 min-h-[100px]"
+                  className="bg-neutral-800 border-neutral-700 text-white mt-2 min-h-[100px]"
                   placeholder="Describe your theme..."
                 />
               </div>
@@ -331,10 +527,10 @@ export default function CreatorDashboard() {
                       setCreateForm({ ...createForm, category: value })
                     }
                   >
-                    <SelectTrigger className="bg-slate-800/50 border-purple-900/30 text-white mt-2">
+                    <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white mt-2">
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-purple-900/30">
+                    <SelectContent className="bg-neutral-800 border-neutral-700">
                       <SelectItem value="Dark">Dark</SelectItem>
                       <SelectItem value="Light">Light</SelectItem>
                       <SelectItem value="AMOLED">AMOLED</SelectItem>
@@ -343,43 +539,92 @@ export default function CreatorDashboard() {
                 </div>
               </div>
               <div>
-                <Label htmlFor="themeJson">Theme JSON *</Label>
-                <Textarea
-                  id="themeJson"
-                  value={createForm.themeJson}
-                  onChange={(e) =>
-                    setCreateForm({ ...createForm, themeJson: e.target.value })
-                  }
-                  className="bg-slate-800/50 border-purple-900/30 text-white mt-2 min-h-[200px] font-mono text-sm"
-                  placeholder='{"colors": {"primary": "#..."}, ...}'
-                  required
+                <input
+                  type="file"
+                  ref={fileInputCreateRef}
+                  onChange={handleFileSelectCreate}
+                  accept=".json"
+                  className="hidden"
                 />
-              </div>
-              <div>
-                <Label htmlFor="previewData">Preview JSON (Optional)</Label>
-                <Textarea
-                  id="previewData"
-                  value={createForm.previewData}
-                  onChange={(e) =>
-                    setCreateForm({ ...createForm, previewData: e.target.value })
-                  }
-                  className="bg-slate-800/50 border-purple-900/30 text-white mt-2 min-h-[150px] font-mono text-sm"
-                  placeholder='Preview data for theme showcase...'
-                />
+
+                {/* Drag and Drop Zone */}
+                <div
+                  onClick={openFileDialogCreate}
+                  onDrop={handleDropCreate}
+                  onDragOver={handleDragOverCreate}
+                  onDragLeave={handleDragLeaveCreate}
+                  className={`relative rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition-all mb-3 ${
+                    isDraggingCreate
+                      ? "border-blue-500 bg-blue-500/10"
+                      : selectedFileCreate
+                      ? "border-green-500 bg-green-500/10"
+                      : "border-neutral-700 bg-neutral-800 hover:border-neutral-600 hover:bg-neutral-800"
+                  }`}
+                >
+                  {selectedFileCreate ? (
+                    <div className="flex items-center justify-center gap-3">
+                      <Icon
+                        icon="solar:file-check-bold"
+                        width={32}
+                        className="text-green-500"
+                      />
+                      <div className="text-left">
+                        <p className="text-sm font-medium text-white">
+                          {selectedFileCreate.name}
+                        </p>
+                        <p className="text-xs text-neutral-400">
+                          {(selectedFileCreate.size / 1024).toFixed(1)} KB
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          clearFileCreate();
+                        }}
+                        className="ml-auto text-neutral-400 hover:text-white transition-colors"
+                      >
+                        <Icon icon="solar:close-circle-bold" width={20} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <Icon
+                        icon={
+                          isDraggingCreate
+                            ? "solar:file-upload-bold"
+                            : "solar:upload-minimalistic-linear"
+                        }
+                        width={32}
+                        className={`${
+                          isDraggingCreate ? "text-blue-500" : "text-neutral-400"
+                        }`}
+                      />
+                      <div>
+                        <p className="text-sm font-medium text-neutral-300">
+                          {isDraggingCreate ? "Drop your file here" : "Drag & drop JSON file"}
+                        </p>
+                        <p className="text-xs text-neutral-500 mt-1">
+                          or click to browse
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="flex gap-2 justify-end pt-4">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setCreateDialogOpen(false)}
-                  className="border-purple-900/30 text-neutral-300 hover:bg-purple-900/20"
+                  className="border-neutral-700 text-neutral-300 hover:bg-neutral-800"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={creating}
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
+                  className="bg-white text-black hover:bg-neutral-200"
                 >
                   {creating ? "Uploading..." : "Upload Theme"}
                 </Button>
@@ -393,7 +638,7 @@ export default function CreatorDashboard() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Card key={i} className="bg-slate-900/40 border-purple-900/30">
+            <Card key={i} className="bg-neutral-900/40 border-neutral-800">
               <div className="p-6 space-y-4">
                 <Skeleton className="h-6 w-3/4" />
                 <Skeleton className="h-4 w-1/2" />
@@ -404,10 +649,10 @@ export default function CreatorDashboard() {
           ))}
         </div>
       ) : themes.length === 0 ? (
-        <Card className="bg-slate-900/40 border-purple-900/30 p-12 text-center">
+        <Card className="bg-neutral-900/40 border-neutral-800 p-12 text-center">
           <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 rounded-full bg-purple-500/10 flex items-center justify-center">
-              <Icon icon="solar:gallery-wide-linear" className="text-purple-500" width={32} />
+            <div className="w-16 h-16 rounded-full bg-neutral-800 flex items-center justify-center">
+              <Icon icon="solar:gallery-wide-linear" className="text-neutral-400" width={32} />
             </div>
           </div>
           <h3 className="text-xl font-semibold text-white mb-2">No themes yet</h3>
@@ -420,7 +665,7 @@ export default function CreatorDashboard() {
           {!canEditAll && (
             <Button
               onClick={() => setCreateDialogOpen(true)}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+              className="bg-white text-black hover:bg-neutral-200"
             >
               <Icon icon="solar:add-circle-bold" width={18} className="mr-2" />
               Upload Your First Theme
@@ -432,7 +677,7 @@ export default function CreatorDashboard() {
           {themes.map((theme) => (
             <Card
               key={theme.id}
-              className="bg-slate-900/40 border-purple-900/30 hover:border-purple-500/50 transition-all"
+              className="bg-neutral-900/40 border-neutral-800 hover:border-neutral-700 transition-all"
             >
               <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
@@ -474,7 +719,7 @@ export default function CreatorDashboard() {
                     variant="outline"
                     size="sm"
                     onClick={() => openEditDialog(theme)}
-                    className="flex-1 border-purple-900/30 text-neutral-300 hover:text-white hover:bg-purple-900/20"
+                    className="flex-1 border-neutral-700 text-neutral-300 hover:text-white hover:bg-neutral-800"
                   >
                     <Icon icon="solar:pen-bold" width={16} className="mr-2" />
                     Edit
@@ -483,13 +728,13 @@ export default function CreatorDashboard() {
                     variant="outline"
                     size="sm"
                     onClick={() => openDeleteDialog(theme)}
-                    className="border-red-900/30 text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                    className="border-red-700 text-red-400 hover:text-red-300 hover:bg-red-900/20"
                   >
                     <Icon icon="solar:trash-bin-minimalistic-bold" width={16} />
                   </Button>
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-purple-900/30">
+                <div className="mt-4 pt-4 border-t border-neutral-800">
                   <p className="text-xs text-neutral-600">
                     Uploaded {new Date(theme.createdAt).toLocaleDateString()}
                   </p>
@@ -502,7 +747,7 @@ export default function CreatorDashboard() {
 
       {/* Edit Theme Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="bg-slate-900 border-purple-900/30 text-neutral-200 max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-neutral-900 border-neutral-800 text-neutral-200 max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-white">Edit Theme</DialogTitle>
             <DialogDescription className="text-neutral-400">
@@ -518,7 +763,7 @@ export default function CreatorDashboard() {
                 onChange={(e) =>
                   setEditForm({ ...editForm, name: e.target.value })
                 }
-                className="bg-slate-800/50 border-purple-900/30 text-white mt-2"
+                className="bg-neutral-800 border-neutral-700 text-white mt-2"
                 required
               />
             </div>
@@ -530,7 +775,7 @@ export default function CreatorDashboard() {
                 onChange={(e) =>
                   setEditForm({ ...editForm, description: e.target.value })
                 }
-                className="bg-slate-800/50 border-purple-900/30 text-white mt-2 min-h-[100px]"
+                className="bg-neutral-800 border-neutral-700 text-white mt-2 min-h-[100px]"
               />
             </div>
             <div>
@@ -541,10 +786,10 @@ export default function CreatorDashboard() {
                   setEditForm({ ...editForm, category: value })
                 }
               >
-                <SelectTrigger className="bg-slate-800/50 border-purple-900/30 text-white mt-2">
+                <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white mt-2">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-purple-900/30">
+                <SelectContent className="bg-neutral-800 border-neutral-700">
                   <SelectItem value="Dark">Dark</SelectItem>
                   <SelectItem value="Light">Light</SelectItem>
                   <SelectItem value="AMOLED">AMOLED</SelectItem>
@@ -552,40 +797,92 @@ export default function CreatorDashboard() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="edit-themeJson">Theme JSON</Label>
-              <Textarea
-                id="edit-themeJson"
-                value={editForm.themeJson}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, themeJson: e.target.value })
-                }
-                className="bg-slate-800/50 border-purple-900/30 text-white mt-2 min-h-[200px] font-mono text-sm"
+              <input
+                type="file"
+                ref={fileInputEditRef}
+                onChange={handleFileSelectEdit}
+                accept=".json"
+                className="hidden"
               />
-            </div>
-            <div>
-              <Label htmlFor="edit-previewData">Preview JSON</Label>
-              <Textarea
-                id="edit-previewData"
-                value={editForm.previewData}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, previewData: e.target.value })
-                }
-                className="bg-slate-800/50 border-purple-900/30 text-white mt-2 min-h-[150px] font-mono text-sm"
-              />
+
+              {/* Drag and Drop Zone */}
+              <div
+                onClick={openFileDialogEdit}
+                onDrop={handleDropEdit}
+                onDragOver={handleDragOverEdit}
+                onDragLeave={handleDragLeaveEdit}
+                className={`relative rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition-all mb-3 ${
+                  isDraggingEdit
+                    ? "border-blue-500 bg-blue-500/10"
+                    : selectedFileEdit
+                    ? "border-green-500 bg-green-500/10"
+                    : "border-neutral-700 bg-neutral-800 hover:border-neutral-600 hover:bg-neutral-800"
+                }`}
+              >
+                {selectedFileEdit ? (
+                  <div className="flex items-center justify-center gap-3">
+                    <Icon
+                      icon="solar:file-check-bold"
+                      width={32}
+                      className="text-green-500"
+                    />
+                    <div className="text-left">
+                      <p className="text-sm font-medium text-white">
+                        {selectedFileEdit.name}
+                      </p>
+                      <p className="text-xs text-neutral-400">
+                        {(selectedFileEdit.size / 1024).toFixed(1)} KB
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        clearFileEdit();
+                      }}
+                      className="ml-auto text-neutral-400 hover:text-white transition-colors"
+                    >
+                      <Icon icon="solar:close-circle-bold" width={20} />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-2">
+                    <Icon
+                      icon={
+                        isDraggingEdit
+                          ? "solar:file-upload-bold"
+                          : "solar:upload-minimalistic-linear"
+                      }
+                      width={32}
+                      className={`${
+                        isDraggingEdit ? "text-blue-500" : "text-neutral-400"
+                      }`}
+                    />
+                    <div>
+                      <p className="text-sm font-medium text-neutral-300">
+                        {isDraggingEdit ? "Drop your file here" : "Drag & drop JSON file"}
+                      </p>
+                      <p className="text-xs text-neutral-500 mt-1">
+                        or click to browse
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="flex gap-2 justify-end pt-4">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setEditDialogOpen(false)}
-                className="border-purple-900/30 text-neutral-300 hover:bg-purple-900/20"
+                className="border-neutral-700 text-neutral-300 hover:bg-neutral-800"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={editing}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
+                className="bg-white text-black hover:bg-neutral-200"
               >
                 {editing ? "Saving..." : "Save Changes"}
               </Button>
@@ -596,7 +893,7 @@ export default function CreatorDashboard() {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className="bg-slate-900 border-purple-900/30 text-neutral-200">
+        <AlertDialogContent className="bg-neutral-900 border-neutral-800 text-neutral-200">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">
               Delete Theme
@@ -607,7 +904,7 @@ export default function CreatorDashboard() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-purple-900/30 text-neutral-300 hover:bg-purple-900/20">
+            <AlertDialogCancel className="border-neutral-700 text-neutral-300 hover:bg-neutral-800">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction

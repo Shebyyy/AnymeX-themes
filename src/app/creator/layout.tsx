@@ -115,7 +115,7 @@ export default function CreatorLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-950 via-slate-900 to-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
         <Icon icon="solar:loading-circle-linear" className="animate-spin text-white" width={48} />
       </div>
     );
@@ -138,13 +138,13 @@ export default function CreatorLayout({
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-950 via-slate-900 to-slate-950 text-neutral-300 font-sans antialiased">
+    <div className="min-h-screen bg-neutral-950 text-neutral-300 font-sans antialiased">
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 bottom-0 w-64 border-r border-purple-900/30 bg-slate-900/80 backdrop-blur-xl z-40 hidden lg:block">
+      <aside className="fixed left-0 top-0 bottom-0 w-64 border-r border-neutral-800 bg-neutral-900/60 backdrop-blur-xl z-40 hidden lg:block">
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="flex items-center gap-2 p-6 border-b border-purple-900/30">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+          <div className="flex items-center gap-2 p-6 border-b border-neutral-800">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black">
               <Icon icon="solar:gallery-wide-linear" width={18} />
             </div>
             <span className="text-sm font-semibold tracking-tight text-white">
@@ -162,8 +162,8 @@ export default function CreatorLayout({
                   href={item.href}
                   className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     isActive
-                      ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-white border border-purple-500/30"
-                      : "text-neutral-400 hover:text-white hover:bg-purple-900/20"
+                      ? "bg-white text-black"
+                      : "text-neutral-400 hover:text-white hover:bg-neutral-800"
                   }`}
                 >
                   <Icon icon={item.icon} width={18} />
@@ -174,14 +174,14 @@ export default function CreatorLayout({
           </nav>
 
           {/* User Section */}
-          <div className="p-4 border-t border-purple-900/30">
+          <div className="p-4 border-t border-neutral-800">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start gap-3 text-neutral-300 hover:text-white hover:bg-purple-900/20"
+                  className="w-full justify-start gap-3 text-neutral-300 hover:text-white hover:bg-neutral-800"
                 >
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-neutral-800 text-white">
                     <Icon icon="solar:user-linear" width={18} />
                   </div>
                   <div className="flex-1 text-left">
@@ -193,14 +193,14 @@ export default function CreatorLayout({
                   <Icon icon="solar:alt-arrow-down-linear" width={16} />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-slate-900 border-purple-900/30">
+              <DropdownMenuContent align="end" className="w-56 bg-neutral-900 border-neutral-800">
                 <DropdownMenuLabel className="text-neutral-200">
                   My Account
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-purple-900/30" />
+                <DropdownMenuSeparator className="bg-neutral-800" />
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className="text-red-400 hover:text-red-300 hover:bg-purple-900/20 cursor-pointer"
+                  className="text-red-400 hover:text-red-300 hover:bg-neutral-800 cursor-pointer"
                 >
                   <Icon icon="solar:logout-2-linear" width={16} className="mr-2" />
                   Logout
@@ -214,10 +214,10 @@ export default function CreatorLayout({
       {/* Main Content */}
       <div className="lg:pl-64">
         {/* Mobile Header */}
-        <header className="sticky top-0 z-30 border-b border-purple-900/30 bg-slate-900/80 backdrop-blur-xl lg:hidden">
+        <header className="sticky top-0 z-30 border-b border-neutral-800 bg-neutral-900/80 backdrop-blur-xl lg:hidden">
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black">
                 <Icon icon="solar:gallery-wide-linear" width={18} />
               </div>
               <span className="text-sm font-semibold tracking-tight text-white">
@@ -230,13 +230,13 @@ export default function CreatorLayout({
                   <Icon icon="solar:hamburger-menu-linear" width={24} />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-slate-900 border-purple-900/30">
+              <DropdownMenuContent align="end" className="w-56 bg-neutral-900 border-neutral-800">
                 {navItems.map((item) => (
                   <DropdownMenuItem key={item.href} asChild>
                     <Link
                       href={item.href}
-                      className={`text-neutral-300 hover:text-white hover:bg-purple-900/20 cursor-pointer flex items-center gap-2 ${
-                        pathname === item.href ? "bg-purple-900/20" : ""
+                      className={`text-neutral-300 hover:text-white hover:bg-neutral-800 cursor-pointer flex items-center gap-2 ${
+                        pathname === item.href ? "bg-neutral-800" : ""
                       }`}
                     >
                       <Icon icon={item.icon} width={16} />
@@ -244,10 +244,10 @@ export default function CreatorLayout({
                     </Link>
                   </DropdownMenuItem>
                 ))}
-                <DropdownMenuSeparator className="bg-purple-900/30" />
+                <DropdownMenuSeparator className="bg-neutral-800" />
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className="text-red-400 hover:text-red-300 hover:bg-purple-900/20 cursor-pointer"
+                  className="text-red-400 hover:text-red-300 hover:bg-neutral-800 cursor-pointer"
                 >
                   <Icon icon="solar:logout-2-linear" width={16} className="mr-2" />
                   Logout
