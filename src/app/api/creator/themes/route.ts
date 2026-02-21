@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { validateSession } from '@/lib/auth';
+import {
+  postToDiscord,
+  generateDiscordPostContent,
+  generateDiscordPostTitle,
+  sendModLog,
+} from '@/lib/discord';
 
 // GET /api/creator/themes - List themes (own themes for creators, all for admins)
 export async function GET(request: NextRequest) {
@@ -97,11 +103,18 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, description, themeJson, category, previewData } = body;
+    const { name, description, themeJson, category, previewData, previewImage } = body;
 
     if (!name || !themeJson) {
       return NextResponse.json(
         { error: 'Name and theme JSON are required' },
+        { status: 400 }
+      );
+    }
+
+    if (!previewImage) {
+      return NextResponse.json(
+        { error: 'Preview image is required for Discord posting' },
         { status: 400 }
       );
     }
@@ -144,12 +157,63 @@ export async function POST(request: NextRequest) {
         creatorName: currentUser.username,
         category: category || null,
         previewData: previewData || null,
+        previewImage: previewImage || null,
         status: isAdmin ? 'APPROVED' : 'PENDING',
         createdBy: currentUser.id,
       },
     });
 
-    return NextResponse.json({ success: true, theme }, { status: 201 });
+    // Post to Discord - all themes are posted directly without approval
+    let discordPostId = null;
+    if (themeId && previewImage) {
+      try {
+        const discordResult = await postToDiscord({
+          title: generateDiscordPostTitle(name, currentUser.username),
+          content: generateDiscordPostContent(
+            name,
+            themeId,
+            description,
+            currentUser.username,
+            `${process.env.NEXT_PUBLIC_APP_URL || 'https://anymex-themes.vercel.app'}/themes/${themeId}`
+          ),
+          imageUrl: previewImage.startsWith('http') ? previewImage : `${process.env.NEXT_PUBLIC_APP_URL || ''}${previewImage}`,
+        });
+
+        if (discordResult.success && discordResult.threadId) {
+          discordPostId = discordResult.threadId;
+          // Update theme with Discord post ID
+          await db.theme.update({
+            where: { id: theme.id },
+            data: { discordPostId },
+          });
+        }
+      } catch (discordError) {
+        console.error('Failed to post to Discord:', discordError);
+        // Don't fail the request if Discord posting fails
+      }
+    }
+
+    // Send mod log
+    try {
+      await sendModLog({
+        action: 'THEME_CREATED',
+        userId: currentUser.id,
+        username: currentUser.username,
+        userRole: currentUser.role,
+        themeId: theme.themeId,
+        themeName: theme.name,
+        details: {
+          Category: category || 'N/A',
+          Status: theme.status,
+          'Discord Posted': discordPostId ? 'Yes' : 'No',
+        },
+      });
+    } catch (logError) {
+      console.error('Failed to send mod log:', logError);
+      // Don't fail the request if mod log fails
+    }
+
+    return NextResponse.json({ success: true, theme, discordPosted: !!discordPostId }, { status: 201 });
   } catch (error) {
     console.error('Create theme error:', error);
     return NextResponse.json(

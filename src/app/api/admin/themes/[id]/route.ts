@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { validateSession } from '@/lib/auth';
+import { deleteDiscordPost, sendModLog } from '@/lib/discord';
 
 export async function DELETE(
   request: NextRequest,
@@ -37,9 +38,56 @@ export async function DELETE(
       );
     }
 
+    // Delete Discord post if exists
+    if (theme.discordPostId) {
+      try {
+        const deleteResult = await deleteDiscordPost(theme.discordPostId);
+        if (!deleteResult.success) {
+          console.error('Failed to delete Discord post:', deleteResult.error);
+          // Continue with theme deletion even if Discord deletion fails
+        }
+      } catch (discordError) {
+        console.error('Error deleting Discord post:', discordError);
+        // Continue with theme deletion even if Discord deletion fails
+      }
+    }
+
+    // Store theme info for mod log before deletion
+    const themeInfo = {
+      id: theme.id,
+      themeId: theme.themeId,
+      name: theme.name,
+      creatorName: theme.creatorName,
+      category: theme.category,
+      status: theme.status,
+      createdBy: theme.createdBy,
+    };
+
     await db.theme.delete({
       where: { id: params.id },
     });
+
+    // Send mod log
+    try {
+      await sendModLog({
+        action: 'THEME_DELETED',
+        userId: currentUser.id,
+        username: currentUser.username,
+        userRole: currentUser.role,
+        themeId: themeInfo.themeId || undefined,
+        themeName: themeInfo.name,
+        details: {
+          'Original Creator': themeInfo.creatorName,
+          'Creator ID': themeInfo.createdBy || 'Unknown',
+          Category: themeInfo.category || 'N/A',
+          Status: themeInfo.status,
+          'Deleted By': currentUser.role,
+        },
+      });
+    } catch (logError) {
+      console.error('Failed to send mod log:', logError);
+      // Don't fail the request if mod log fails
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

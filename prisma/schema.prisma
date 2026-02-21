@@ -71,6 +71,8 @@ model Theme {
   themeJson   String   // JSON data for the theme
   category    String?  // Dark, Light, AMOLED
   previewData String?  // JSON for preview rendering
+  previewImage String?  // Preview image URL for Discord
+  discordPostId String?  // Discord forum post/thread ID
   likesCount  Int      @default(0)
   viewsCount  Int      @default(0)
   status      ThemeStatus @default(PENDING)

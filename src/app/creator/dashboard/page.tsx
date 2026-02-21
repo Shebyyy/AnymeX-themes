@@ -48,6 +48,7 @@ interface Theme {
   viewsCount: number;
   createdAt: string;
   themeJson: string;
+  previewImage: string | null;
   creatorName: string | null;
   creator?: {
     id: string;
@@ -72,13 +73,19 @@ export default function CreatorDashboard() {
     description: "",
     category: "",
     themeJson: "",
+    previewImage: "",
   });
   const [creating, setCreating] = useState(false);
 
-  // Create dialog file upload
+  // Create dialog file upload (JSON)
   const [isDraggingCreate, setIsDraggingCreate] = useState(false);
   const [selectedFileCreate, setSelectedFileCreate] = useState<File | null>(null);
   const fileInputCreateRef = useRef<HTMLInputElement>(null);
+
+  // Create dialog preview image upload
+  const [previewImageCreate, setPreviewImageCreate] = useState<File | null>(null);
+  const [previewImageCreateUrl, setPreviewImageCreateUrl] = useState<string>("");
+  const previewImageInputCreateRef = useRef<HTMLInputElement>(null);
 
   // Edit form
   const [editForm, setEditForm] = useState({
@@ -86,14 +93,20 @@ export default function CreatorDashboard() {
     description: "",
     category: "",
     themeJson: "",
+    previewImage: "",
   });
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  // Edit dialog file upload
+  // Edit dialog file upload (JSON)
   const [isDraggingEdit, setIsDraggingEdit] = useState(false);
   const [selectedFileEdit, setSelectedFileEdit] = useState<File | null>(null);
   const fileInputEditRef = useRef<HTMLInputElement>(null);
+
+  // Edit dialog preview image upload
+  const [previewImageEdit, setPreviewImageEdit] = useState<File | null>(null);
+  const [previewImageEditUrl, setPreviewImageEditUrl] = useState<string>("");
+  const previewImageInputEditRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchThemes();
@@ -165,10 +178,16 @@ export default function CreatorDashboard() {
         description: "",
         category: "",
         themeJson: "",
+        previewImage: "",
       });
       setSelectedFileCreate(null);
+      setPreviewImageCreate(null);
+      setPreviewImageCreateUrl("");
       if (fileInputCreateRef.current) {
         fileInputCreateRef.current.value = "";
+      }
+      if (previewImageInputCreateRef.current) {
+        previewImageInputCreateRef.current.value = "";
       }
       fetchThemes();
     } catch (error) {
@@ -288,8 +307,10 @@ export default function CreatorDashboard() {
       description: theme.description || "",
       category: theme.category || "",
       themeJson: theme.themeJson,
+      previewImage: theme.previewImage || "",
     });
     setSelectedFileEdit(null);
+    setPreviewImageEditUrl(theme.previewImage || "");
     if (fileInputEditRef.current) {
       fileInputEditRef.current.value = "";
     }
@@ -420,6 +441,93 @@ export default function CreatorDashboard() {
     }
   };
 
+  // Preview image handling for create dialog
+  const handlePreviewImageCreate = async (file: File) => {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+      toast({
+        variant: "destructive",
+        title: "Invalid file type",
+        description: "Please upload a JPEG, PNG, WebP, or GIF image",
+      });
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      toast({
+        variant: "destructive",
+        title: "File too large",
+        description: "Maximum file size is 5MB",
+      });
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Upload failed');
+      }
+
+      setPreviewImageCreate(file);
+      setPreviewImageCreateUrl(data.url);
+      setCreateForm({ ...createForm, previewImage: data.url });
+
+      toast({
+        title: "Preview image uploaded! 📸",
+        description: file.name,
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Upload failed",
+        description: error instanceof Error ? error.message : "Failed to upload preview image",
+      });
+    }
+  };
+
+  const handlePreviewImageSelectCreate = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handlePreviewImageCreate(file);
+    }
+  };
+
+  const handleDropPreviewCreate = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      handlePreviewImageCreate(file);
+    }
+  };
+
+  const clearPreviewImageCreate = async () => {
+    if (previewImageCreateUrl) {
+      // Delete from server
+      const filename = previewImageCreateUrl.split('/').pop();
+      try {
+        await fetch(`/api/upload?filename=${filename}`, { method: 'DELETE' });
+      } catch (error) {
+        console.error('Failed to delete preview image:', error);
+      }
+    }
+    setPreviewImageCreate(null);
+    setPreviewImageCreateUrl("");
+    setCreateForm({ ...createForm, previewImage: "" });
+    if (previewImageInputCreateRef.current) {
+      previewImageInputCreateRef.current.value = "";
+    }
+  };
+
   // File handling for edit dialog
   const processFileEdit = (file: File) => {
     if (file.type !== "application/json" && !file.name.endsWith(".json")) {
@@ -509,6 +617,102 @@ export default function CreatorDashboard() {
     }
   };
 
+  // Preview image handling for edit dialog
+  const handlePreviewImageEdit = async (file: File) => {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+      toast({
+        variant: "destructive",
+        title: "Invalid file type",
+        description: "Please upload a JPEG, PNG, WebP, or GIF image",
+      });
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      toast({
+        variant: "destructive",
+        title: "File too large",
+        description: "Maximum file size is 5MB",
+      });
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Upload failed');
+      }
+
+      // Delete old preview image if exists
+      if (editForm.previewImage && editForm.previewImage.startsWith('/previews/')) {
+        const oldFilename = editForm.previewImage.split('/').pop();
+        try {
+          await fetch(`/api/upload?filename=${oldFilename}`, { method: 'DELETE' });
+        } catch (error) {
+          console.error('Failed to delete old preview image:', error);
+        }
+      }
+
+      setPreviewImageEdit(file);
+      setPreviewImageEditUrl(data.url);
+      setEditForm({ ...editForm, previewImage: data.url });
+
+      toast({
+        title: "Preview image updated! 📸",
+        description: file.name,
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Upload failed",
+        description: error instanceof Error ? error.message : "Failed to upload preview image",
+      });
+    }
+  };
+
+  const handlePreviewImageSelectEdit = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handlePreviewImageEdit(file);
+    }
+  };
+
+  const handleDropPreviewEdit = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      handlePreviewImageEdit(file);
+    }
+  };
+
+  const clearPreviewImageEdit = async () => {
+    if (previewImageEditUrl) {
+      const filename = previewImageEditUrl.split('/').pop();
+      try {
+        await fetch(`/api/upload?filename=${filename}`, { method: 'DELETE' });
+      } catch (error) {
+        console.error('Failed to delete preview image:', error);
+      }
+    }
+    setPreviewImageEdit(null);
+    setPreviewImageEditUrl("");
+    setEditForm({ ...editForm, previewImage: "" });
+    if (previewImageInputEditRef.current) {
+      previewImageInputEditRef.current.value = "";
+    }
+  };
+
   return (
     <div className="p-6 lg:p-8">
       {/* Header */}
@@ -589,6 +793,77 @@ export default function CreatorDashboard() {
                       <SelectItem value="AMOLED">AMOLED</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+              </div>
+
+              {/* Preview Image Upload */}
+              <div>
+                <Label htmlFor="previewImageCreate">
+                  Preview Image * <span className="text-neutral-500 font-normal">(Required for Discord)</span>
+                </Label>
+                <input
+                  type="file"
+                  ref={previewImageInputCreateRef}
+                  onChange={handlePreviewImageSelectCreate}
+                  accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                  className="hidden"
+                />
+                <div
+                  onClick={() => previewImageInputCreateRef.current?.click()}
+                  onDrop={handleDropPreviewCreate}
+                  onDragOver={(e) => { e.preventDefault(); }}
+                  className={`relative rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition-all mb-3 ${
+                    previewImageCreateUrl
+                      ? "border-green-500 bg-green-500/10"
+                      : "border-neutral-700 bg-neutral-800 hover:border-neutral-600 hover:bg-neutral-800"
+                  }`}
+                >
+                  {previewImageCreateUrl ? (
+                    <div className="flex items-center justify-center gap-3">
+                      <img
+                        src={previewImageCreateUrl}
+                        alt="Preview"
+                        className="h-20 w-20 object-cover rounded-lg"
+                      />
+                      <div className="text-left">
+                        <p className="text-sm font-medium text-white">
+                          {previewImageCreate?.name || 'Preview image'}
+                        </p>
+                        <p className="text-xs text-neutral-400">
+                          {(previewImageCreate?.size || 0) / 1024} KB
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          clearPreviewImageCreate();
+                        }}
+                        className="ml-auto text-neutral-400 hover:text-white transition-colors"
+                      >
+                        <Icon icon="solar:close-circle-bold" width={20} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <Icon
+                        icon="solar:gallery-add-linear"
+                        width={32}
+                        className="text-neutral-400"
+                      />
+                      <div>
+                        <p className="text-sm font-medium text-neutral-300">
+                          Upload preview image
+                        </p>
+                        <p className="text-xs text-neutral-500 mt-1">
+                          Drag & drop or click to browse
+                        </p>
+                        <p className="text-xs text-neutral-600 mt-1">
+                          JPEG, PNG, WebP, GIF (max 5MB)
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
               <div>
@@ -892,6 +1167,77 @@ export default function CreatorDashboard() {
                   <SelectItem value="AMOLED">AMOLED</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Preview Image Upload */}
+            <div>
+              <Label htmlFor="previewImageEdit">
+                Preview Image <span className="text-neutral-500 font-normal">(Required for Discord)</span>
+              </Label>
+              <input
+                type="file"
+                ref={previewImageInputEditRef}
+                onChange={handlePreviewImageSelectEdit}
+                accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                className="hidden"
+              />
+              <div
+                onClick={() => previewImageInputEditRef.current?.click()}
+                onDrop={handleDropPreviewEdit}
+                onDragOver={(e) => { e.preventDefault(); }}
+                className={`relative rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition-all mb-3 ${
+                  previewImageEditUrl
+                    ? "border-green-500 bg-green-500/10"
+                    : "border-neutral-700 bg-neutral-800 hover:border-neutral-600 hover:bg-neutral-800"
+                }`}
+              >
+                {previewImageEditUrl ? (
+                  <div className="flex items-center justify-center gap-3">
+                    <img
+                      src={previewImageEditUrl}
+                      alt="Preview"
+                      className="h-20 w-20 object-cover rounded-lg"
+                    />
+                    <div className="text-left">
+                      <p className="text-sm font-medium text-white">
+                        {previewImageEdit?.name || 'Preview image'}
+                      </p>
+                      <p className="text-xs text-neutral-400">
+                        {(previewImageEdit?.size || 0) / 1024} KB
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        clearPreviewImageEdit();
+                      }}
+                      className="ml-auto text-neutral-400 hover:text-white transition-colors"
+                    >
+                      <Icon icon="solar:close-circle-bold" width={20} />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-2">
+                    <Icon
+                      icon="solar:gallery-add-linear"
+                      width={32}
+                      className="text-neutral-400"
+                    />
+                    <div>
+                      <p className="text-sm font-medium text-neutral-300">
+                        Upload or update preview image
+                      </p>
+                      <p className="text-xs text-neutral-500 mt-1">
+                        Drag & drop or click to browse
+                      </p>
+                      <p className="text-xs text-neutral-600 mt-1">
+                        JPEG, PNG, WebP, GIF (max 5MB)
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
             <div>
               <input

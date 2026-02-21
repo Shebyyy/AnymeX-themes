@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { validateSession } from '@/lib/auth';
+import { sendModLog } from '@/lib/discord';
 
 export async function PUT(
   request: NextRequest,
@@ -51,6 +52,29 @@ export async function PUT(
       where: { id: params.id },
       data: { status },
     });
+
+    // Send mod log for status changes
+    if (status === 'APPROVED' || status === 'REJECTED') {
+      try {
+        await sendModLog({
+          action: status === 'APPROVED' ? 'THEME_APPROVED' : 'THEME_REJECTED',
+          userId: currentUser.id,
+          username: currentUser.username,
+          userRole: currentUser.role,
+          themeId: updatedTheme.themeId || undefined,
+          themeName: updatedTheme.name,
+          details: {
+            'Original Creator': updatedTheme.creatorName,
+            Category: updatedTheme.category || 'N/A',
+            'Previous Status': theme.status,
+            'New Status': status,
+          },
+        });
+      } catch (logError) {
+        console.error('Failed to send mod log:', logError);
+        // Don't fail the request if mod log fails
+      }
+    }
 
     return NextResponse.json({ success: true, theme: updatedTheme });
   } catch (error) {
