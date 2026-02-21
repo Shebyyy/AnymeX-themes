@@ -374,7 +374,7 @@ function parseBottomZone(json) {
         showProgress: readBool(json.showProgress, true),
         progressStyle: readString(json.progressStyle) || "ios",
         progressPadding: readEdgeInsets(json.progressPadding, { top: 0, right: 4, bottom: 0, left: 4 }),
-        outsidePadding: readEdgeInsets(json.outsidePadding, { top: 0, right: 0, bottom: 6, left: 0 }),
+        outsidePadding: readEdgeInsets(json.outsidePadding, { top: 0, right: 10, bottom: 6, left: 10 }),
     };
 }
 function parsePalette(raw) {
@@ -497,10 +497,10 @@ const DEFAULT_CONTROLLER = {
     duration: "45:00",
     remaining: "-32:26",
     progress: 0.27,
-    title: "Episode 12 - The Return",
-    seriesTitle: "My Hero Academia",
-    episodeNumber: "12",
-    quality: "1080p",
+    title: "Episode 1 - Freedom",
+    seriesTitle: "Attack on Titan Final Season",
+    episodeNumber: "1",
+    quality: "4K",
 };
 
 // ─── Rendering helpers ─────────────────────────────────────────────────────────
@@ -749,6 +749,7 @@ function ItemEl({ item, theme, ctrl }) {
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                             whiteSpace: "nowrap",
+                            textAlign: readString(data.textAlign) || "left",
                         }}
                     >
                         {topText}

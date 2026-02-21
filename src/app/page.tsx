@@ -17,6 +17,8 @@ import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+const ENABLE_THEME_PREVIEW = false;
+
 interface Creator {
     id: string;
     username: string;
@@ -548,7 +550,7 @@ export default function Home() {
             </nav>
 
             {/* Main Content */}
-            <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <main className="relative z-10 max-w-7xl mx-auto sm:px-6 lg:px-8 py-10">
                 {/* Hero Section */}
                 <div className="relative py-24 md:py-32 flex flex-col items-center text-center px-4">
                     <Badge
@@ -652,30 +654,46 @@ export default function Home() {
                                       >
                                           {/* Preview */}
                                           <div className="aspect-video w-full overflow-hidden rounded-lg relative">
-                                              <ThemePreviewRenderer
-                                                  themeJson={theme.themeJson}
-                                                  backgroundImage="/preview-bg.jpg"
-                                                  className="w-full h-full"
-                                                  controllerState={undefined}
-                                                  width={undefined}
-                                                  height={undefined}
-                                                  style={undefined}
-                                              />
+                                              {ENABLE_THEME_PREVIEW ? (
+                                                  <ThemePreviewRenderer
+                                                      themeJson={theme.themeJson}
+                                                      backgroundImage="/preview-bg.jpg"
+                                                      className="w-full h-full"
+                                                      controllerState={undefined}
+                                                      width={undefined}
+                                                      height={undefined}
+                                                      style={undefined}
+                                                  />
+                                              ) : (
+                                                  <div className="w-full h-full bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-700 flex items-center justify-center">
+                                                      <span className="text-xs md:text-sm text-neutral-300 font-medium tracking-wide">
+                                                          Preview coming soon
+                                                      </span>
+                                                  </div>
+                                              )}
                                           </div>
                                       </Link>
                                   ) : (
                                       <div onClick={() => handleView(theme.id)} className="flex-1 flex flex-col">
                                           {/* Preview */}
                                           <div className="aspect-video w-full overflow-hidden rounded-lg relative">
-                                              <ThemePreviewRenderer
-                                                  themeJson={theme.themeJson}
-                                                  backgroundImage="/preview-bg.jpg"
-                                                  className="w-full h-full"
-                                                  controllerState={undefined}
-                                                  width={undefined}
-                                                  height={undefined}
-                                                  style={undefined}
-                                              />
+                                              {ENABLE_THEME_PREVIEW ? (
+                                                  <ThemePreviewRenderer
+                                                      themeJson={theme.themeJson}
+                                                      backgroundImage="/preview-bg.jpg"
+                                                      className="w-full h-full"
+                                                      controllerState={undefined}
+                                                      width={undefined}
+                                                      height={undefined}
+                                                      style={undefined}
+                                                  />
+                                              ) : (
+                                                  <div className="w-full h-full bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-700 flex items-center justify-center">
+                                                      <span className="text-xs md:text-sm text-neutral-300 font-medium tracking-wide">
+                                                          Preview coming soon
+                                                      </span>
+                                                  </div>
+                                              )}
                                           </div>
                                       </div>
                                   )}
