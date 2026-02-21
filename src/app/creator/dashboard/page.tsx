@@ -47,6 +47,11 @@ interface Theme {
   createdAt: string;
   themeJson: string;
   creatorName: string | null;
+  creator?: {
+    id: string;
+    username: string;
+    profileUrl: string | null;
+  };
 }
 
 export default function CreatorDashboard() {
@@ -722,14 +727,25 @@ export default function CreatorDashboard() {
                     <h3 className="text-lg font-semibold text-white mb-2">
                       {theme.name}
                     </h3>
-                    {theme.category && (
-                      <Badge
-                        variant="outline"
-                        className="bg-purple-500/10 text-purple-500 border-purple-500/20 text-xs"
-                      >
-                        {theme.category}
-                      </Badge>
-                    )}
+                    <div className="flex flex-wrap items-center gap-2">
+                      {theme.category && (
+                        <Badge
+                          variant="outline"
+                          className="bg-purple-500/10 text-purple-500 border-purple-500/20 text-xs"
+                        >
+                          {theme.category}
+                        </Badge>
+                      )}
+                      {canEditAll && (theme.creator || theme.creatorName) && (
+                        <Badge
+                          variant="outline"
+                          className="bg-cyan-500/10 text-cyan-500 border-cyan-500/20 text-xs"
+                        >
+                          <Icon icon="solar:user-circle-bold" width={12} className="mr-1" />
+                          {theme.creator?.username || theme.creatorName}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                   {getStatusBadge(theme.status)}
                 </div>
