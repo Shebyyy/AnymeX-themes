@@ -607,31 +607,76 @@ export default function Home() {
                   </div>
                 </div>
               ))
-            : themes.map((theme) => {
-                const CardWrapper = theme.themeId ? Link : "div";
-                const cardProps = theme.themeId
-                  ? { href: `/themes/${theme.themeId}` }
-                  : {};
-
-                return (
-                  <CardWrapper
-                    key={theme.id}
-                    {...cardProps}
-                    className="group relative flex flex-col rounded-xl border border-neutral-800 bg-neutral-900/20 p-2 transition-all hover:border-neutral-700 hover:bg-neutral-900/40 hover:shadow-lg hover:shadow-black/50 cursor-pointer"
-                    onClick={() => handleView(theme.id)}
-                  >
-                    {/* Preview */}
-                    <div className="aspect-video w-full overflow-hidden rounded-lg relative">
-                      <ThemePreviewRenderer
-                        themeJson={theme.themeJson}
-                        backgroundImage="/preview-bg.jpg"
-                        className="w-full h-full"
-                      />
+            : themes.map((theme) => (
+                <div
+                  key={theme.id}
+                  className="group relative flex flex-col rounded-xl border border-neutral-800 bg-neutral-900/20 p-2 transition-all hover:border-neutral-700 hover:bg-neutral-900/40 hover:shadow-lg hover:shadow-black/50"
+                >
+                  {/* Clickable area for theme detail - wraps preview and info */}
+                  {theme.themeId ? (
+                    <Link
+                      href={`/themes/${theme.themeId}`}
+                      onClick={() => handleView(theme.id)}
+                      className="flex-1 flex flex-col"
+                    >
+                      {/* Preview */}
+                      <div className="aspect-video w-full overflow-hidden rounded-lg relative">
+                        <ThemePreviewRenderer
+                          themeJson={theme.themeJson}
+                          backgroundImage="/preview-bg.jpg"
+                          className="w-full h-full"
+                        />
+                      </div>
+                    </Link>
+                  ) : (
+                    <div
+                      onClick={() => handleView(theme.id)}
+                      className="flex-1 flex flex-col"
+                    >
+                      {/* Preview */}
+                      <div className="aspect-video w-full overflow-hidden rounded-lg relative">
+                        <ThemePreviewRenderer
+                          themeJson={theme.themeJson}
+                          backgroundImage="/preview-bg.jpg"
+                          className="w-full h-full"
+                        />
+                      </div>
                     </div>
+                  )}
 
-                    <div className="flex flex-col gap-3 p-3">
-                      <div className="flex justify-between items-start">
-                        <div>
+                  <div className="flex flex-col gap-3 p-3">
+                    {/* Theme info - clickable */}
+                    <div className="flex justify-between items-start">
+                      {theme.themeId ? (
+                        <Link
+                          href={`/themes/${theme.themeId}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="flex-1"
+                        >
+                          <h3 className="text-sm font-medium text-neutral-100 group-hover:text-white">
+                            {theme.name}
+                          </h3>
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <span className="text-xs text-neutral-500">by</span>
+                            {theme.creator?.profileUrl ? (
+                              <a
+                                href={theme.creator.profileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="text-xs text-neutral-400 hover:text-neutral-200 cursor-pointer hover:underline"
+                              >
+                                {theme.creatorName}
+                              </a>
+                            ) : (
+                              <span className="text-xs text-neutral-400">
+                                {theme.creatorName}
+                              </span>
+                            )}
+                          </div>
+                        </Link>
+                      ) : (
+                        <div className="flex-1">
                           <h3 className="text-sm font-medium text-neutral-100 group-hover:text-white">
                             {theme.name}
                           </h3>
@@ -654,58 +699,60 @@ export default function Home() {
                             )}
                           </div>
                         </div>
-                        <div className="flex items-center gap-1">
-                          {theme.themeId && (
-                            <button
-                              onClick={(e) => handleShare(theme.themeId, e)}
-                              className="flex items-center gap-1 text-xs p-1.5 rounded-full border border-neutral-800 bg-neutral-900/50 transition-colors text-neutral-500 hover:text-blue-400 hover:bg-neutral-800"
-                              title="Share"
-                            >
-                              <Icon icon="solar:share-linear" width={14} />
-                            </button>
-                          )}
+                      )}
+                      <div className="flex items-center gap-1">
+                        {theme.themeId && (
                           <button
-                            onClick={(e) => handleLike(theme.id, e)}
-                            className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full border border-neutral-800 bg-neutral-900/50 transition-colors ${
-                              theme.isLiked ? "text-rose-500" : "text-neutral-500 hover:text-rose-500"
-                            }`}
+                            onClick={(e) => handleShare(theme.themeId, e)}
+                            className="flex items-center gap-1 text-xs p-1.5 rounded-full border border-neutral-800 bg-neutral-900/50 transition-colors text-neutral-500 hover:text-blue-400 hover:bg-neutral-800"
+                            title="Share"
                           >
-                            <Icon
-                              icon="solar:heart-linear"
-                              className={theme.isLiked ? "text-rose-500" : ""}
-                            />
-                            {theme.likesCount}
+                            <Icon icon="solar:share-linear" width={14} />
                           </button>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 mt-1">
-                        <Button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            applyTheme(theme.id);
-                          }}
-                          className="flex items-center justify-center gap-2 rounded-lg bg-neutral-100 py-2 text-xs font-medium text-black hover:bg-white transition-colors"
+                        )}
+                        <button
+                          onClick={(e) => handleLike(theme.id, e)}
+                          className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full border border-neutral-800 bg-neutral-900/50 transition-colors ${
+                            theme.isLiked ? "text-rose-500" : "text-neutral-500 hover:text-rose-500"
+                          }`}
                         >
-                          <Icon icon="solar:magic-stick-3-linear" width={14} />
-                          Apply
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            downloadJson(theme);
-                          }}
-                          className="flex items-center justify-center gap-2 rounded-lg border border-neutral-700 bg-transparent py-2 text-xs font-medium text-neutral-300 hover:bg-neutral-800 hover:text-white transition-colors"
-                        >
-                          <Icon icon="solar:file-download-linear" width={14} />
-                          JSON
-                        </Button>
+                          <Icon
+                            icon="solar:heart-linear"
+                            className={theme.isLiked ? "text-rose-500" : ""}
+                          />
+                          {theme.likesCount}
+                        </button>
                       </div>
                     </div>
-                  </CardWrapper>
-                );
-              })}
+
+                    <div className="grid grid-cols-2 gap-2 mt-1">
+                      <Button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          applyTheme(theme.id);
+                        }}
+                        className="flex items-center justify-center gap-2 rounded-lg bg-neutral-100 py-2 text-xs font-medium text-black hover:bg-white transition-colors"
+                      >
+                        <Icon icon="solar:magic-stick-3-linear" width={14} />
+                        Apply
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          downloadJson(theme);
+                        }}
+                        className="flex items-center justify-center gap-2 rounded-lg border border-neutral-700 bg-transparent py-2 text-xs font-medium text-neutral-300 hover:bg-neutral-800 hover:text-white transition-colors"
+                      >
+                        <Icon icon="solar:file-download-linear" width={14} />
+                        JSON
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
         </div>
 
         {/* Load More */}
