@@ -51,6 +51,10 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [userToken, setUserToken] = useState<string>("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [user, setUser] = useState<{ username: string; role: string } | null>(null);
   const { toast } = useToast();
 
   // Get or create user token
@@ -64,7 +68,74 @@ export default function Home() {
 
     // Also set cookie for server-side access
     document.cookie = `anymex_token=${token}; path=/; max-age=31536000; SameSite=Lax`;
+
+    // Check if user is logged in
+    checkAuth();
   }, []);
+
+  const checkAuth = async () => {
+    const creatorToken = localStorage.getItem("creator_token");
+    const adminToken = localStorage.getItem("admin_token");
+    const userStr = localStorage.getItem("creator_user") || localStorage.getItem("admin_user");
+
+    if ((creatorToken || adminToken) && userStr) {
+      try {
+        const token = creatorToken || adminToken;
+        const response = await fetch("/api/auth/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setIsLoggedIn(true);
+          setUser(data.user);
+          setUserRole(data.user.role);
+        } else {
+          // Clear invalid tokens
+          localStorage.removeItem("creator_token");
+          localStorage.removeItem("admin_token");
+          localStorage.removeItem("creator_user");
+          localStorage.removeItem("admin_user");
+        }
+      } catch (error) {
+        console.error("Auth check error:", error);
+      }
+    }
+
+    setAuthChecked(true);
+  };
+
+  const handleLogout = async () => {
+    const creatorToken = localStorage.getItem("creator_token");
+    const adminToken = localStorage.getItem("admin_token");
+    const token = creatorToken || adminToken;
+
+    try {
+      if (token) {
+        await fetch("/api/auth/logout", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      localStorage.removeItem("creator_token");
+      localStorage.removeItem("admin_token");
+      localStorage.removeItem("creator_user");
+      localStorage.removeItem("admin_user");
+      setIsLoggedIn(false);
+      setUser(null);
+      setUserRole(null);
+      toast({
+        title: "Logged out successfully",
+      });
+    }
+  };
 
   // Fetch themes
   useEffect(() => {
@@ -242,37 +313,71 @@ export default function Home() {
               >
                 Docs
               </a>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors">
+
+              {authChecked && isLoggedIn ? (
+                <>
+                  {/* Logged in: Show Profile and Dashboard */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors">
+                        <Icon icon="solar:user-circle-linear" width={16} />
+                        {user?.username || "Profile"}
+                        <Icon icon="solar:alt-arrow-down-linear" width={14} />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="bg-neutral-900 border-neutral-800 min-w-[180px]">
+                      <DropdownMenuItem asChild>
+                        <Link href="/profile" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                          <Icon icon="solar:user-linear" width={14} />
+                          My Profile
+                        </Link>
+                      </DropdownMenuItem>
+                      {userRole === 'THEME_CREATOR' && (
+                        <DropdownMenuItem asChild>
+                          <Link href="/creator/dashboard" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                            <Icon icon="solar:palette-bold" width={14} />
+                            Creator Dashboard
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
+                      {(userRole === 'ADMIN' || userRole === 'SUPER_ADMIN') && (
+                        <DropdownMenuItem asChild>
+                          <Link href="/admin/dashboard" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                            <Icon icon="solar:shield-check-linear" width={14} />
+                            Admin Dashboard
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuSeparator className="bg-neutral-800" />
+                      <DropdownMenuItem
+                        onClick={handleLogout}
+                        className="cursor-pointer text-red-400 hover:text-red-300 flex items-center gap-2"
+                      >
+                        <Icon icon="solar:logout-2-linear" width={14} />
+                        Logout
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
+              ) : (
+                <>
+                  {/* Logged out: Show unified Auth */}
+                  <Link
+                    href="/auth"
+                    className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
+                  >
                     <Icon icon="solar:palette-bold" width={16} />
-                Creator Hub
-                    <Icon icon="solar:alt-arrow-down-linear" width={14} />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-neutral-900 border-neutral-800 min-w-[160px]">
-                  <DropdownMenuItem asChild>
-                    <Link href="/creator/login" className="cursor-pointer text-neutral-300 hover:text-white">
-                      Sign In
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/creator/register" className="cursor-pointer text-neutral-300 hover:text-white">
-                      <span className="flex items-center gap-2">
-                        <Icon icon="solar:user-plus-bold" width={14} />
-                      Register
-                      </span>
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <a
-                href="/admin/login"
-                className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
-              >
-                <Icon icon="solar:login-3-linear" width={16} />
-                Admin
-              </a>
+                    Sign In
+                  </Link>
+                  <a
+                    href="/auth"
+                    className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
+                  >
+                    <Icon icon="solar:login-3-linear" width={16} />
+                    Admin
+                  </a>
+                </>
+              )}
               <div className="h-4 w-px bg-neutral-800 mx-2"></div>
               <a
                 href="https://github.com/RyanYuuki/AnymeX"
@@ -298,21 +403,58 @@ export default function Home() {
                         Docs
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/creator/login" className="cursor-pointer text-neutral-300 hover:text-white">
-                        Creator Hub
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/creator/register" className="cursor-pointer text-neutral-300 hover:text-white">
-                        Register as Creator
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/admin/login" className="cursor-pointer text-neutral-300 hover:text-white">
-                        Admin Login
-                      </Link>
-                    </DropdownMenuItem>
+
+                    {authChecked && isLoggedIn ? (
+                      <>
+                        <DropdownMenuSeparator className="bg-neutral-800" />
+                        <DropdownMenuItem asChild>
+                          <Link href="/profile" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                            <Icon icon="solar:user-linear" width={14} />
+                            My Profile
+                          </Link>
+                        </DropdownMenuItem>
+                        {userRole === 'THEME_CREATOR' && (
+                          <DropdownMenuItem asChild>
+                            <Link href="/creator/dashboard" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                              <Icon icon="solar:palette-bold" width={14} />
+                              Creator Dashboard
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
+                        {(userRole === 'ADMIN' || userRole === 'SUPER_ADMIN') && (
+                          <DropdownMenuItem asChild>
+                            <Link href="/admin/dashboard" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                              <Icon icon="solar:shield-check-linear" width={14} />
+                              Admin Dashboard
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuSeparator className="bg-neutral-800" />
+                        <DropdownMenuItem
+                          onClick={handleLogout}
+                          className="cursor-pointer text-red-400 hover:text-red-300 flex items-center gap-2"
+                        >
+                          <Icon icon="solar:logout-2-linear" width={14} />
+                          Logout
+                        </DropdownMenuItem>
+                      </>
+                    ) : (
+                      <>
+                        <DropdownMenuSeparator className="bg-neutral-800" />
+                        <DropdownMenuItem asChild>
+                          <Link href="/auth" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                            <Icon icon="solar:palette-bold" width={14} />
+                            Sign In / Register
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/auth" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                            <Icon icon="solar:login-3-linear" width={14} />
+                            Admin Login
+                          </Link>
+                        </DropdownMenuItem>
+                      </>
+                    )}
                     <DropdownMenuSeparator className="bg-neutral-800" />
                     <DropdownMenuItem asChild>
                       <a

@@ -103,8 +103,8 @@ export default function DocsPage() {
               To share your themes with the community, you'll need to register as a theme creator first. Here's how:
             </p>
             <ol className="space-y-3 text-neutral-300 list-decimal list-inside">
-              <li>Go to the main page and click on <strong>Creator Hub</strong> in the navigation menu</li>
-              <li>Click <strong>Register as Creator</strong> to create your account</li>
+              <li>Go to the main page and click on <strong>Sign In</strong> in the navigation menu</li>
+              <li>Click the <strong>Register</strong> tab to create your account</li>
               <li>Fill in your details:
                 <ul className="list-disc list-inside ml-6 mt-2 text-neutral-400 space-y-1">
                   <li><strong>Username</strong> (required) - Your unique identifier</li>
@@ -333,7 +333,7 @@ export default function DocsPage() {
               Once you've created your theme JSON and registered as a creator, you can upload it through the Creator Dashboard:
             </p>
             <ol className="space-y-3 text-neutral-300 list-decimal list-inside">
-              <li>Log in to your creator account at <strong>/creator/login</strong></li>
+              <li>Log in to your creator account at <strong>/auth</strong></li>
               <li>Go to the <strong>Creator Dashboard</strong></li>
               <li>Click the <strong>"Create New Theme"</strong> button</li>
               <li>Fill in the theme details:

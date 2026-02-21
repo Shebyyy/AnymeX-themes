@@ -129,6 +129,16 @@ export default function CreatorLayout({
 
   const navItems = [
     {
+      href: "/",
+      icon: "solar:home-2-linear",
+      label: "Back to Home",
+    },
+    {
+      href: "/profile",
+      icon: "solar:user-circle-linear",
+      label: "Profile",
+    },
+    {
       href: "/creator/dashboard",
       icon: "solar:widget-4-linear",
       label: "My Themes",
@@ -143,7 +153,7 @@ export default function CreatorLayout({
           {/* Logo */}
           <div className="flex items-center gap-2 p-6 border-b border-neutral-800">
             <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black">
-              <Icon icon="solar:gallery-wide-linear" width={18} />
+              <Icon icon="solar:play-stream-bold" width={18} />
             </div>
             <span className="text-sm font-semibold tracking-tight text-white">
               Creator Hub
@@ -154,14 +164,17 @@ export default function CreatorLayout({
           <nav className="flex-1 p-4 space-y-1">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
+              const isHome = item.href === "/";
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                    isActive
-                      ? "bg-white text-black"
-                      : "text-neutral-400 hover:text-white hover:bg-neutral-800"
+                    isHome
+                      ? "text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10 border border-indigo-500/20"
+                      : isActive
+                        ? "bg-white text-black"
+                        : "text-neutral-400 hover:text-white hover:bg-neutral-800"
                   }`}
                 >
                   <Icon icon={item.icon} width={18} />
@@ -216,7 +229,7 @@ export default function CreatorLayout({
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center gap-2">
               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black">
-                <Icon icon="solar:gallery-wide-linear" width={18} />
+                <Icon icon="solar:play-stream-bold" width={18} />
               </div>
               <span className="text-sm font-semibold tracking-tight text-white">
                 Creator Hub
