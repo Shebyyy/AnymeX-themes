@@ -305,12 +305,12 @@ export default function Home() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-neutral-950 text-neutral-300 font-sans antialiased selection:bg-neutral-200 selection:text-black">
+        <div className="min-h-screen bg-neutral-950 text-neutral-300 font-sans antialiased selection:bg-neutral-200 selection:text-black flex flex-col">
             {/* Ambient Background Glow */}
             <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-96 bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none z-0" />
 
             {/* Navigation */}
-            <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl rounded-full border border-neutral-800/60 bg-neutral-900/60 backdrop-blur-xl shadow-lg shadow-black/20 transition-all">
+            <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-5xl rounded-full border border-neutral-800/60 bg-neutral-900/60 backdrop-blur-xl shadow-lg shadow-black/20 transition-all sm:w-[95%]">
                 <div className="px-4 sm:px-6 pl-2">
                     <div className="flex h-14 items-center justify-between gap-4">
                         {/* Logo */}
@@ -550,9 +550,9 @@ export default function Home() {
             </nav>
 
             {/* Main Content */}
-            <main className="relative z-10 max-w-7xl mx-auto sm:px-6 lg:px-8 py-10">
+            <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1">
                 {/* Hero Section */}
-                <div className="relative py-24 md:py-32 flex flex-col items-center text-center px-4">
+                <div className="relative py-24 md:py-32 flex flex-col items-center text-center">
                     <Badge
                         variant="outline"
                         className="inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900/50 px-3 py-1 text-xs font-medium text-neutral-400 mb-6 backdrop-blur-sm"
@@ -574,8 +574,8 @@ export default function Home() {
                 </div>
 
                 {/* Search & Filters */}
-                <div className="sticky top-24 z-40 mb-10 -mx-4 px-4 py-4 md:mx-0 md:px-0 md:py-0 md:static md:bg-transparent backdrop-blur-md md:backdrop-blur-none bg-neutral-950/80 md:bg-transparent border-b border-neutral-800 md:border-none">
-                    <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-neutral-900/30 md:bg-neutral-900/20 md:border border-neutral-800/50 md:p-1.5 md:rounded-2xl backdrop-blur-sm">
+                <div className="sticky top-24 z-40 mb-10 backdrop-blur-md md:backdrop-blur-none bg-neutral-950/80 md:bg-transparent border-b border-neutral-800 md:border-none -mx-4 md:mx-0 px-4 md:px-0 md:py-0">
+                    <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-neutral-900/30 md:bg-neutral-900/20 md:border border-neutral-800/50 md:p-1.5 md:rounded-2xl backdrop-blur-sm py-4">
                         {/* Search */}
                         <div className="relative w-full md:max-w-sm group">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-500 group-focus-within:text-neutral-300 transition-colors">

@@ -60,7 +60,98 @@ export async function postToDiscord(
   }
 
   try {
-    // Step 1: Create a new thread in the forum channel
+    let requestData: any = {
+      name: data.title,
+      message: {
+        content: data.content,
+      },
+    };
+
+    // If image URL provided, upload it with the initial message
+    if (data.imageUrl) {
+      try {
+        // Fetch the image
+        const imageResponse = await fetch(data.imageUrl);
+        if (!imageResponse.ok) {
+          console.warn('Failed to fetch preview image:', data.imageUrl);
+          // Continue without image
+        } else {
+          const imageBuffer = await imageResponse.arrayBuffer();
+          const imageBlob = new Blob([imageBuffer]);
+
+          // Get filename from URL
+          const urlParts = data.imageUrl.split('/');
+          const filename = urlParts[urlParts.length - 1] || 'preview.png';
+
+          // Create a FormData with both the message content and the image attachment
+          const formData = new FormData();
+          formData.append('file', imageBlob, filename);
+          formData.append('payload_json', JSON.stringify({
+            name: data.title,
+            message: {
+              content: data.content,
+            },
+          }));
+
+          // Create thread with image attached to the first message
+          const threadResponse = await fetch(
+            `${DISCORD_API_BASE}/channels/${DISCORD_CHANNEL_ID}/threads`,
+            {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bot ${DISCORD_BOT_TOKEN}`,
+              },
+              body: formData,
+            }
+          );
+
+          if (!threadResponse.ok) {
+            const errorText = await threadResponse.text();
+            console.error('Discord API error with image:', errorText);
+            // Fallback to creating thread without image
+            const fallbackResponse = await fetch(
+              `${DISCORD_API_BASE}/channels/${DISCORD_CHANNEL_ID}/threads`,
+              {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bot ${DISCORD_BOT_TOKEN}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData),
+              }
+            );
+
+            if (!fallbackResponse.ok) {
+              const fallbackError = await fallbackResponse.text();
+              console.error('Discord API fallback error:', fallbackError);
+              return {
+                success: false,
+                error: `Failed to create thread: ${fallbackResponse.status}`,
+              };
+            }
+
+            const fallbackData = await fallbackResponse.json();
+            return {
+              success: true,
+              threadId: fallbackData.id,
+              messageId: fallbackData.id,
+            };
+          }
+
+          const threadData = await threadResponse.json();
+          return {
+            success: true,
+            threadId: threadData.id,
+            messageId: threadData.id,
+          };
+        }
+      } catch (imageError) {
+        console.warn('Error handling image for Discord:', imageError);
+        // Continue without image
+      }
+    }
+
+    // Create thread without image
     const threadResponse = await fetch(
       `${DISCORD_API_BASE}/channels/${DISCORD_CHANNEL_ID}/threads`,
       {
@@ -69,12 +160,7 @@ export async function postToDiscord(
           'Authorization': `Bot ${DISCORD_BOT_TOKEN}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          name: data.title,
-          message: {
-            content: data.content,
-          },
-        }),
+        body: JSON.stringify(requestData),
       }
     );
 
@@ -88,57 +174,10 @@ export async function postToDiscord(
     }
 
     const threadData = await threadResponse.json();
-    const threadId = threadData.id;
-    const messageId = threadData.id;
-
-    // Step 2: If image URL provided, upload it as an attachment
-    if (data.imageUrl) {
-      try {
-        // Fetch the image
-        const imageResponse = await fetch(data.imageUrl);
-        if (!imageResponse.ok) {
-          console.warn('Failed to fetch preview image:', data.imageUrl);
-          // Return success anyway, just without image
-          return { success: true, threadId, messageId };
-        }
-
-        const imageBuffer = await imageResponse.arrayBuffer();
-        const imageBlob = new Blob([imageBuffer]);
-
-        // Get filename from URL
-        const urlParts = data.imageUrl.split('/');
-        const filename = urlParts[urlParts.length - 1] || 'preview.png';
-
-        // Upload image to Discord
-        const formData = new FormData();
-        formData.append('file', imageBlob, filename);
-        formData.append('payload_json', JSON.stringify({}));
-
-        const uploadResponse = await fetch(
-          `${DISCORD_API_BASE}/channels/${threadId}/messages`,
-          {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bot ${DISCORD_BOT_TOKEN}`,
-            },
-            body: formData,
-          }
-        );
-
-        if (!uploadResponse.ok) {
-          console.warn('Failed to upload image to Discord:', await uploadResponse.text());
-          // Return success anyway, just without image
-        }
-      } catch (imageError) {
-        console.warn('Error uploading image to Discord:', imageError);
-        // Continue without image
-      }
-    }
-
     return {
       success: true,
-      threadId,
-      messageId,
+      threadId: threadData.id,
+      messageId: threadData.id,
     };
   } catch (error) {
     console.error('Error posting to Discord:', error);
@@ -191,7 +230,81 @@ export async function editDiscordPost(
 
     const firstMessage = messages[0];
 
-    // Step 2: Edit the message content
+    // Step 2: Update thread name
+    const editThreadResponse = await fetch(
+      `${DISCORD_API_BASE}/channels/${threadId}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bot ${DISCORD_BOT_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: data.title,
+        }),
+      }
+    );
+
+    if (!editThreadResponse.ok) {
+      console.warn('Failed to update thread name');
+      // Continue anyway - message edit is more important
+    }
+
+    // Step 3: Edit the message content and optionally attach image in the same request
+    if (data.imageUrl) {
+      try {
+        // Fetch the image
+        const imageResponse = await fetch(data.imageUrl);
+        if (imageResponse.ok) {
+          const imageBuffer = await imageResponse.arrayBuffer();
+          const imageBlob = new Blob([imageBuffer]);
+
+          const urlParts = data.imageUrl.split('/');
+          const filename = urlParts[urlParts.length - 1] || 'preview.png';
+
+          // Create FormData with message content and image attachment
+          const formData = new FormData();
+          formData.append('file', imageBlob, filename);
+          formData.append('payload_json', JSON.stringify({
+            content: data.content,
+            attachments: [
+              {
+                id: 0,
+                description: 'Theme preview image',
+                filename: filename,
+              }
+            ]
+          }));
+
+          const editResponse = await fetch(
+            `${DISCORD_API_BASE}/channels/${threadId}/messages/${firstMessage.id}`,
+            {
+              method: 'PATCH',
+              headers: {
+                'Authorization': `Bot ${DISCORD_BOT_TOKEN}`,
+              },
+              body: formData,
+            }
+          );
+
+          if (editResponse.ok) {
+            return {
+              success: true,
+              threadId,
+              messageId: firstMessage.id,
+            };
+          } else {
+            console.warn('Failed to edit message with image, trying without image:', await editResponse.text());
+            // Fall through to edit without image
+          }
+        }
+      } catch (imageError) {
+        console.warn('Error handling image for edit:', imageError);
+        // Fall through to edit without image
+      }
+    }
+
+    // Step 4: Edit message content only (without image or if image failed)
     const editResponse = await fetch(
       `${DISCORD_API_BASE}/channels/${threadId}/messages/${firstMessage.id}`,
       {
@@ -213,60 +326,6 @@ export async function editDiscordPost(
         success: false,
         error: `Failed to edit message: ${editResponse.status}`,
       };
-    }
-
-    // Step 3: Update thread name
-    const editThreadResponse = await fetch(
-      `${DISCORD_API_BASE}/channels/${threadId}`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bot ${DISCORD_BOT_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: data.title,
-        }),
-      }
-    );
-
-    if (!editThreadResponse.ok) {
-      console.warn('Failed to update thread name');
-      // Continue anyway - message edit succeeded
-    }
-
-    // Step 4: If image URL provided and different, upload new image
-    if (data.imageUrl) {
-      try {
-        // Delete old attachments (optional - skipping for simplicity)
-        
-        // Upload new image
-        const imageResponse = await fetch(data.imageUrl);
-        if (imageResponse.ok) {
-          const imageBuffer = await imageResponse.arrayBuffer();
-          const imageBlob = new Blob([imageBuffer]);
-
-          const urlParts = data.imageUrl.split('/');
-          const filename = urlParts[urlParts.length - 1] || 'preview.png';
-
-          const formData = new FormData();
-          formData.append('file', imageBlob, filename);
-          formData.append('payload_json', JSON.stringify({}));
-
-          await fetch(
-            `${DISCORD_API_BASE}/channels/${threadId}/messages`,
-            {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bot ${DISCORD_BOT_TOKEN}`,
-              },
-              body: formData,
-            }
-          );
-        }
-      } catch (imageError) {
-        console.warn('Error uploading new image to Discord:', imageError);
-      }
     }
 
     return {
@@ -294,8 +353,8 @@ export function generateDiscordPostContent(
   themeUrl: string
 ): string {
   const themeLink = themeId ? `https://anymex-themes.vercel.app/themes/${themeId}` : themeUrl;
-  
-  return `🔗 **Theme Page:** ${themeLink}
+
+  return `🔗 **Theme Page:** <${themeLink}>
 
 📝 **Description:** ${description || 'No description provided'}
 
