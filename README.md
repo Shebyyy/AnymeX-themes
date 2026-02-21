@@ -124,7 +124,30 @@ Pick colors that work well together:
 2. Use the template above as a starting point
 3. Customize the colors, fonts, and effects to match your vision
 4. Test your theme in AnymeX
-5. Iterate and refine
+
+#### Testing Your Theme in AnymeX
+
+Before submitting, test your theme to make sure it looks great:
+
+1. Open AnymeX
+2. Go to **Settings**
+3. Navigate to **Player**
+4. Open **JSON Theme Manager**
+
+You have two options to test your theme:
+
+**Option 1: Add JSON Files**
+- Add multiple JSON files at once
+- Select your `my-theme.json` file
+- The theme will be available in your collection
+
+**Option 2: From URL**
+- Paste the URL of your JSON file
+- The theme will be loaded directly
+
+5. Switch to your new theme in the JSON Theme Manager
+6. Check how it looks and make adjustments if needed
+7. Iterate and refine until you're happy with it!
 
 #### Step 4: Submit Your Theme
 

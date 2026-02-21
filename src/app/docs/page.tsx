@@ -46,7 +46,7 @@ export default function DocsPage() {
             Documentation
           </h1>
           <p className="text-neutral-400 max-w-2xl text-base md:text-lg leading-relaxed">
-            Complete guide to creating, uploading, and applying themes for AnymeX player.
+            Complete guide to creating, uploading, and applying themes for AnymeX.
           </p>
         </div>
 
@@ -55,9 +55,9 @@ export default function DocsPage() {
           <section className="prose prose-invert max-w-none">
             <h2 className="text-2xl font-semibold text-white mb-4">What is a Theme?</h2>
             <p className="text-neutral-400 leading-relaxed">
-              An AnymeX theme is a JSON configuration that defines the visual appearance of the player.
-              It includes colors, fonts, sizes, and other styling properties that determine how the player
-              interface looks and feels.
+              An AnymeX theme is a JSON configuration that defines the visual appearance of AnymeX.
+              It includes colors, fonts, sizes, and other styling properties that determine how AnymeX
+              looks and feels.
             </p>
           </section>
 
@@ -92,7 +92,7 @@ export default function DocsPage() {
                 </div>
                 <h3 className="text-base font-medium text-white mb-2">Share</h3>
                 <p className="text-sm text-neutral-400">
-                  Get approved and your theme goes live!
+                  Your theme goes live immediately!
                 </p>
               </div>
             </div>
@@ -328,6 +328,129 @@ export default function DocsPage() {
             </ul>
           </section>
 
+          {/* Testing Your Theme Section */}
+          <section className="rounded-xl border border-neutral-800 bg-neutral-900/30 p-6">
+            <h2 className="text-2xl font-semibold text-white mb-4">Testing Your Theme</h2>
+            <p className="text-neutral-400 mb-6">
+              Before submitting your theme, test it thoroughly in AnymeX to ensure it looks great and functions correctly:
+            </p>
+
+            <div className="space-y-6">
+              {/* Step 1: Validate JSON */}
+              <div>
+                <h3 className="text-lg font-medium text-white mb-3 flex items-center gap-2">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-white text-black text-sm font-bold">1</span>
+                  Validate Your JSON
+                </h3>
+                <p className="text-neutral-400 mb-3">
+                  Make sure your JSON is valid before testing:
+                </p>
+                <ul className="space-y-2 text-sm text-neutral-400 list-disc list-inside ml-4">
+                  <li>Use a JSON validator tool like <a href="https://jsonlint.com" target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:underline">jsonlint.com</a></li>
+                  <li>Ensure all required properties are present (colors, typography, effects)</li>
+                  <li>Check that color values are valid hex codes (e.g., #6366f1)</li>
+                  <li>Verify no trailing commas or missing quotes</li>
+                </ul>
+              </div>
+
+              {/* Step 2: Test in AnymeX */}
+              <div>
+                <h3 className="text-lg font-medium text-white mb-3 flex items-center gap-2">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-white text-black text-sm font-bold">2</span>
+                  Test in AnymeX
+                </h3>
+                <p className="text-neutral-400 mb-3">
+                  Load your theme in AnymeX to see how it looks in action:
+                </p>
+                <ol className="space-y-2 text-sm text-neutral-400 list-decimal list-inside ml-4">
+                  <li>Save your theme JSON file</li>
+                  <li>Open AnymeX</li>
+                  <li>Go to <strong>Settings</strong></li>
+                  <li>Navigate to <strong>Player</strong> → <strong>JSON Theme Manager</strong></li>
+                  <li>Import your JSON file</li>
+                  <li>Apply the theme and inspect different screens</li>
+                </ol>
+              </div>
+
+              {/* Step 3: Check Items */}
+              <div>
+                <h3 className="text-lg font-medium text-white mb-3 flex items-center gap-2">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-white text-black text-sm font-bold">3</span>
+                  Checklist for Quality
+                </h3>
+                <p className="text-neutral-400 mb-3">
+                  Review your theme against these criteria:
+                </p>
+                <ul className="space-y-2 text-sm text-neutral-400">
+                  <li className="flex items-start gap-2">
+                    <Icon icon="solar:check-circle-linear" className="text-green-500 shrink-0 mt-0.5" width={16} />
+                    <span><strong className="text-neutral-300">Text Readability</strong> - All text is clearly readable against backgrounds</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Icon icon="solar:check-circle-linear" className="text-green-500 shrink-0 mt-0.5" width={16} />
+                    <span><strong className="text-neutral-300">Color Contrast</strong> - Sufficient contrast between foreground and background colors</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Icon icon="solar:check-circle-linear" className="text-green-500 shrink-0 mt-0.5" width={16} />
+                    <span><strong className="text-neutral-300">Consistent Spacing</strong> - Padding and margins are uniform throughout</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Icon icon="solar:check-circle-linear" className="text-green-500 shrink-0 mt-0.5" width={16} />
+                    <span><strong className="text-neutral-300">No Broken Colors</strong> - All color values are valid and render correctly</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Icon icon="solar:check-circle-linear" className="text-green-500 shrink-0 mt-0.5" width={16} />
+                    <span><strong className="text-neutral-300">Proper Category</strong> - Theme is correctly categorized (Dark/Light/AMOLED)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Icon icon="solar:check-circle-linear" className="text-green-500 shrink-0 mt-0.5" width={16} />
+                    <span><strong className="text-neutral-300">Descriptive Name</strong> - Theme name clearly communicates its style</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Step 4: Lighting Test */}
+              <div>
+                <h3 className="text-lg font-medium text-white mb-3 flex items-center gap-2">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-white text-black text-sm font-bold">4</span>
+                  Test in Different Lighting
+                </h3>
+                <p className="text-neutral-400 mb-3">
+                  Check your theme in various environments:
+                </p>
+                <ul className="space-y-2 text-sm text-neutral-400">
+                  <li className="flex items-start gap-2">
+                    <Icon icon="solar:sun-2-linear" className="text-yellow-500 shrink-0 mt-0.5" width={16} />
+                    <span><strong className="text-neutral-300">Bright Environment</strong> - View in daylight or bright room</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Icon icon="solar:moon-linear" className="text-indigo-400 shrink-0 mt-0.5" width={16} />
+                    <span><strong className="text-neutral-300">Dark Environment</strong> - View in dim or dark room</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Icon icon="solar:monitor-linear" className="text-blue-400 shrink-0 mt-0.5" width={16} />
+                    <span><strong className="text-neutral-300">Different Screens</strong> - Test on phone, tablet, and desktop if possible</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Common Issues */}
+              <div className="p-4 rounded-lg border border-neutral-800 bg-neutral-950/50">
+                <h4 className="text-sm font-medium text-white mb-3 flex items-center gap-2">
+                  <Icon icon="solar:danger-triangle-linear" className="text-yellow-500" width={16} />
+                  Common Issues to Avoid
+                </h4>
+                <ul className="space-y-2 text-sm text-neutral-400">
+                  <li>• Text that's too dark on dark backgrounds or too light on light backgrounds</li>
+                  <li>• Borders that blend into backgrounds</li>
+                  <li>• Colors that are too similar, making UI elements hard to distinguish</li>
+                  <li>• Missing or invalid color properties causing fallback to default colors</li>
+                  <li>• Font sizes that are too small or too large for comfortable reading</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
           {/* Uploading Your Theme Section */}
           <section className="rounded-xl border border-neutral-800 bg-neutral-900/30 p-6">
             <h2 className="text-2xl font-semibold text-white mb-4">Uploading Your Theme</h2>
@@ -347,35 +470,51 @@ export default function DocsPage() {
               </li>
               <li><strong>Upload your theme JSON file</strong> - Click or drag and drop your JSON file (it will auto-fill the name, description, and category if your JSON includes them)</li>
               <li>Click <strong>"Upload Theme"</strong> to submit</li>
-              <li>Your theme will be <strong>pending approval</strong> until an admin approves it</li>
+              <li>🎉 Your theme is <strong>immediately visible</strong> to all users!</li>
             </ol>
-            <div className="mt-6 p-4 rounded-lg border border-neutral-800 bg-neutral-950/50">
-              <p className="text-sm text-neutral-400 mb-2">
-                <Icon icon="solar:info-circle-linear" className="inline mr-2" width={16} />
-                <strong>Note:</strong> Themes must be approved by an admin before they become visible to the public.
-              </p>
-            </div>
           </section>
 
           {/* Applying Themes Section */}
           <section className="rounded-xl border border-neutral-800 bg-neutral-900/30 p-6">
-            <h2 className="text-2xl font-semibold text-white mb-4">Applying Themes to AnymeX Player</h2>
+            <h2 className="text-2xl font-semibold text-white mb-4">Applying Themes to AnymeX</h2>
             <p className="text-neutral-400 mb-4">
-              Once your theme is approved and visible on the main page, users can apply it to their AnymeX player with a single click:
+              Once your theme is visible on the main page, users can apply it to their AnymeX with a single click:
             </p>
             <ol className="space-y-3 text-neutral-300 list-decimal list-inside">
               <li>Find your theme in the <strong>Themes Gallery</strong> on the main page</li>
               <li>Click the <strong>"Apply"</strong> button on the theme card</li>
-              <li>The AnymeX app will open automatically and apply the theme to your player</li>
+              <li>AnymeX will open automatically and the theme will be added to your collection</li>
+              <li>Switch to your new theme in AnymeX settings</li>
               <li>Enjoy your new theme! 🎨</li>
             </ol>
             <div className="mt-6 p-4 rounded-lg border border-neutral-800 bg-neutral-950/50">
               <p className="text-sm text-neutral-400 mb-2">
                 <Icon icon="solar:info-circle-linear" className="inline mr-2" width={16} />
-                <strong>How it works:</strong> The Apply button uses a deep link (anymex://theme) that tells the AnymeX app which theme to download and apply.
+                <strong>How it works:</strong> The Apply button uses a deep link that tells the AnymeX app which theme to download and add to your collection.
               </p>
               <p className="text-sm text-neutral-500 mt-2">
-                If AnymeX doesn't open, make sure you have the AnymeX player installed on your device.
+                If AnymeX doesn't open, make sure you have the AnymeX app installed on your device.
+              </p>
+            </div>
+          </section>
+
+          {/* Switching Themes Section */}
+          <section className="rounded-xl border border-neutral-800 bg-neutral-900/30 p-6">
+            <h2 className="text-2xl font-semibold text-white mb-4">Switching Between Themes in AnymeX</h2>
+            <p className="text-neutral-400 mb-4">
+              After clicking "Apply" and the theme is added to your collection, you can switch between themes anytime:
+            </p>
+            <ol className="space-y-3 text-neutral-300 list-decimal list-inside">
+              <li>Open <strong>AnymeX</strong></li>
+              <li>Go to <strong>Settings</strong></li>
+              <li>Navigate to <strong>Player</strong></li>
+              <li>Select <strong>Player Theme</strong></li>
+              <li>Choose any theme from your collection to apply it</li>
+            </ol>
+            <div className="mt-6 p-4 rounded-lg border border-neutral-800 bg-neutral-950/50">
+              <p className="text-sm text-neutral-400">
+                <Icon icon="solar:lightbulb-linear" className="inline mr-2" width={16} />
+                <strong>Pro Tip:</strong> You can keep multiple themes in your collection and switch between them anytime without re-downloading!
               </p>
             </div>
           </section>
