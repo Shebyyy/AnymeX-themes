@@ -38,8 +38,10 @@ export default function CreatorLayout({
       checkAuth();
     } else {
       // Check if already logged in when on login/register page
-      const token = localStorage.getItem("creator_token");
-      const userStr = localStorage.getItem("creator_user");
+      const creatorToken = localStorage.getItem("creator_token");
+      const adminToken = localStorage.getItem("admin_token");
+      const userStr = localStorage.getItem("creator_user") || localStorage.getItem("admin_user");
+      const token = creatorToken || adminToken;
       if (token && userStr) {
         router.push("/creator/dashboard");
       }
@@ -48,11 +50,13 @@ export default function CreatorLayout({
   }, [isLoginPage, isRegisterPage, router]);
 
   const checkAuth = async () => {
-    const token = localStorage.getItem("creator_token");
-    const userStr = localStorage.getItem("creator_user");
+    const creatorToken = localStorage.getItem("creator_token");
+    const adminToken = localStorage.getItem("admin_token");
+    const token = creatorToken || adminToken;
+    const userStr = localStorage.getItem("creator_user") || localStorage.getItem("admin_user");
 
     if (!token || !userStr) {
-      router.push("/creator/login");
+      router.push("/auth");
       return;
     }
 
@@ -65,49 +69,59 @@ export default function CreatorLayout({
 
       if (!response.ok) {
         localStorage.removeItem("creator_token");
+        localStorage.removeItem("admin_token");
         localStorage.removeItem("creator_user");
-        router.push("/creator/login");
+        localStorage.removeItem("admin_user");
+        router.push("/auth");
         return;
       }
 
       const data = await response.json();
-      
+
       // Check if user has creator access
       const role = data.user.role;
       const isCreator = role === 'THEME_CREATOR' || role === 'ADMIN' || role === 'SUPER_ADMIN';
-      
+
       if (!isCreator) {
         localStorage.removeItem("creator_token");
+        localStorage.removeItem("admin_token");
         localStorage.removeItem("creator_user");
-        router.push("/creator/login");
+        localStorage.removeItem("admin_user");
+        router.push("/auth");
         return;
       }
 
       setUser(data.user);
     } catch (error) {
       console.error("Auth check error:", error);
-      router.push("/creator/login");
+      router.push("/auth");
     } finally {
       setLoading(false);
     }
   };
 
   const handleLogout = async () => {
-    const token = localStorage.getItem("creator_token");
+    const creatorToken = localStorage.getItem("creator_token");
+    const adminToken = localStorage.getItem("admin_token");
+    const token = creatorToken || adminToken;
 
     try {
-      await fetch("/api/auth/logout", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      if (token) {
+        await fetch("/api/auth/logout", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      }
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
       localStorage.removeItem("creator_token");
+      localStorage.removeItem("admin_token");
       localStorage.removeItem("creator_user");
-      router.push("/creator/login");
+      localStorage.removeItem("admin_user");
+      router.push("/auth");
     }
   };
 
@@ -127,6 +141,9 @@ export default function CreatorLayout({
     return children;
   }
 
+  // Check if user has admin access
+  const isAdmin = user.role === 'ADMIN' || user.role === 'SUPER_ADMIN';
+
   const navItems = [
     {
       href: "/",
@@ -143,6 +160,15 @@ export default function CreatorLayout({
       icon: "solar:widget-4-linear",
       label: "My Themes",
     },
+    ...(isAdmin
+      ? [
+          {
+            href: "/admin/dashboard",
+            icon: "solar:shield-check-linear",
+            label: "Admin Dashboard",
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -165,6 +191,7 @@ export default function CreatorLayout({
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               const isHome = item.href === "/";
+              const isAdmin = item.href === "/admin/dashboard";
               return (
                 <Link
                   key={item.href}
@@ -172,9 +199,11 @@ export default function CreatorLayout({
                   className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     isHome
                       ? "text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10 border border-indigo-500/20"
-                      : isActive
-                        ? "bg-white text-black"
-                        : "text-neutral-400 hover:text-white hover:bg-neutral-800"
+                      : isAdmin
+                        ? "text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10 border border-indigo-500/20"
+                        : isActive
+                          ? "bg-white text-black"
+                          : "text-neutral-400 hover:text-white hover:bg-neutral-800"
                   }`}
                 >
                   <Icon icon={item.icon} width={18} />

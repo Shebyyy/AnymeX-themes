@@ -54,22 +54,43 @@ export default function AdminLayout({
       checkAuth();
     } else {
       // Check if already logged in when on login page
-      const token = localStorage.getItem("admin_token");
-      const userStr = localStorage.getItem("admin_user");
+      const creatorToken = localStorage.getItem("creator_token");
+      const adminToken = localStorage.getItem("admin_token");
+      const userStr = localStorage.getItem("creator_user") || localStorage.getItem("admin_user");
+      const token = creatorToken || adminToken;
       if (token && userStr) {
-        // Already logged in, redirect to dashboard
-        router.push("/admin/dashboard");
+        // Check if user has admin access
+        try {
+          const response = await fetch("/api/auth/me", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (response.ok) {
+            const data = await response.json();
+            const role = data.user.role;
+            const isAdmin = role === 'ADMIN' || role === 'SUPER_ADMIN';
+            if (isAdmin) {
+              // Already logged in as admin, redirect to dashboard
+              router.push("/admin/dashboard");
+            }
+          }
+        } catch (error) {
+          console.error("Auth check error:", error);
+        }
       }
       setLoading(false);
     }
   }, [isLoginPage]);
 
   const checkAuth = async () => {
-    const token = localStorage.getItem("admin_token");
-    const userStr = localStorage.getItem("admin_user");
+    const creatorToken = localStorage.getItem("creator_token");
+    const adminToken = localStorage.getItem("admin_token");
+    const token = adminToken || creatorToken;
+    const userStr = localStorage.getItem("admin_user") || localStorage.getItem("creator_user");
 
     if (!token || !userStr) {
-      router.push("/admin/login");
+      router.push("/auth");
       return;
     }
 
@@ -82,8 +103,10 @@ export default function AdminLayout({
 
       if (!response.ok) {
         localStorage.removeItem("admin_token");
+        localStorage.removeItem("creator_token");
         localStorage.removeItem("admin_user");
-        router.push("/admin/login");
+        localStorage.removeItem("creator_user");
+        router.push("/auth");
         return;
       }
 
@@ -95,36 +118,44 @@ export default function AdminLayout({
 
       if (!isAdmin) {
         localStorage.removeItem("admin_token");
+        localStorage.removeItem("creator_token");
         localStorage.removeItem("admin_user");
-        router.push("/admin/login");
+        localStorage.removeItem("creator_user");
+        router.push("/auth");
         return;
       }
 
       setUser(data.user);
     } catch (error) {
       console.error("Auth check error:", error);
-      router.push("/admin/login");
+      router.push("/auth");
     } finally {
       setLoading(false);
     }
   };
 
   const handleLogout = async () => {
-    const token = localStorage.getItem("admin_token");
+    const adminToken = localStorage.getItem("admin_token");
+    const creatorToken = localStorage.getItem("creator_token");
+    const token = adminToken || creatorToken;
 
     try {
-      await fetch("/api/auth/logout", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      if (token) {
+        await fetch("/api/auth/logout", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      }
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
       localStorage.removeItem("admin_token");
+      localStorage.removeItem("creator_token");
       localStorage.removeItem("admin_user");
-      router.push("/admin/login");
+      localStorage.removeItem("creator_user");
+      router.push("/auth");
       toast({
         title: "Logged out successfully",
       });
@@ -135,7 +166,9 @@ export default function AdminLayout({
     e.preventDefault();
     setChangingPassword(true);
 
-    const token = localStorage.getItem("admin_token");
+    const adminToken = localStorage.getItem("admin_token");
+    const creatorToken = localStorage.getItem("creator_token");
+    const token = adminToken || creatorToken;
 
     try {
       const response = await fetch("/api/auth/change-password", {
