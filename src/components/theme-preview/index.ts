@@ -3,8 +3,8 @@
  * Exports all theme preview components
  */
 
-export { PlayerControlsProvider, usePlayerControls, usePlayerControlsOptional } from './PlayerControlsContext';
-export { ThemePreviewRenderer, ThemePreviewCard } from './ThemePreviewRenderer';
-export { ThemeZoneTop } from './ThemeZoneTop';
-export { ThemeZoneMiddle } from './ThemeZoneMiddle';
-export { ThemeZoneBottom } from './ThemeZoneBottom';
+export { PlayerControlsProvider, usePlayerControls, usePlayerControlsOptional } from "./PlayerControlsContext";
+export { ThemePreviewRenderer } from "./ThemePreviewRendererFull.jsx";
+export { ThemeZoneBottom } from "./ThemeZoneBottom";
+export { ThemeZoneMiddle } from "./ThemeZoneMiddle";
+export { ThemeZoneTop } from "./ThemeZoneTop";
