@@ -106,3 +106,9 @@ model ThemeView {
   @@unique([themeId, userToken])
   @@index([themeId])
 }
+
+model AppSettings {
+  id                        String   @id @default(cuid())
+  defaultPreviewBackground String?  // Default background image URL for theme previews
+  updatedAt                 DateTime @updatedAt
+}

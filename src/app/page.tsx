@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { ThemePreviewRenderer } from "@/components/theme-preview";
 import Link from "next/link";
 
 interface Creator {
@@ -590,11 +591,12 @@ export default function Home() {
                   onClick={() => handleView(theme.id)}
                 >
                   {/* Preview */}
-                  <div className="aspect-video w-full overflow-hidden rounded-lg bg-neutral-900 relative">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                    <div className="absolute bottom-3 left-3 right-3 h-1.5 rounded-full bg-neutral-700/50 overflow-hidden">
-                      <div className="h-full w-1/3 bg-indigo-500/80"></div>
-                    </div>
+                  <div className="aspect-video w-full overflow-hidden rounded-lg relative">
+                    <ThemePreviewRenderer
+                      themeJson={theme.themeJson}
+                      backgroundImage="/preview-bg.jpg"
+                      className="w-full h-full"
+                    />
                   </div>
 
                   <div className="flex flex-col gap-3 p-3">
