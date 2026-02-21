@@ -13,7 +13,7 @@ import type {
   BottomSlotDef,
   ThemeItem,
 } from './types';
-import { ThemeItem as ThemeItemClass } from './theme-item';
+import { ThemeItemClass } from './theme-item';
 import { readEdgeInsets } from './utils';
 
 // ============================================================================

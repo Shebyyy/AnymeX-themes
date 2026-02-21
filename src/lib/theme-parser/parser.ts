@@ -17,6 +17,7 @@ import type {
   MiddleZone,
   BottomZone,
   JsonThemeParseResult,
+  Curve,
 } from './types';
 import { ThemeItem } from './theme-item';
 import {
@@ -89,7 +90,7 @@ export function parseCollection(rawJson: string): JsonThemeParseResult {
   for (let i = 0; i < themeMaps.length; i++) {
     const rawTheme = themeMaps[i];
     try {
-      const themeDef = ThemeDef.fromJson(rawTheme);
+      const themeDef = ThemeDefImpl.fromJson(rawTheme);
       themes.push(themeDef);
       rawThemes.push(rawTheme);
 

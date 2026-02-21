@@ -3,6 +3,8 @@
  * Ported from Dart theme parser to TypeScript
  */
 
+import type { ThemeItem } from './theme-item';
+
 // ============================================================================
 // Core Theme Types
 // ============================================================================
@@ -122,12 +124,14 @@ export interface TopZone {
   normal: ThreeColumnSlot;
   locked: ThreeColumnSlot | null;
   vibes: ZoneVibes;
+  slotFor(isLocked: boolean): ThreeColumnSlot;
 }
 
 export interface MiddleZone {
   normalItems: ThemeItem[];
   lockedItems: ThemeItem[] | null;
   vibes: ZoneVibes;
+  itemsFor(isLocked: boolean): ThemeItem[];
 }
 
 export interface BottomZone {
@@ -138,25 +142,14 @@ export interface BottomZone {
   progressPadding: EdgeInsets;
   outsidePadding: EdgeInsets;
   vibes: ZoneVibes;
+  slotFor(isLocked: boolean): BottomSlotDef;
 }
 
 // ============================================================================
 // Theme Items
 // ============================================================================
 
-export interface ThemeItem {
-  id: string;
-  data: Record<string, any>;
-  visibleWhen?: string;
-  enabledWhen?: string;
-  style: Record<string, any>;
-
-  // Helper getters
-  grabString(key: string): string | undefined;
-  grabInt(key: string, fallback: number): number;
-  grabDouble(key: string, fallback: number): number;
-  grabBool(key: string, fallback: boolean): boolean;
-}
+export type { ThemeItem } from './theme-item';
 
 // ============================================================================
 // Supporting Types

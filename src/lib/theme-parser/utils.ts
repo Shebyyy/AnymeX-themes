@@ -247,8 +247,9 @@ export function parseFontWeight(raw: any, fallback: FontWeight): FontWeight {
 // Curve Parser
 // ============================================================================
 
-export function parseCurve(raw: string | undefined, fallback: Curve): Curve {
-  switch (raw) {
+export function parseCurve(raw: any, fallback: Curve): Curve {
+  const str = typeof raw === 'string' ? raw : undefined;
+  switch (str) {
     case 'linear':
       return 'linear';
     case 'easeIn':

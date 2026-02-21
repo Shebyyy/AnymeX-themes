@@ -3,10 +3,23 @@
  * Represents a single theme item with helper methods
  */
 
-import type { ThemeItem as IThemeItem } from './types';
 import { readString, readInt, readDouble, readBool, asMap } from './utils';
 
-export class ThemeItem implements IThemeItem {
+export interface ThemeItem {
+  id: string;
+  data: Record<string, any>;
+  visibleWhen?: string;
+  enabledWhen?: string;
+  style: Record<string, any>;
+
+  // Helper getters
+  grabString(key: string): string | undefined;
+  grabInt(key: string, fallback: number): number;
+  grabDouble(key: string, fallback: number): number;
+  grabBool(key: string, fallback: boolean): boolean;
+}
+
+export class ThemeItemClass implements ThemeItem {
   id: string;
   data: Record<string, any>;
 
@@ -46,13 +59,13 @@ export class ThemeItem implements IThemeItem {
   /**
    * Create a ThemeItem from raw JSON data
    */
-  static fromRaw(raw: any): ThemeItem {
+  static fromRaw(raw: any): ThemeItemClass {
     if (typeof raw === 'string') {
       const id = raw.trim();
       if (id === '') {
         throw new Error('Theme item needs an id.');
       }
-      return new ThemeItem(id, {});
+      return new ThemeItemClass(id, {});
     }
 
     if (typeof raw === 'object' && raw !== null && !Array.isArray(raw)) {
@@ -61,7 +74,7 @@ export class ThemeItem implements IThemeItem {
       if (id == null || id.trim() === '') {
         throw new Error('Theme item needs an id.');
       }
-      return new ThemeItem(id, map);
+      return new ThemeItemClass(id, map);
     }
 
     throw new Error('Theme item must be a string or object.');
@@ -70,7 +83,10 @@ export class ThemeItem implements IThemeItem {
   /**
    * Create a simple ThemeItem with just an ID
    */
-  static create(id: string): ThemeItem {
-    return new ThemeItem(id, {});
+  static create(id: string): ThemeItemClass {
+    return new ThemeItemClass(id, {});
   }
 }
+
+// Export ThemeItemClass as ThemeItem for backward compatibility
+export const ThemeItem = ThemeItemClass;
