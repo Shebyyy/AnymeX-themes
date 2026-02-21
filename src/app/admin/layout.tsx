@@ -209,7 +209,12 @@ export default function AdminLayout({
     {
       href: "/admin/dashboard",
       icon: "solar:widget-4-linear",
-      label: "Dashboard",
+      label: "Admin Dashboard",
+    },
+    {
+      href: "/creator/dashboard",
+      icon: "solar:palette-bold",
+      label: "Creator Dashboard",
     },
     ...(isAdmin
       ? [
@@ -221,7 +226,7 @@ export default function AdminLayout({
           {
             href: "/admin/themes",
             icon: "solar:gallery-wide-linear",
-            label: "Themes",
+            label: "Theme Approvals",
           },
         ]
       : []),
