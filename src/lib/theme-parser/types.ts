@@ -243,56 +243,80 @@ export interface JsonThemeParseResult {
 }
 
 // ============================================================================
-// Icon Map
+// Icon Map (Lucide Icons)
 // ============================================================================
 
-export const ICON_MAP: Record<string, string> = {
+import {
+  ArrowLeft,
+  Lock,
+  LockOpen,
+  Maximize,
+  Minimize,
+  Settings,
+  SkipBack,
+  SkipForward,
+  Play,
+  Pause,
+  List,
+  SlidersHorizontal,
+  Subtitles,
+  Cloud,
+  FileAudio,
+  RotateCw,
+  Maximize2,
+  Monitor,
+  Square,
+  FastForward,
+  MoreHorizontal,
+} from 'lucide-react';
+
+export const ICON_MAP: Record<string, React.ElementType> = {
   // Navigation
-  back: 'solar:alt-arrow-left-linear',
-  arrow_back_rounded: 'solar:alt-arrow-left-linear',
+  back: ArrowLeft,
+  arrow_back_rounded: ArrowLeft,
 
   // Lock controls
-  lock_controls: 'solar:lock-linear',
-  unlock_controls: 'solar:lock-open-linear',
+  lock_controls: Lock,
+  unlock_controls: LockOpen,
 
   // Fullscreen
-  toggle_fullscreen: 'solar:full-screen-linear',
-  fullscreen_exit_rounded: 'solar:full-screen-exit-linear',
+  toggle_fullscreen: Maximize,
+  fullscreen_exit_rounded: Minimize,
 
   // Settings
-  open_settings: 'solar:settings-linear',
-  more_vert_rounded: 'solar:menu-dots-linear',
+  open_settings: Settings,
+  more_vert_rounded: MoreHorizontal,
 
   // Episode navigation
-  previous_episode: 'solar:skip-previous-linear',
-  next_episode: 'solar:skip-next-linear',
+  previous_episode: SkipBack,
+  next_episode: SkipForward,
 
   // Seek controls
-  seek_back: 'solar:skip-previous-linear',
-  seek_forward: 'solar:skip-next-linear',
-  replay_10_rounded: 'solar:skip-previous-linear',
-  forward_10_rounded: 'solar:skip-next-linear',
-  replay_30_rounded: 'solar:skip-previous-linear',
-  forward_30_rounded: 'solar:skip-next-linear',
+  seek_back: SkipBack,
+  seek_forward: SkipForward,
+  replay_10_rounded: SkipBack,
+  forward_10_rounded: SkipForward,
+  replay_30_rounded: SkipBack,
+  forward_30_rounded: SkipForward,
 
   // Play/Pause
-  play_pause: 'solar:play-linear',
-  pause_rounded: 'solar:pause-linear',
-  play_arrow_rounded: 'solar:play-linear',
+  play_pause: Play,
+  pause_rounded: Pause,
+  play_arrow_rounded: Play,
 
   // Features
-  playlist: 'solar:playlist-linear',
-  shaders: 'solar:sliders-horizontal-linear',
-  subtitles: 'solar:subtitle-linear',
-  server: 'solar:cloud-linear',
-  quality: 'solar:high-quality-linear',
-  speed: 'solar:speedometer-linear',
-  audio_track: 'solar:music-note-2-linear',
-  orientation: 'solar:screen-rotate-linear',
-  aspect_ratio: 'solar:fit-screen-linear',
+  playlist: List,
+  shaders: SlidersHorizontal,
+  subtitles: Subtitles,
+  server: Cloud,
+  quality: Maximize2,
+  speed: FastForward,
+  audio_track: FileAudio,
+  orientation: RotateCw,
+  aspect_ratio: Monitor,
 
   // Mega seek
-  mega_seek: 'solar:fast-forward-linear',
+  mega_seek: FastForward,
 };
 
 // ============================================================================

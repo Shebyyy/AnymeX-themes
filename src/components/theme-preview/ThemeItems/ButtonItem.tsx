@@ -6,10 +6,10 @@
 'use client';
 
 import React from 'react';
-import { Icon } from '@iconify/react';
 import type { ThemeItem as IThemeItem, ButtonStyleDef } from '@/lib/theme-parser';
+import { ICON_MAP } from '@/lib/theme-parser';
 import { usePlayerControls } from '../PlayerControlsContext';
-import { resolveColor, mashButtonStyle, DEFAULT_BUTTON_STYLE, DEFAULT_PRIMARY_BUTTON_STYLE, ICON_MAP } from '@/lib/theme-parser';
+import { resolveColor, mashButtonStyle, DEFAULT_BUTTON_STYLE, DEFAULT_PRIMARY_BUTTON_STYLE } from '@/lib/theme-parser';
 import { checkCondition, isThingEnabled } from '@/lib/theme-parser';
 
 interface ButtonItemProps {
@@ -78,12 +78,12 @@ export function ButtonItem({ item, styleOverride = {}, isPrimary = false }: Butt
     'rgba(255, 255, 255, 0.55)'
   );
 
-  // Pick icon
+  // Pick icon component
   const customIcon = item.grabString('icon');
   const iconKey = customIcon && ICON_MAP[customIcon] ? customIcon : id;
-  const iconName = ICON_MAP[iconKey];
+  const IconComponent = ICON_MAP[iconKey];
 
-  if (!iconName) {
+  if (!IconComponent) {
     return null;
   }
 
@@ -92,6 +92,9 @@ export function ButtonItem({ item, styleOverride = {}, isPrimary = false }: Butt
 
   // Render play/pause with state switching
   if (isPlayPause) {
+    const PlayIcon = ICON_MAP['play_arrow_rounded'];
+    const PauseIcon = ICON_MAP['pause_rounded'];
+
     return (
       <div
         className="relative inline-flex items-center justify-center"
@@ -109,30 +112,42 @@ export function ButtonItem({ item, styleOverride = {}, isPrimary = false }: Butt
               height: mergedStyle.iconSize,
             }}
           >
-            <svg viewBox="0 0 24 24" fill="none" className="w-full h-full">
-              <circle
-                cx="12"
-                cy="12"
-                r="10"
-                stroke={enabled ? iconColor : disabledIconColor}
-                strokeWidth="2"
-                opacity="0.25"
-              />
-              <path
-                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"
-                fill={enabled ? iconColor : disabledIconColor}
-                opacity="0.5"
-              />
-            </svg>
+            {/* Simple loading spinner */}
+            <div
+              style={{
+                width: '100%',
+                height: '100%',
+                border: '2px solid',
+                borderColor: enabled ? iconColor : disabledIconColor,
+                borderTopColor: 'transparent',
+                borderRadius: '50%',
+              }}
+            />
           </div>
         ) : (
-          <Icon
-            icon={controller.isPlaying ? 'solar:pause-linear' : 'solar:play-linear'}
-            style={{
-              fontSize: mergedStyle.iconSize,
-              color: enabled ? iconColor : disabledIconColor,
-            }}
-          />
+          <>
+            {controller.isPlaying ? (
+              PauseIcon ? (
+                <PauseIcon
+                  style={{
+                    width: mergedStyle.iconSize,
+                    height: mergedStyle.iconSize,
+                    color: enabled ? iconColor : disabledIconColor,
+                  }}
+                />
+              ) : null
+            ) : (
+              PlayIcon ? (
+                <PlayIcon
+                  style={{
+                    width: mergedStyle.iconSize,
+                    height: mergedStyle.iconSize,
+                    color: enabled ? iconColor : disabledIconColor,
+                  }}
+                />
+              ) : null
+            )}
+          </>
         )}
       </div>
     );
@@ -159,12 +174,13 @@ export function ButtonItem({ item, styleOverride = {}, isPrimary = false }: Butt
             : 'none',
         }}
       />
-      <Icon
-        icon={iconName}
-        className="relative z-10"
+      <IconComponent
         style={{
-          fontSize: mergedStyle.iconSize,
+          width: mergedStyle.iconSize,
+          height: mergedStyle.iconSize,
           color: enabled ? iconColor : disabledIconColor,
+          position: 'relative',
+          zIndex: 10,
         }}
       />
     </div>
