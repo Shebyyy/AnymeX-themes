@@ -64,6 +64,7 @@ model SessionToken {
 
 model Theme {
   id          String   @id @default(cuid())
+  themeId     String?  @unique  // ID from theme JSON (e.g., "cinema_director_mode")
   name        String
   description String?
   creatorName String
@@ -78,6 +79,9 @@ model Theme {
   updatedAt   DateTime @updatedAt
 
   creator     User?    @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+
+  @@index([themeId])
+  @@index([status])
 }
 
 enum ThemeStatus {

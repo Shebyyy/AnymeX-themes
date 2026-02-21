@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import Link from "next/link";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,6 +38,7 @@ import { useSearchParams } from "next/navigation";
 
 interface Theme {
   id: string;
+  themeId: string | null;
   name: string;
   description: string | null;
   creatorName: string;
@@ -180,6 +182,15 @@ export default function ThemesPage() {
     setDeleteDialogOpen(true);
   };
 
+  const handleShare = async (themeId: string) => {
+    const shareUrl = `${window.location.origin}/themes/${themeId}`;
+    await navigator.clipboard.writeText(shareUrl);
+    toast({
+      title: "Link copied!",
+      description: "Share URL has been copied to your clipboard.",
+    });
+  };
+
   const getStatusBadge = (status: string) => {
     const colors = {
       PENDING: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
@@ -295,6 +306,11 @@ export default function ThemesPage() {
                       <TableCell>
                         <div>
                           <p className="font-medium text-white">{theme.name}</p>
+                          {theme.themeId && (
+                            <p className="text-xs text-neutral-500 font-mono">
+                              {theme.themeId}
+                            </p>
+                          )}
                           {theme.description && (
                             <p className="text-sm text-neutral-500 line-clamp-1">
                               {theme.description}
@@ -337,6 +353,33 @@ export default function ThemesPage() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
+                          {theme.themeId && (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleShare(theme.themeId)}
+                                className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
+                                title="Share Link"
+                              >
+                                <Icon icon="solar:share-linear" width={18} />
+                              </Button>
+                              <Link
+                                href={`/themes/${theme.themeId}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
+                                  title="View Theme"
+                                >
+                                  <Icon icon="solar:external-link-linear" width={18} />
+                                </Button>
+                              </Link>
+                            </>
+                          )}
                           {theme.status === "PENDING" && (
                             <>
                               <Button

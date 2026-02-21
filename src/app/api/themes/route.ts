@@ -66,9 +66,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate themeJson is valid JSON
+    // Validate themeJson is valid JSON and extract themeId
+    let parsedJson;
     try {
-      JSON.parse(themeJson);
+      parsedJson = JSON.parse(themeJson);
     } catch {
       return NextResponse.json(
         { error: "Invalid themeJson format" },
@@ -76,8 +77,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Extract themeId from JSON or generate one from name
+    const themeId = parsedJson.id || name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+
+    // Check if themeId already exists
+    const existingTheme = await db.theme.findFirst({
+      where: { themeId }
+    });
+
+    if (existingTheme) {
+      return NextResponse.json(
+        { error: "A theme with this ID already exists. Please use a unique ID." },
+        { status: 409 }
+      );
+    }
+
     const theme = await db.theme.create({
       data: {
+        themeId,
         name,
         creatorName,
         description: description || null,

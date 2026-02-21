@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
 import {
   Dialog,
   DialogContent,
@@ -38,6 +39,7 @@ import { useToast } from "@/hooks/use-toast";
 
 interface Theme {
   id: string;
+  themeId: string | null;
   name: string;
   description: string | null;
   category: string | null;
@@ -297,6 +299,15 @@ export default function CreatorDashboard() {
   const openDeleteDialog = (theme: Theme) => {
     setSelectedTheme(theme);
     setDeleteDialogOpen(true);
+  };
+
+  const handleShare = async (themeId: string) => {
+    const shareUrl = `${window.location.origin}/themes/${themeId}`;
+    await navigator.clipboard.writeText(shareUrl);
+    toast({
+      title: "Link copied!",
+      description: "Share URL has been copied to your clipboard.",
+    });
   };
 
   const getStatusBadge = (status: string) => {
@@ -727,6 +738,11 @@ export default function CreatorDashboard() {
                     <h3 className="text-lg font-semibold text-white mb-2">
                       {theme.name}
                     </h3>
+                    {theme.themeId && (
+                      <p className="text-xs text-neutral-500 font-mono mb-2">
+                        {theme.themeId}
+                      </p>
+                    )}
                     <div className="flex flex-wrap items-center gap-2">
                       {theme.category && (
                         <Badge
@@ -768,6 +784,34 @@ export default function CreatorDashboard() {
                 </div>
 
                 <div className="flex items-center gap-2">
+                  {theme.themeId && (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleShare(theme.themeId)}
+                        className="border-blue-700 text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
+                        title="Share Link"
+                      >
+                        <Icon icon="solar:share-linear" width={16} />
+                      </Button>
+                      <Link
+                        href={`/themes/${theme.themeId}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-blue-700 text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
+                          title="View Theme"
+                        >
+                          <Icon icon="solar:external-link-linear" width={16} className="mr-2" />
+                          View
+                        </Button>
+                      </Link>
+                    </>
+                  )}
                   <Button
                     variant="outline"
                     size="sm"
