@@ -25,6 +25,7 @@ interface Creator {
 
 interface Theme {
   id: string;
+  themeId: string;
   name: string;
   description: string | null;
   creatorName: string;
@@ -585,9 +586,10 @@ export default function Home() {
                 </div>
               ))
             : themes.map((theme) => (
-                <div
+                <Link
                   key={theme.id}
-                  className="group relative flex flex-col rounded-xl border border-neutral-800 bg-neutral-900/20 p-2 transition-all hover:border-neutral-700 hover:bg-neutral-900/40 hover:shadow-lg hover:shadow-black/50"
+                  href={`/themes/${theme.themeId}`}
+                  className="group relative flex flex-col rounded-xl border border-neutral-800 bg-neutral-900/20 p-2 transition-all hover:border-neutral-700 hover:bg-neutral-900/40 hover:shadow-lg hover:shadow-black/50 cursor-pointer"
                   onClick={() => handleView(theme.id)}
                 >
                   {/* Preview */}
@@ -662,7 +664,7 @@ export default function Home() {
                       </Button>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
         </div>
 
