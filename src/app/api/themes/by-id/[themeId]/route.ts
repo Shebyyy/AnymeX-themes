@@ -9,7 +9,7 @@ export async function GET(
   try {
     const { themeId } = await params;
 
-    const theme = await db.theme.findUnique({
+    const theme = await db.theme.findFirst({
       where: { themeId },
       include: {
         creator: {

@@ -38,6 +38,7 @@ import { useToast } from "@/hooks/use-toast";
 
 interface Theme {
   id: string;
+  themeId: string | null;
   name: string;
   description: string | null;
   category: string | null;
@@ -727,6 +728,11 @@ export default function CreatorDashboard() {
                     <h3 className="text-lg font-semibold text-white mb-2">
                       {theme.name}
                     </h3>
+                    {theme.themeId && (
+                      <p className="text-xs text-neutral-500 font-mono mb-2">
+                        {theme.themeId}
+                      </p>
+                    )}
                     <div className="flex flex-wrap items-center gap-2">
                       {theme.category && (
                         <Badge
@@ -768,6 +774,23 @@ export default function CreatorDashboard() {
                 </div>
 
                 <div className="flex items-center gap-2">
+                  {theme.themeId && (
+                    <Link
+                      href={`/themes/${theme.themeId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-blue-700 text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
+                        title="View Theme"
+                      >
+                        <Icon icon="solar:external-link-linear" width={16} className="mr-2" />
+                        View
+                      </Button>
+                    </Link>
+                  )}
                   <Button
                     variant="outline"
                     size="sm"

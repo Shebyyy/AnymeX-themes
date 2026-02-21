@@ -18,7 +18,7 @@ interface Creator {
 
 interface Theme {
   id: string;
-  themeId: string;
+  themeId: string | null;
   name: string;
   description: string | null;
   creatorName: string;
@@ -148,6 +148,15 @@ export default function ThemeDetailPage({
 
   const shareTheme = async () => {
     if (!theme) return;
+
+    if (!theme.themeId) {
+      toast({
+        variant: "destructive",
+        title: "Cannot share",
+        description: "This theme does not have a shareable ID.",
+      });
+      return;
+    }
 
     const shareUrl = `${window.location.origin}/themes/${theme.themeId}`;
 
@@ -328,46 +337,50 @@ export default function ThemeDetailPage({
               </p>
               <div className="flex items-center gap-2">
                 <code className="text-sm font-mono text-neutral-300 bg-neutral-900/50 px-3 py-1.5 rounded-lg">
-                  {theme.themeId}
+                  {theme.themeId || "Not available"}
                 </code>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(theme.themeId);
-                    toast({
-                      title: "ID copied!",
-                      description: "Theme ID has been copied to your clipboard.",
-                    });
-                  }}
-                  className="text-neutral-500 hover:text-neutral-300 transition-colors"
-                >
-                  <Icon icon="solar:copy-linear" width={16} />
-                </button>
+                {theme.themeId && (
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(theme.themeId!);
+                      toast({
+                        title: "ID copied!",
+                        description: "Theme ID has been copied to your clipboard.",
+                      });
+                    }}
+                    className="text-neutral-500 hover:text-neutral-300 transition-colors"
+                  >
+                    <Icon icon="solar:copy-linear" width={16} />
+                  </button>
+                )}
               </div>
             </div>
-            <div>
-              <p className="text-xs text-neutral-500 uppercase tracking-wider mb-1">
-                Share URL
-              </p>
-              <div className="flex items-center gap-2">
-                <code className="text-sm font-mono text-neutral-300 bg-neutral-900/50 px-3 py-1.5 rounded-lg flex-1 truncate">
-                  {`${window.location.origin}/themes/${theme.themeId}`}
-                </code>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(
-                      `${window.location.origin}/themes/${theme.themeId}`
-                    );
-                    toast({
-                      title: "URL copied!",
-                      description: "Share URL has been copied to your clipboard.",
-                    });
-                  }}
-                  className="text-neutral-500 hover:text-neutral-300 transition-colors shrink-0"
-                >
-                  <Icon icon="solar:copy-linear" width={16} />
-                </button>
+            {theme.themeId && (
+              <div>
+                <p className="text-xs text-neutral-500 uppercase tracking-wider mb-1">
+                  Share URL
+                </p>
+                <div className="flex items-center gap-2">
+                  <code className="text-sm font-mono text-neutral-300 bg-neutral-900/50 px-3 py-1.5 rounded-lg flex-1 truncate">
+                    {`${window.location.origin}/themes/${theme.themeId}`}
+                  </code>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        `${window.location.origin}/themes/${theme.themeId}`
+                      );
+                      toast({
+                        title: "URL copied!",
+                        description: "Share URL has been copied to your clipboard.",
+                      });
+                    }}
+                    className="text-neutral-500 hover:text-neutral-300 transition-colors shrink-0"
+                  >
+                    <Icon icon="solar:copy-linear" width={16} />
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

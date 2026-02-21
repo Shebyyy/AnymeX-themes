@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
     const themeId = parsedJson.id || name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
 
     // Check if themeId already exists
-    const existingTheme = await db.theme.findUnique({
+    const existingTheme = await db.theme.findFirst({
       where: { themeId }
     });
 

@@ -64,7 +64,7 @@ model SessionToken {
 
 model Theme {
   id          String   @id @default(cuid())
-  themeId     String   @unique  // ID from theme JSON (e.g., "cinema_director_mode")
+  themeId     String?  @unique  // ID from theme JSON (e.g., "cinema_director_mode")
   name        String
   description String?
   creatorName String
