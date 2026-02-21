@@ -72,6 +72,11 @@ export default function AdminLayout({
               const role = data.user.role;
               const isAdmin = role === 'ADMIN' || role === 'SUPER_ADMIN';
               if (isAdmin) {
+                // Auto-switch: If admin doesn't have admin_token but has creator_token, use it as admin_token
+                if (!adminToken && creatorToken) {
+                  localStorage.setItem("admin_token", creatorToken);
+                  localStorage.setItem("admin_user", userStr);
+                }
                 // Already logged in as admin, redirect to dashboard
                 router.push("/admin/dashboard");
               }
@@ -126,6 +131,12 @@ export default function AdminLayout({
         localStorage.removeItem("creator_user");
         router.push("/auth");
         return;
+      }
+
+      // Auto-switch: If admin doesn't have admin_token but has creator_token, use it as admin_token
+      if (!adminToken && creatorToken && isAdmin) {
+        localStorage.setItem("admin_token", creatorToken);
+        localStorage.setItem("admin_user", userStr);
       }
 
       setUser(data.user);

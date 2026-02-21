@@ -94,12 +94,23 @@ export default function CreatorDashboard() {
 
   const fetchThemes = async () => {
     try {
-      const token = localStorage.getItem("creator_token");
-      const response = await fetch("/api/creator/themes", {
+      // Try creator_token first, then admin_token
+      let token = localStorage.getItem("creator_token");
+      let response = await fetch("/api/creator/themes", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+
+      // If creator_token doesn't work, try admin_token
+      if (!response.ok && !token) {
+        token = localStorage.getItem("admin_token");
+        response = await fetch("/api/creator/themes", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      }
 
       if (!response.ok) throw new Error("Failed to fetch themes");
 
@@ -171,8 +182,9 @@ export default function CreatorDashboard() {
     setEditing(true);
 
     try {
-      const token = localStorage.getItem("creator_token");
-      const response = await fetch(`/api/creator/themes/${selectedTheme.id}`, {
+      // Try creator_token first, then admin_token
+      let token = localStorage.getItem("creator_token");
+      let response = await fetch(`/api/creator/themes/${selectedTheme.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -180,6 +192,19 @@ export default function CreatorDashboard() {
         },
         body: JSON.stringify(editForm),
       });
+
+      // If creator_token doesn't work, try admin_token
+      if (!response.ok && !token) {
+        token = localStorage.getItem("admin_token");
+        response = await fetch(`/api/creator/themes/${selectedTheme.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(editForm),
+        });
+      }
 
       const data = await response.json();
 
@@ -209,13 +234,25 @@ export default function CreatorDashboard() {
     setDeleting(true);
 
     try {
-      const token = localStorage.getItem("creator_token");
-      const response = await fetch(`/api/creator/themes/${selectedTheme.id}`, {
+      // Try creator_token first, then admin_token
+      let token = localStorage.getItem("creator_token");
+      let response = await fetch(`/api/creator/themes/${selectedTheme.id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+
+      // If creator_token doesn't work, try admin_token
+      if (!response.ok && !token) {
+        token = localStorage.getItem("admin_token");
+        response = await fetch(`/api/creator/themes/${selectedTheme.id}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      }
 
       if (!response.ok) throw new Error("Failed to delete theme");
 
