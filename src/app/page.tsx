@@ -656,6 +656,10 @@ export default function Home() {
                                                   themeJson={theme.themeJson}
                                                   backgroundImage="/preview-bg.jpg"
                                                   className="w-full h-full"
+                                                  controllerState={undefined}
+                                                  width={undefined}
+                                                  height={undefined}
+                                                  style={undefined}
                                               />
                                           </div>
                                       </Link>
@@ -667,6 +671,10 @@ export default function Home() {
                                                   themeJson={theme.themeJson}
                                                   backgroundImage="/preview-bg.jpg"
                                                   className="w-full h-full"
+                                                  controllerState={undefined}
+                                                  width={undefined}
+                                                  height={undefined}
+                                                  style={undefined}
                                               />
                                           </div>
                                       </div>
