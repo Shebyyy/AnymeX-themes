@@ -189,7 +189,7 @@ Need inspiration? Browse the gallery to see what other creators have made. Study
 
 ### Getting Help
 
-- **Questions?** Check our [Documentation](/docs)
+- **Questions?** Reach out on [GitHub Issues](https://github.com/Shebyyy/AnymeX-themes/issues)
 - **Issues?** Report a broken theme or bug
 - **Ideas?** Suggest new features or theme categories
 
@@ -205,7 +205,6 @@ Join our community to:
 
 ## 📚 Additional Resources
 
-- [Theme Creation Documentation](/docs) - In-depth guide for advanced creators
 - [Color Palette Tools](https://coolors.co) - Generate color schemes
 - [Typography Resources](https://fonts.google.com) - Find great fonts
 - [AnymeX App](https://github.com/RyanYuuki/AnymeX) - The main AnymeX project
