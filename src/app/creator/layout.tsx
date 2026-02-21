@@ -178,9 +178,11 @@ export default function CreatorLayout({
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center gap-2 p-6 border-b border-neutral-800">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black">
-              <Icon icon="solar:play-stream-bold" width={18} />
-            </div>
+            <img
+              src="https://raw.githubusercontent.com/RyanYuuki/AnymeX/main/assets/images/logo_transparent.png"
+              alt="AnymeX"
+              className="w-8 h-8"
+            />
             <span className="text-sm font-semibold tracking-tight text-white">
               Creator Hub
             </span>
@@ -257,9 +259,11 @@ export default function CreatorLayout({
         <header className="sticky top-0 z-30 border-b border-neutral-800 bg-neutral-900/80 backdrop-blur-xl lg:hidden">
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black">
-                <Icon icon="solar:play-stream-bold" width={18} />
-              </div>
+              <img
+                src="https://raw.githubusercontent.com/RyanYuuki/AnymeX/main/assets/images/logo_transparent.png"
+                alt="AnymeX"
+                className="w-8 h-8"
+              />
               <span className="text-sm font-semibold tracking-tight text-white">
                 Creator Hub
               </span>

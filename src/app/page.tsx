@@ -295,9 +295,11 @@ export default function Home() {
           <div className="flex h-14 items-center justify-between gap-4">
             {/* Logo */}
             <div className="flex items-center gap-2 shrink-0 cursor-pointer pl-2">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black">
-                <Icon icon="solar:play-stream-bold" width={18} />
-              </div>
+              <img
+                src="https://raw.githubusercontent.com/RyanYuuki/AnymeX/main/assets/images/logo_transparent.png"
+                alt="AnymeX"
+                className="w-8 h-8"
+              />
               <span className="text-sm font-semibold tracking-tight text-white">
                 AnymeX
               </span>
@@ -341,12 +343,20 @@ export default function Home() {
                         </DropdownMenuItem>
                       )}
                       {(userRole === 'ADMIN' || userRole === 'SUPER_ADMIN') && (
-                        <DropdownMenuItem asChild>
-                          <Link href="/admin/dashboard" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
-                            <Icon icon="solar:shield-check-linear" width={14} />
-                            Admin Dashboard
-                          </Link>
-                        </DropdownMenuItem>
+                        <>
+                          <DropdownMenuItem asChild>
+                            <Link href="/creator/dashboard" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                              <Icon icon="solar:palette-bold" width={14} />
+                              Creator Dashboard
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link href="/admin/dashboard" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                              <Icon icon="solar:shield-check-linear" width={14} />
+                              Admin Dashboard
+                            </Link>
+                          </DropdownMenuItem>
+                        </>
                       )}
                       <DropdownMenuSeparator className="bg-neutral-800" />
                       <DropdownMenuItem
@@ -422,12 +432,20 @@ export default function Home() {
                           </DropdownMenuItem>
                         )}
                         {(userRole === 'ADMIN' || userRole === 'SUPER_ADMIN') && (
-                          <DropdownMenuItem asChild>
-                            <Link href="/admin/dashboard" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
-                              <Icon icon="solar:shield-check-linear" width={14} />
-                              Admin Dashboard
-                            </Link>
-                          </DropdownMenuItem>
+                          <>
+                            <DropdownMenuItem asChild>
+                              <Link href="/creator/dashboard" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                                <Icon icon="solar:palette-bold" width={14} />
+                                Creator Dashboard
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <Link href="/admin/dashboard" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                                <Icon icon="solar:shield-check-linear" width={14} />
+                                Admin Dashboard
+                              </Link>
+                            </DropdownMenuItem>
+                          </>
                         )}
                         <DropdownMenuSeparator className="bg-neutral-800" />
                         <DropdownMenuItem

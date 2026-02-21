@@ -203,9 +203,11 @@ export default function ProfilePage() {
         <div className="px-4 sm:px-6 pl-2">
           <div className="flex h-14 items-center justify-between gap-4">
             <Link href="/" className="flex items-center gap-2 shrink-0 cursor-pointer pl-2">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black">
-                <Icon icon="solar:play-stream-bold" width={18} />
-              </div>
+              <img
+                src="https://raw.githubusercontent.com/RyanYuuki/AnymeX/main/assets/images/logo_transparent.png"
+                alt="AnymeX"
+                className="w-8 h-8"
+              />
               <span className="text-sm font-semibold tracking-tight text-white">
                 AnymeX
               </span>
@@ -222,16 +224,24 @@ export default function ProfilePage() {
                   href="/creator/dashboard"
                   className="hidden sm:flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
                 >
-                  Dashboard
+                  Creator Dashboard
                 </Link>
               )}
               {(user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') && (
-                <Link
-                  href="/admin/dashboard"
-                  className="hidden sm:flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
-                >
-                  Admin
-                </Link>
+                <>
+                  <Link
+                    href="/creator/dashboard"
+                    className="hidden sm:flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
+                  >
+                    Creator Dashboard
+                  </Link>
+                  <Link
+                    href="/admin/dashboard"
+                    className="hidden sm:flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
+                  >
+                    Admin Dashboard
+                  </Link>
+                </>
               )}
             </div>
           </div>

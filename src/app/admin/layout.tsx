@@ -54,32 +54,35 @@ export default function AdminLayout({
       checkAuth();
     } else {
       // Check if already logged in when on login page
-      const creatorToken = localStorage.getItem("creator_token");
-      const adminToken = localStorage.getItem("admin_token");
-      const userStr = localStorage.getItem("creator_user") || localStorage.getItem("admin_user");
-      const token = creatorToken || adminToken;
-      if (token && userStr) {
-        // Check if user has admin access
-        try {
-          const response = await fetch("/api/auth/me", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          if (response.ok) {
-            const data = await response.json();
-            const role = data.user.role;
-            const isAdmin = role === 'ADMIN' || role === 'SUPER_ADMIN';
-            if (isAdmin) {
-              // Already logged in as admin, redirect to dashboard
-              router.push("/admin/dashboard");
+      const checkLogin = async () => {
+        const creatorToken = localStorage.getItem("creator_token");
+        const adminToken = localStorage.getItem("admin_token");
+        const userStr = localStorage.getItem("creator_user") || localStorage.getItem("admin_user");
+        const token = creatorToken || adminToken;
+        if (token && userStr) {
+          // Check if user has admin access
+          try {
+            const response = await fetch("/api/auth/me", {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+            if (response.ok) {
+              const data = await response.json();
+              const role = data.user.role;
+              const isAdmin = role === 'ADMIN' || role === 'SUPER_ADMIN';
+              if (isAdmin) {
+                // Already logged in as admin, redirect to dashboard
+                router.push("/admin/dashboard");
+              }
             }
+          } catch (error) {
+            console.error("Auth check error:", error);
           }
-        } catch (error) {
-          console.error("Auth check error:", error);
         }
-      }
-      setLoading(false);
+        setLoading(false);
+      };
+      checkLogin();
     }
   }, [isLoginPage]);
 
@@ -272,9 +275,11 @@ export default function AdminLayout({
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center gap-2 p-6 border-b border-neutral-800">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black">
-              <Icon icon="solar:play-stream-bold" width={18} />
-            </div>
+            <img
+              src="https://raw.githubusercontent.com/RyanYuuki/AnymeX/main/assets/images/logo_transparent.png"
+              alt="AnymeX"
+              className="w-8 h-8"
+            />
             <span className="text-sm font-semibold tracking-tight text-white">
               AnymeX Admin
             </span>
@@ -356,9 +361,11 @@ export default function AdminLayout({
         <header className="sticky top-0 z-30 border-b border-neutral-800 bg-neutral-900/80 backdrop-blur-xl lg:hidden">
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black">
-                <Icon icon="solar:play-stream-bold" width={18} />
-              </div>
+              <img
+                src="https://raw.githubusercontent.com/RyanYuuki/AnymeX/main/assets/images/logo_transparent.png"
+                alt="AnymeX"
+                className="w-8 h-8"
+              />
               <span className="text-sm font-semibold tracking-tight text-white">
                 AnymeX Admin
               </span>
