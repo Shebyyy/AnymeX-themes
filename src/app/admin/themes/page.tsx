@@ -182,6 +182,15 @@ export default function ThemesPage() {
     setDeleteDialogOpen(true);
   };
 
+  const handleShare = async (themeId: string) => {
+    const shareUrl = `${window.location.origin}/themes/${themeId}`;
+    await navigator.clipboard.writeText(shareUrl);
+    toast({
+      title: "Link copied!",
+      description: "Share URL has been copied to your clipboard.",
+    });
+  };
+
   const getStatusBadge = (status: string) => {
     const colors = {
       PENDING: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
@@ -345,20 +354,31 @@ export default function ThemesPage() {
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
                           {theme.themeId && (
-                            <Link
-                              href={`/themes/${theme.themeId}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
+                            <>
                               <Button
                                 variant="ghost"
                                 size="icon"
+                                onClick={() => handleShare(theme.themeId)}
                                 className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
-                                title="View Theme"
+                                title="Share Link"
                               >
-                                <Icon icon="solar:external-link-linear" width={18} />
+                                <Icon icon="solar:share-linear" width={18} />
                               </Button>
-                            </Link>
+                              <Link
+                                href={`/themes/${theme.themeId}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
+                                  title="View Theme"
+                                >
+                                  <Icon icon="solar:external-link-linear" width={18} />
+                                </Button>
+                              </Link>
+                            </>
                           )}
                           {theme.status === "PENDING" && (
                             <>

@@ -213,6 +213,28 @@ export default function Home() {
     }
   };
 
+  const handleShare = async (themeId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const shareUrl = `${window.location.origin}/themes/${themeId}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "Check out this theme!",
+          url: shareUrl,
+        });
+      } catch (error) {
+        console.error("Error sharing:", error);
+      }
+    } else {
+      await navigator.clipboard.writeText(shareUrl);
+      toast({
+        title: "Link copied!",
+        description: "Share URL has been copied to your clipboard.",
+      });
+    }
+  };
+
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
     try {
@@ -632,18 +654,29 @@ export default function Home() {
                             )}
                           </div>
                         </div>
-                        <button
-                          onClick={(e) => handleLike(theme.id, e)}
-                          className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full border border-neutral-800 bg-neutral-900/50 transition-colors ${
-                            theme.isLiked ? "text-rose-500" : "text-neutral-500 hover:text-rose-500"
-                          }`}
-                        >
-                          <Icon
-                            icon="solar:heart-linear"
-                            className={theme.isLiked ? "text-rose-500" : ""}
-                          />
-                          {theme.likesCount}
-                        </button>
+                        <div className="flex items-center gap-1">
+                          {theme.themeId && (
+                            <button
+                              onClick={(e) => handleShare(theme.themeId, e)}
+                              className="flex items-center gap-1 text-xs p-1.5 rounded-full border border-neutral-800 bg-neutral-900/50 transition-colors text-neutral-500 hover:text-blue-400 hover:bg-neutral-800"
+                              title="Share"
+                            >
+                              <Icon icon="solar:share-linear" width={14} />
+                            </button>
+                          )}
+                          <button
+                            onClick={(e) => handleLike(theme.id, e)}
+                            className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full border border-neutral-800 bg-neutral-900/50 transition-colors ${
+                              theme.isLiked ? "text-rose-500" : "text-neutral-500 hover:text-rose-500"
+                            }`}
+                          >
+                            <Icon
+                              icon="solar:heart-linear"
+                              className={theme.isLiked ? "text-rose-500" : ""}
+                            />
+                            {theme.likesCount}
+                          </button>
+                        </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-2 mt-1">

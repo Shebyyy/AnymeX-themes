@@ -301,6 +301,15 @@ export default function CreatorDashboard() {
     setDeleteDialogOpen(true);
   };
 
+  const handleShare = async (themeId: string) => {
+    const shareUrl = `${window.location.origin}/themes/${themeId}`;
+    await navigator.clipboard.writeText(shareUrl);
+    toast({
+      title: "Link copied!",
+      description: "Share URL has been copied to your clipboard.",
+    });
+  };
+
   const getStatusBadge = (status: string) => {
     const colors = {
       PENDING: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
@@ -776,21 +785,32 @@ export default function CreatorDashboard() {
 
                 <div className="flex items-center gap-2">
                   {theme.themeId && (
-                    <Link
-                      href={`/themes/${theme.themeId}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
+                    <>
                       <Button
                         variant="outline"
                         size="sm"
+                        onClick={() => handleShare(theme.themeId)}
                         className="border-blue-700 text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
-                        title="View Theme"
+                        title="Share Link"
                       >
-                        <Icon icon="solar:external-link-linear" width={16} className="mr-2" />
-                        View
+                        <Icon icon="solar:share-linear" width={16} />
                       </Button>
-                    </Link>
+                      <Link
+                        href={`/themes/${theme.themeId}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-blue-700 text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
+                          title="View Theme"
+                        >
+                          <Icon icon="solar:external-link-linear" width={16} className="mr-2" />
+                          View
+                        </Button>
+                      </Link>
+                    </>
                   )}
                   <Button
                     variant="outline"
