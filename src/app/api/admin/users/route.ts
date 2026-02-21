@@ -29,6 +29,7 @@ export async function GET(request: NextRequest) {
         username: true,
         role: true,
         isActive: true,
+        profileUrl: true,
         createdAt: true,
         lastLoginAt: true,
         _count: {
@@ -72,7 +73,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { username, password, role } = body;
+    const { username, password, role, profileUrl } = body;
 
     if (!username || !password) {
       return NextResponse.json(
@@ -115,12 +116,14 @@ export async function POST(request: NextRequest) {
         username,
         passwordHash,
         role: role || 'USER',
+        profileUrl: profileUrl || null,
       },
       select: {
         id: true,
         username: true,
         role: true,
         isActive: true,
+        profileUrl: true,
         createdAt: true,
       },
     });

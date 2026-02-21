@@ -33,6 +33,7 @@ export async function GET(
         username: true,
         role: true,
         isActive: true,
+        profileUrl: true,
         createdAt: true,
         lastLoginAt: true,
         _count: {
@@ -85,7 +86,7 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { role, isActive } = body;
+    const { role, isActive, profileUrl } = body;
 
     // Check if target user exists
     const targetUser = await db.user.findUnique({
@@ -120,12 +121,14 @@ export async function PUT(
       data: {
         ...(role !== undefined && { role }),
         ...(isActive !== undefined && { isActive }),
+        ...(profileUrl !== undefined && { profileUrl }),
       },
       select: {
         id: true,
         username: true,
         role: true,
         isActive: true,
+        profileUrl: true,
         createdAt: true,
         lastLoginAt: true,
       },

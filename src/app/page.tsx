@@ -510,7 +510,7 @@ export default function Home() {
             Customize your visual experience
           </h1>
           <p className="text-neutral-400 max-w-2xl text-base md:text-lg leading-relaxed">
-            Discover community-crafted themes to personalize your AnymeX player.
+            Discover community-crafted themes to personalize your AnymeX.
             <br className="hidden md:block" />
             From minimalist dark modes to vibrant neon aesthetics.
           </p>

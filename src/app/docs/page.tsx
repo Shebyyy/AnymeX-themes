@@ -366,7 +366,7 @@ export default function DocsPage() {
                   <li>Save your theme JSON file</li>
                   <li>Open AnymeX</li>
                   <li>Go to <strong>Settings</strong></li>
-                  <li>Navigate to <strong>Player</strong> → <strong>JSON Theme Manager</strong></li>
+                  <li>Navigate to <strong>Player</strong> → <strong>Player Theme</strong></li>
                   <li>Import your JSON file</li>
                   <li>Apply the theme and inspect different screens</li>
                 </ol>
@@ -490,7 +490,10 @@ export default function DocsPage() {
             <div className="mt-6 p-4 rounded-lg border border-neutral-800 bg-neutral-950/50">
               <p className="text-sm text-neutral-400 mb-2">
                 <Icon icon="solar:info-circle-linear" className="inline mr-2" width={16} />
-                <strong>How it works:</strong> The Apply button uses a deep link that tells the AnymeX app which theme to download and add to your collection.
+                <strong>How it works:</strong> The Apply button uses a deep link that tells the AnymeX app which theme to download and add to your collection:
+              </p>
+              <p className="text-sm text-neutral-500 mt-2 font-mono">
+                anymex://theme?type=player&url=https://theme.json
               </p>
               <p className="text-sm text-neutral-500 mt-2">
                 If AnymeX doesn't open, make sure you have the AnymeX app installed on your device.

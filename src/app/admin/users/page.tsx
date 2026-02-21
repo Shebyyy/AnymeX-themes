@@ -48,6 +48,7 @@ interface User {
   username: string;
   role: string;
   isActive: boolean;
+  profileUrl: string | null;
   createdAt: string;
   lastLoginAt: string | null;
   _count: {
@@ -70,6 +71,7 @@ export default function UsersPage() {
     username: "",
     password: "",
     role: "USER",
+    profileUrl: "",
   });
   const [creating, setCreating] = useState(false);
 
@@ -77,6 +79,7 @@ export default function UsersPage() {
   const [editForm, setEditForm] = useState({
     role: "USER",
     isActive: true,
+    profileUrl: "",
   });
   const [editing, setEditing] = useState(false);
 
@@ -140,6 +143,7 @@ export default function UsersPage() {
         username: "",
         password: "",
         role: "USER",
+        profileUrl: "",
       });
       fetchUsers();
     } catch (error) {
@@ -271,6 +275,7 @@ export default function UsersPage() {
     setEditForm({
       role: user.role,
       isActive: user.isActive,
+      profileUrl: user.profileUrl || "",
     });
     setEditDialogOpen(true);
   };
@@ -376,23 +381,20 @@ export default function UsersPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="role">Role *</Label>
-                <Select
-                  value={createForm.role}
-                  onValueChange={(value) =>
-                    setCreateForm({ ...createForm, role: value })
+                <Label htmlFor="profileUrl">Profile URL (optional)</Label>
+                <Input
+                  id="profileUrl"
+                  type="url"
+                  value={createForm.profileUrl}
+                  onChange={(e) =>
+                    setCreateForm({ ...createForm, profileUrl: e.target.value })
                   }
-                >
-                  <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-neutral-800 border-neutral-700">
-                    <SelectItem value="USER">User</SelectItem>
-                    <SelectItem value="THEME_CREATOR">Theme Creator</SelectItem>
-                    <SelectItem value="ADMIN">Admin</SelectItem>
-                    <SelectItem value="SUPER_ADMIN">Super Admin</SelectItem>
-                  </SelectContent>
-                </Select>
+                  className="bg-neutral-800 border-neutral-700 text-white"
+                  placeholder="https://github.com/username"
+                />
+                <p className="text-xs text-neutral-500 mt-1">
+                  Link to GitHub, social media, or personal website
+                </p>
               </div>
               <div className="flex gap-2 justify-end pt-4">
                 <Button
@@ -425,6 +427,7 @@ export default function UsersPage() {
                 <TableHead className="text-neutral-400">User</TableHead>
                 <TableHead className="text-neutral-400">Role</TableHead>
                 <TableHead className="text-neutral-400">Status</TableHead>
+                <TableHead className="text-neutral-400">Profile URL</TableHead>
                 <TableHead className="text-neutral-400">Themes</TableHead>
                 <TableHead className="text-neutral-400">Last Login</TableHead>
                 <TableHead className="text-neutral-400 text-right">Actions</TableHead>
@@ -442,6 +445,9 @@ export default function UsersPage() {
                       </TableCell>
                       <TableCell>
                         <Skeleton className="h-5 w-16" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-5 w-24" />
                       </TableCell>
                       <TableCell>
                         <Skeleton className="h-5 w-8" />
@@ -474,6 +480,21 @@ export default function UsersPage() {
                         >
                           {user.isActive ? "Active" : "Inactive"}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {user.profileUrl ? (
+                          <a
+                            href={user.profileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-400 hover:text-blue-300 text-sm flex items-center gap-1 max-w-[200px] truncate"
+                          >
+                            <Icon icon="solar:link-linear" width={14} />
+                            {user.profileUrl}
+                          </a>
+                        ) : (
+                          <span className="text-neutral-500 text-sm">—</span>
+                        )}
                       </TableCell>
                       <TableCell>
                         <span className="text-neutral-300">
@@ -569,6 +590,22 @@ export default function UsersPage() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+            <div>
+              <Label htmlFor="edit-profileUrl">Profile URL</Label>
+              <Input
+                id="edit-profileUrl"
+                type="url"
+                value={editForm.profileUrl}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, profileUrl: e.target.value })
+                }
+                className="bg-neutral-800 border-neutral-700 text-white"
+                placeholder="https://github.com/username"
+              />
+              <p className="text-xs text-neutral-500 mt-1">
+                Link to GitHub, social media, or personal website
+              </p>
             </div>
             <div className="flex gap-2 justify-end pt-4">
               <Button
