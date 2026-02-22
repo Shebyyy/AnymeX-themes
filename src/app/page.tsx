@@ -358,35 +358,33 @@ export default function Home() {
                                                         My Profile
                                                     </Link>
                                                 </DropdownMenuItem>
-                                                {userRole === "THEME_CREATOR" && (
-                                                    <DropdownMenuItem asChild>
-                                                        <Link
-                                                            href="/dashboard"
-                                                            className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
-                                                        >
-                                                            <Icon icon="solar:palette-bold" width={14} />
-                                                            Creator Dashboard
-                                                        </Link>
-                                                    </DropdownMenuItem>
-                                                )}
+                                                <DropdownMenuItem asChild>
+                                                    <Link
+                                                        href="/dashboard"
+                                                        className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
+                                                    >
+                                                        <Icon icon="solar:palette-bold" width={14} />
+                                                        Dashboard
+                                                    </Link>
+                                                </DropdownMenuItem>
                                                 {(userRole === "ADMIN" || userRole === "SUPER_ADMIN") && (
                                                     <>
                                                         <DropdownMenuItem asChild>
                                                             <Link
-                                                                href="/dashboard"
+                                                                href="/admin/users"
                                                                 className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
                                                             >
-                                                                <Icon icon="solar:palette-bold" width={14} />
-                                                                Creator Dashboard
+                                                                <Icon icon="solar:users-group-rounded-bold" width={14} />
+                                                                Manage Users
                                                             </Link>
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem asChild>
                                                             <Link
-                                                                href="/dashboard"
+                                                                href="/admin/themes"
                                                                 className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
                                                             >
-                                                                <Icon icon="solar:shield-check-linear" width={14} />
-                                                                Admin Dashboard
+                                                                <Icon icon="solar:gallery-wide-bold" width={14} />
+                                                                Theme Approvals
                                                             </Link>
                                                         </DropdownMenuItem>
                                                     </>
@@ -458,35 +456,33 @@ export default function Home() {
                                                         My Profile
                                                     </Link>
                                                 </DropdownMenuItem>
-                                                {userRole === "THEME_CREATOR" && (
-                                                    <DropdownMenuItem asChild>
-                                                        <Link
-                                                            href="/dashboard"
-                                                            className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
-                                                        >
-                                                            <Icon icon="solar:palette-bold" width={14} />
-                                                            Creator Dashboard
-                                                        </Link>
-                                                    </DropdownMenuItem>
-                                                )}
+                                                <DropdownMenuItem asChild>
+                                                    <Link
+                                                        href="/dashboard"
+                                                        className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
+                                                    >
+                                                        <Icon icon="solar:palette-bold" width={14} />
+                                                        Dashboard
+                                                    </Link>
+                                                </DropdownMenuItem>
                                                 {(userRole === "ADMIN" || userRole === "SUPER_ADMIN") && (
                                                     <>
                                                         <DropdownMenuItem asChild>
                                                             <Link
-                                                                href="/dashboard"
+                                                                href="/admin/users"
                                                                 className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
                                                             >
-                                                                <Icon icon="solar:palette-bold" width={14} />
-                                                                Creator Dashboard
+                                                                <Icon icon="solar:users-group-rounded-bold" width={14} />
+                                                                Manage Users
                                                             </Link>
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem asChild>
                                                             <Link
-                                                                href="/dashboard"
+                                                                href="/admin/themes"
                                                                 className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
                                                             >
-                                                                <Icon icon="solar:shield-check-linear" width={14} />
-                                                                Admin Dashboard
+                                                                <Icon icon="solar:gallery-wide-bold" width={14} />
+                                                                Theme Approvals
                                                             </Link>
                                                         </DropdownMenuItem>
                                                     </>

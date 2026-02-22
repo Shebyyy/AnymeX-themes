@@ -9,6 +9,13 @@ import { useToast } from "@/hooks/use-toast";
 import { ThemePreviewRenderer } from "@/components/theme-preview";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 interface Creator {
   id: string;
@@ -32,6 +39,15 @@ interface Theme {
   creator?: Creator | null;
 }
 
+interface User {
+  id: string;
+  username: string;
+  email?: string | null;
+  role: string;
+  profileUrl?: string | null;
+  createdAt: string;
+}
+
 export default function ThemeDetailPage({
   params,
 }: {
@@ -40,10 +56,12 @@ export default function ThemeDetailPage({
   const [theme, setTheme] = useState<Theme | null>(null);
   const [loading, setLoading] = useState(true);
   const [userToken, setUserToken] = useState<string>("");
+  const [user, setUser] = useState<User | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
 
-  // Get user token
+  // Get user token and check auth
   useEffect(() => {
     let token = localStorage.getItem("anymex_token");
     if (!token) {
@@ -51,7 +69,63 @@ export default function ThemeDetailPage({
       localStorage.setItem("anymex_token", token);
     }
     setUserToken(token);
+    checkAuth();
   }, []);
+
+  const checkAuth = async () => {
+    const creatorToken = localStorage.getItem("creator_token");
+    const adminToken = localStorage.getItem("admin_token");
+
+    if (!creatorToken && !adminToken) {
+      setUser(null);
+      return;
+    }
+
+    try {
+      const token = creatorToken || adminToken;
+      const response = await fetch("/api/auth/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        setUser(null);
+        return;
+      }
+
+      const data = await response.json();
+      setUser(data.user);
+    } catch (error) {
+      console.error("Auth check error:", error);
+      setUser(null);
+    }
+  };
+
+  const handleLogout = async () => {
+    const creatorToken = localStorage.getItem("creator_token");
+    const adminToken = localStorage.getItem("admin_token");
+    const token = creatorToken || adminToken;
+
+    try {
+      if (token) {
+        await fetch("/api/auth/logout", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      localStorage.removeItem("creator_token");
+      localStorage.removeItem("admin_token");
+      localStorage.removeItem("creator_user");
+      localStorage.removeItem("admin_user");
+      setUser(null);
+    }
+  };
 
   // Fetch theme
   useEffect(() => {
@@ -183,15 +257,172 @@ export default function ThemeDetailPage({
   if (loading) {
     return (
       <div className="min-h-screen bg-neutral-950 text-neutral-300 font-sans antialiased">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm text-neutral-400 hover:text-white transition-colors mb-8"
-          >
-            <Icon icon="solar:alt-arrow-left-linear" width={16} />
-            Back to Themes
-          </Link>
+        {/* Navigation */}
+        <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl rounded-full border border-neutral-800/60 bg-neutral-900/60 backdrop-blur-xl shadow-lg shadow-black/20 transition-all">
+          <div className="px-4 sm:px-6 pl-2">
+            <div className="flex h-14 items-center justify-between gap-4">
+              {/* Logo */}
+              <Link href="/" className="flex items-center gap-2 shrink-0 cursor-pointer pl-2">
+                <img
+                  src="https://raw.githubusercontent.com/RyanYuuki/AnymeX/main/assets/images/logo_transparent.png"
+                  alt="AnymeX"
+                  className="w-8 h-8"
+                />
+                <span className="text-sm font-semibold tracking-tight text-white">
+                  AnymeX
+                </span>
+              </Link>
 
+              {/* Right Actions */}
+              <div className="flex items-center gap-1">
+                {/* Desktop Navigation */}
+                <div className="hidden md:flex items-center gap-1">
+                  <a
+                    href="/docs"
+                    className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
+                  >
+                    Docs
+                  </a>
+
+                  {user && (
+                    <>
+                      {/* Profile Dropdown */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors">
+                            <Icon icon="solar:user-circle-linear" width={16} />
+                            {user?.username || "Profile"}
+                            <Icon icon="solar:alt-arrow-down-linear" width={14} />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="bg-neutral-900 border-neutral-800 min-w-[180px]">
+                          <DropdownMenuItem asChild>
+                            <Link href="/profile" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                              <Icon icon="solar:user-linear" width={14} />
+                              My Profile
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link href="/dashboard" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                              <Icon icon="solar:palette-bold" width={14} />
+                              Dashboard
+                            </Link>
+                          </DropdownMenuItem>
+                          {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') && (
+                            <>
+                              <DropdownMenuItem asChild>
+                                <Link href="/admin/users" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                                  <Icon icon="solar:users-group-rounded-bold" width={14} />
+                                  Manage Users
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem asChild>
+                                <Link href="/admin/themes" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                                  <Icon icon="solar:gallery-wide-bold" width={14} />
+                                  Theme Approvals
+                                </Link>
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                          <DropdownMenuSeparator className="bg-neutral-800" />
+                          <DropdownMenuItem
+                            onClick={handleLogout}
+                            className="cursor-pointer text-red-400 hover:text-red-300 flex items-center gap-2"
+                          >
+                            <Icon icon="solar:logout-2-linear" width={14} />
+                            Logout
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                      <div className="h-4 w-px bg-neutral-800 mx-2"></div>
+                    </>
+                  )}
+                  <a
+                    href="https://github.com/RyanYuuki/AnymeX"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-full bg-neutral-800 px-5 py-2 text-xs font-semibold text-white hover:bg-neutral-700 border border-neutral-700 transition-colors inline-flex items-center justify-center"
+                  >
+                    Get App
+                  </a>
+                </div>
+
+                {/* Mobile Menu */}
+                <div className="flex md:hidden">
+                  <DropdownMenu open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                    <DropdownMenuTrigger asChild>
+                      <button className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors">
+                        <Icon icon="solar:hamburger-menu-linear" width={20} />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="bg-neutral-900 border-neutral-800 min-w-[200px]">
+                      <DropdownMenuItem asChild>
+                        <a href="/docs" className="cursor-pointer text-neutral-300 hover:text-white">
+                          Docs
+                        </a>
+                      </DropdownMenuItem>
+                      {user && (
+                        <>
+                          <DropdownMenuSeparator className="bg-neutral-800" />
+                          <DropdownMenuItem asChild>
+                            <Link href="/profile" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                              <Icon icon="solar:user-linear" width={14} />
+                              My Profile
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link href="/dashboard" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                              <Icon icon="solar:palette-bold" width={14} />
+                              Dashboard
+                            </Link>
+                          </DropdownMenuItem>
+                          {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') && (
+                            <>
+                              <DropdownMenuItem asChild>
+                                <Link href="/admin/users" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                                  <Icon icon="solar:users-group-rounded-bold" width={14} />
+                                  Manage Users
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem asChild>
+                                <Link href="/admin/themes" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                                  <Icon icon="solar:gallery-wide-bold" width={14} />
+                                  Theme Approvals
+                                </Link>
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                          <DropdownMenuSeparator className="bg-neutral-800" />
+                          <DropdownMenuItem
+                            onClick={handleLogout}
+                            className="cursor-pointer text-red-400 hover:text-red-300 flex items-center gap-2"
+                          >
+                            <Icon icon="solar:logout-2-linear" width={14} />
+                            Logout
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                      <DropdownMenuSeparator className="bg-neutral-800" />
+                      <DropdownMenuItem asChild>
+                        <a
+                          href="https://github.com/RyanYuuki/AnymeX"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="cursor-pointer text-white font-medium bg-white/5 hover:bg-white/10"
+                        >
+                          Get App
+                        </a>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+            </div>
+          </div>
+        </nav>
+
+        {/* Main Content */}
+        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24">
           <div className="flex flex-col gap-6">
             <Skeleton className="h-12 w-3/4" />
             <Skeleton className="aspect-video w-full rounded-xl" />
@@ -212,10 +443,178 @@ export default function ThemeDetailPage({
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-300 font-sans antialiased">
-      {/* Ambient Background Glow */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-96 bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none z-0" />
+      {/* Navigation */}
+      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl rounded-full border border-neutral-800/60 bg-neutral-900/60 backdrop-blur-xl shadow-lg shadow-black/20 transition-all">
+        <div className="px-4 sm:px-6 pl-2">
+          <div className="flex h-14 items-center justify-between gap-4">
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-2 shrink-0 cursor-pointer pl-2">
+              <img
+                src="https://raw.githubusercontent.com/RyanYuuki/AnymeX/main/assets/images/logo_transparent.png"
+                alt="AnymeX"
+                className="w-8 h-8"
+              />
+              <span className="text-sm font-semibold tracking-tight text-white">
+                AnymeX
+              </span>
+            </Link>
 
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            {/* Right Actions */}
+            <div className="flex items-center gap-1">
+              {/* Desktop Navigation */}
+              <div className="hidden md:flex items-center gap-1">
+                <a
+                  href="/"
+                  className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
+                >
+                  Themes
+                </a>
+                <a
+                  href="/docs"
+                  className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
+                >
+                  Docs
+                </a>
+
+                {user && (
+                  <>
+                    {/* Profile Dropdown */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors">
+                          <Icon icon="solar:user-circle-linear" width={16} />
+                          {user?.username || "Profile"}
+                          <Icon icon="solar:alt-arrow-down-linear" width={14} />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="bg-neutral-900 border-neutral-800 min-w-[180px]">
+                        <DropdownMenuItem asChild>
+                          <Link href="/profile" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                            <Icon icon="solar:user-linear" width={14} />
+                            My Profile
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/dashboard" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                            <Icon icon="solar:palette-bold" width={14} />
+                            Dashboard
+                          </Link>
+                        </DropdownMenuItem>
+                        {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') && (
+                          <>
+                            <DropdownMenuItem asChild>
+                              <Link href="/admin/users" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                                <Icon icon="solar:users-group-rounded-bold" width={14} />
+                                Manage Users
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <Link href="/admin/themes" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                                <Icon icon="solar:gallery-wide-bold" width={14} />
+                                Theme Approvals
+                              </Link>
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                        <DropdownMenuSeparator className="bg-neutral-800" />
+                        <DropdownMenuItem
+                          onClick={handleLogout}
+                          className="cursor-pointer text-red-400 hover:text-red-300 flex items-center gap-2"
+                        >
+                          <Icon icon="solar:logout-2-linear" width={14} />
+                          Logout
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <div className="h-4 w-px bg-neutral-800 mx-2"></div>
+                  </>
+                )}
+                <a
+                  href="https://github.com/RyanYuuki/AnymeX"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full bg-neutral-800 px-5 py-2 text-xs font-semibold text-white hover:bg-neutral-700 border border-neutral-700 transition-colors inline-flex items-center justify-center"
+                >
+                  Get App
+                </a>
+              </div>
+
+              {/* Mobile Menu */}
+              <div className="flex md:hidden">
+                <DropdownMenu open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors">
+                      <Icon icon="solar:hamburger-menu-linear" width={20} />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="bg-neutral-900 border-neutral-800 min-w-[200px]">
+                    <DropdownMenuItem asChild>
+                      <a href="/docs" className="cursor-pointer text-neutral-300 hover:text-white">
+                        Docs
+                      </a>
+                    </DropdownMenuItem>
+                    {user && (
+                      <>
+                        <DropdownMenuSeparator className="bg-neutral-800" />
+                        <DropdownMenuItem asChild>
+                          <Link href="/profile" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                            <Icon icon="solar:user-linear" width={14} />
+                            My Profile
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/dashboard" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                            <Icon icon="solar:palette-bold" width={14} />
+                            Dashboard
+                          </Link>
+                        </DropdownMenuItem>
+                        {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') && (
+                          <>
+                            <DropdownMenuItem asChild>
+                              <Link href="/admin/users" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                                <Icon icon="solar:users-group-rounded-bold" width={14} />
+                                Manage Users
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <Link href="/admin/themes" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                                <Icon icon="solar:gallery-wide-bold" width={14} />
+                                Theme Approvals
+                              </Link>
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                        <DropdownMenuSeparator className="bg-neutral-800" />
+                        <DropdownMenuItem
+                          onClick={handleLogout}
+                          className="cursor-pointer text-red-400 hover:text-red-300 flex items-center gap-2"
+                        >
+                          <Icon icon="solar:logout-2-linear" width={14} />
+                          Logout
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                    <DropdownMenuSeparator className="bg-neutral-800" />
+                    <DropdownMenuItem asChild>
+                      <a
+                        href="https://github.com/RyanYuuki/AnymeX"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="cursor-pointer text-white font-medium bg-white/5 hover:bg-white/10"
+                      >
+                        Get App
+                      </a>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Main Content */}
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24">
         {/* Back Button */}
         <Link
           href="/"

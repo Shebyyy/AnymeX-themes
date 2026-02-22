@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/button";
@@ -117,7 +117,16 @@ export default function UnifiedDashboard() {
     themeJson: "",
     previewImage: "",
   });
+  const [previewImageFile, setPreviewImageFile] = useState<File | null>(null);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string>("");
+  const [themeJsonFile, setThemeJsonFile] = useState<File | null>(null);
+  const [isDraggingJson, setIsDraggingJson] = useState(false);
+  const [isDraggingPreview, setIsDraggingPreview] = useState(false);
   const [uploading, setUploading] = useState(false);
+
+  // File input refs
+  const jsonFileInputRef = useRef<HTMLInputElement>(null);
+  const previewFileInputRef = useRef<HTMLInputElement>(null);
   
   // Edit form
   const [editForm, setEditForm] = useState({
@@ -225,8 +234,38 @@ export default function UnifiedDashboard() {
   const handleUploadTheme = async (e: React.FormEvent) => {
     e.preventDefault();
     setUploading(true);
-    
+
     try {
+      let previewImageUrl = uploadForm.previewImage;
+      let themeJsonContent = uploadForm.themeJson;
+
+      // Upload preview image file if provided
+      if (previewImageFile) {
+        try {
+          previewImageUrl = await handleUploadFile(previewImageFile);
+        } catch (error) {
+          throw new Error("Failed to upload preview image: " + (error instanceof Error ? error.message : "Unknown error"));
+        }
+      }
+
+      // Read theme JSON file if provided
+      if (themeJsonFile) {
+        try {
+          themeJsonContent = await themeJsonFile.text();
+        } catch (error) {
+          throw new Error("Failed to read theme JSON file");
+        }
+      }
+
+      // Validate required fields
+      if (!uploadForm.name || !themeJsonContent) {
+        throw new Error("Theme name and JSON are required");
+      }
+
+      if (!previewImageUrl) {
+        throw new Error("Preview image is required");
+      }
+
       const token = localStorage.getItem("creator_token") || localStorage.getItem("admin_token");
       const response = await fetch("/api/creator/themes", {
         method: "POST",
@@ -234,20 +273,31 @@ export default function UnifiedDashboard() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(uploadForm),
+        body: JSON.stringify({
+          name: uploadForm.name,
+          description: uploadForm.description,
+          category: uploadForm.category,
+          themeJson: themeJsonContent,
+          previewImage: previewImageUrl,
+        }),
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) throw new Error(data.error || "Failed to upload theme");
-      
+
       toast({
         title: "Theme uploaded successfully! 🎉",
         description: `${uploadForm.name} has been added to your collection`,
       });
-      
+
       setUploadDialogOpen(false);
       setUploadForm({ name: "", description: "", category: "", themeJson: "", previewImage: "" });
+      setPreviewImageFile(null);
+      setPreviewImageUrl("");
+      setThemeJsonFile(null);
+      if (jsonFileInputRef.current) jsonFileInputRef.current.value = "";
+      if (previewFileInputRef.current) previewFileInputRef.current.value = "";
       fetchDashboardData();
     } catch (error) {
       toast({
@@ -356,6 +406,141 @@ export default function UnifiedDashboard() {
       description: "Share URL has been copied to your clipboard",
     });
   };
+
+  const handleUploadFile = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || 'Upload failed');
+    }
+
+    const data = await response.json();
+    return data.url;
+  };
+
+  // Process JSON file
+  const processJsonFile = (file: File) => {
+    if (file.type !== "application/json" && !file.name.endsWith(".json")) {
+      toast({
+        variant: "destructive",
+        title: "Invalid file type",
+        description: "Please upload a JSON file",
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      try {
+        const json = JSON.parse(content);
+
+        // Auto-fill form fields if possible
+        const updatedForm = { ...uploadForm, themeJson: content };
+
+        if (json.name && !uploadForm.name) {
+          updatedForm.name = json.name;
+        }
+
+        if (json.description && !uploadForm.description) {
+          updatedForm.description = json.description;
+        }
+
+        if (json.category && !uploadForm.category) {
+          updatedForm.category = json.category;
+        }
+
+        setUploadForm(updatedForm);
+        setThemeJsonFile(file);
+
+        toast({
+          title: "File uploaded successfully! 📁",
+          description: `${file.name} has been loaded`,
+        });
+      } catch {
+        toast({
+          variant: "destructive",
+          title: "Invalid JSON",
+          description: "The file contains invalid JSON",
+        });
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  // Process preview image file
+  const processPreviewImageFile = async (file: File) => {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+      toast({
+        variant: "destructive",
+        title: "Invalid file type",
+        description: "Please upload a JPEG, PNG, WebP, or GIF image",
+      });
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      toast({
+        variant: "destructive",
+        title: "File too large",
+        description: "Maximum file size is 5MB",
+      });
+      return;
+    }
+
+    try {
+      const url = await handleUploadFile(file);
+      setPreviewImageFile(file);
+      setPreviewImageUrl(url);
+      setUploadForm({ ...uploadForm, previewImage: url });
+
+      toast({
+        title: "Preview image uploaded! 📸",
+        description: file.name,
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Upload failed",
+        description: error instanceof Error ? error.message : "Failed to upload preview image",
+      });
+    }
+  };
+
+  // Clear functions
+  const clearJsonFile = () => {
+    setThemeJsonFile(null);
+    setUploadForm({ ...uploadForm, themeJson: "" });
+    if (jsonFileInputRef.current) {
+      jsonFileInputRef.current.value = "";
+    }
+  };
+
+  const clearPreviewImage = async () => {
+    if (previewImageUrl) {
+      const filename = previewImageUrl.split('/').pop();
+      try {
+        await fetch(`/api/upload?filename=${filename}`, { method: 'DELETE' });
+      } catch (error) {
+        console.error('Failed to delete preview image:', error);
+      }
+    }
+    setPreviewImageFile(null);
+    setPreviewImageUrl("");
+    setUploadForm({ ...uploadForm, previewImage: "" });
+    if (previewFileInputRef.current) {
+      previewFileInputRef.current.value = "";
+    }
+  };
   
   const getRoleBadge = () => {
     const badges = {
@@ -395,6 +580,7 @@ export default function UnifiedDashboard() {
           icon: "solar:users-group-rounded-bold",
           color: "bg-blue-500/10 text-blue-500",
           borderColor: "border-neutral-800",
+          href: "/admin/users",
         },
         {
           title: "Total Themes",
@@ -402,20 +588,31 @@ export default function UnifiedDashboard() {
           icon: "solar:gallery-wide-bold",
           color: "bg-purple-500/10 text-purple-500",
           borderColor: "border-neutral-800",
+          href: "/admin/themes",
         },
         {
-          title: "Pending Review",
+          title: "Pending Themes",
           value: stats?.pendingThemes || 0,
           icon: "solar:clock-circle-bold",
           color: "bg-yellow-500/10 text-yellow-500",
           borderColor: "border-neutral-800",
+          href: "/admin/themes?status=PENDING",
         },
         {
-          title: "New This Week",
-          value: stats?.newUsersThisWeek || 0,
-          icon: "solar:user-plus-bold",
+          title: "Approved Themes",
+          value: stats?.totalThemes || 0,
+          icon: "solar:check-circle-bold",
           color: "bg-green-500/10 text-green-500",
           borderColor: "border-neutral-800",
+          href: "/admin/themes?status=APPROVED",
+        },
+        {
+          title: "Theme Creators",
+          value: "View",
+          icon: "solar:users-rounded-bold",
+          color: "bg-cyan-500/10 text-cyan-500",
+          borderColor: "border-neutral-800",
+          href: "/admin/users",
         },
       ];
     }
@@ -453,39 +650,28 @@ export default function UnifiedDashboard() {
   };
   
   const getQuickActions = () => {
-    const baseActions = [
-      {
-        icon: "solar:upload-minimalistic-bold",
-        label: "Upload Theme",
-        description: "Share your creation",
-        action: () => setUploadDialogOpen(true),
-        color: "bg-purple-500/10 text-purple-500",
-      },
-      {
-        icon: "solar:chart-bold",
-        label: "Analytics",
-        description: "View your stats",
-        action: () => router.push("/analytics"),
-        color: "bg-blue-500/10 text-blue-500",
-      },
-      {
-        icon: "solar:settings-bold",
-        label: "Settings",
-        description: "Manage account",
-        action: () => router.push("/settings"),
-        color: "bg-neutral-500/10 text-neutral-500",
-      },
-    ];
-    
     if (userRole === "ADMIN" || userRole === "SUPER_ADMIN") {
       return [
-        ...baseActions,
         {
-          icon: "solar:users-group-rounded-bold",
-          label: "Manage Users",
-          description: "User management",
-          action: () => router.push("/admin/users"),
-          color: "bg-green-500/10 text-green-500",
+          icon: "solar:user-plus-bold",
+          label: "Create User",
+          description: "Add new user",
+          action: () => router.push("/admin/users?action=create"),
+          color: "bg-blue-500/10 text-blue-500",
+        },
+        {
+          icon: "solar:user-circle-plus-bold",
+          label: "Add Creator",
+          description: "Register creator",
+          action: () => router.push("/creator/register"),
+          color: "bg-purple-500/10 text-purple-500",
+        },
+        {
+          icon: "solar:home-2-bold",
+          label: "Creator Hub",
+          description: "Go to dashboard",
+          action: () => router.push("/dashboard"),
+          color: "bg-cyan-500/10 text-cyan-500",
         },
         {
           icon: "solar:check-read-bold",
@@ -495,17 +681,37 @@ export default function UnifiedDashboard() {
           color: "bg-yellow-500/10 text-yellow-500",
         },
         {
-          icon: "solar:document-text-bold",
-          label: "Activity Log",
-          description: "View recent actions",
-          action: () => router.push("/admin/activity"),
-          color: "bg-indigo-500/10 text-indigo-500",
+          icon: "solar:shield-warning-bold",
+          label: "Clean Broken",
+          description: "Fix broken themes",
+          action: () => router.push("/admin/themes?status=BROKEN"),
+          color: "bg-red-500/10 text-red-500",
+        },
+        {
+          icon: "solar:global-bold",
+          label: "View Site",
+          description: "Go to homepage",
+          action: () => router.push("/"),
+          color: "bg-green-500/10 text-green-500",
         },
       ];
     }
     
-    return [
-      ...baseActions,
+    const creatorActions = [
+      {
+        icon: "solar:upload-minimalistic-bold",
+        label: "Upload Theme",
+        description: "Share your creation",
+        action: () => setUploadDialogOpen(true),
+        color: "bg-purple-500/10 text-purple-500",
+      },
+      {
+        icon: "solar:user-circle-bold",
+        label: "My Profile",
+        description: "Edit your profile",
+        action: () => router.push("/profile"),
+        color: "bg-blue-500/10 text-blue-500",
+      },
       {
         icon: "solar:book-bookmark-bold",
         label: "Documentation",
@@ -514,13 +720,15 @@ export default function UnifiedDashboard() {
         color: "bg-emerald-500/10 text-emerald-500",
       },
       {
-        icon: "solar:help-circle-bold",
-        label: "Help Center",
-        description: "Get support",
-        action: () => router.push("/help"),
+        icon: "solar:global-bold",
+        label: "View Site",
+        description: "Go to homepage",
+        action: () => router.push("/"),
         color: "bg-orange-500/10 text-orange-500",
       },
     ];
+    
+    return creatorActions;
   };
   
   if (loading) {
@@ -590,30 +798,32 @@ export default function UnifiedDashboard() {
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {statCards.map((stat, index) => (
-            <Card key={index} className={`border ${stat.borderColor} bg-neutral-900/40 hover:border-neutral-700 hover:bg-neutral-900/60 transition-shadow`}>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium text-neutral-400">
-                    {stat.title}
-                  </CardTitle>
-                  <div className={`p-2.5 rounded-lg ${stat.color}`}>
-                    <Icon icon={stat.icon} width={20} />
+            <Link key={index} href={stat.href || "#"} className={stat.href ? "" : "pointer-events-none"}>
+              <Card className={`h-full ${stat.borderColor} bg-neutral-900/40 ${stat.href ? "hover:border-neutral-700 hover:bg-neutral-900/60 cursor-pointer" : ""} transition-shadow`}>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-medium text-neutral-400">
+                      {stat.title}
+                    </CardTitle>
+                    <div className={`p-2.5 rounded-lg ${stat.color}`}>
+                      <Icon icon={stat.icon} width={20} />
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-white">
-                  {stat.value}
-                </div>
-              </CardContent>
-            </Card>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-white">
+                    {stat.value}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
         
         {/* Quick Actions */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-white mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+          <div className={`grid gap-4 ${userRole === "ADMIN" || userRole === "SUPER_ADMIN" ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'}`}>
             {quickActions.map((action, index) => (
               <button
                 key={index}
@@ -635,9 +845,17 @@ export default function UnifiedDashboard() {
         {/* My Themes Section */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-white">
-              {userRole === "ADMIN" || userRole === "SUPER_ADMIN" ? "All Themes" : "My Themes"}
-            </h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-xl font-semibold text-white">
+                {userRole === "ADMIN" || userRole === "SUPER_ADMIN" ? "All Themes" : "My Themes"}
+              </h2>
+              {(userRole === "ADMIN" || userRole === "SUPER_ADMIN") && (
+                <Badge variant="outline" className="bg-cyan-500/10 text-cyan-500 border-cyan-500/20 text-xs">
+                  <Icon icon="solar:shield-bold" width={12} className="mr-1" />
+                  Admin View
+                </Badge>
+              )}
+            </div>
             <Link href="/themes">
               <Button variant="outline" className="border-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-800">
                 View All
@@ -673,16 +891,27 @@ export default function UnifiedDashboard() {
               {themes.slice(0, 8).map((theme) => (
                 <Card key={theme.id} className="border border-neutral-800 bg-neutral-900/40 hover:border-neutral-700 hover:bg-neutral-900/60 transition-shadow">
                   <div className="p-6">
-                    <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-white mb-2">
+                        <h3 className="text-lg font-semibold text-white mb-1">
                           {theme.name}
                         </h3>
-                        {theme.category && (
-                          <Badge variant="outline" className="bg-purple-500/10 text-purple-500 border-purple-500/20 text-xs mb-2">
-                            {theme.category}
-                          </Badge>
-                        )}
+                        <p className="text-xs text-neutral-500 font-mono mb-2">
+                          {theme.themeId || "N/A"}
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {theme.category && (
+                            <Badge variant="outline" className="bg-purple-500/10 text-purple-500 border-purple-500/20 text-xs">
+                              {theme.category}
+                            </Badge>
+                          )}
+                          {(userRole === "ADMIN" || userRole === "SUPER_ADMIN") && theme.creatorName && (
+                            <Badge variant="outline" className="bg-cyan-500/10 text-cyan-500 border-cyan-500/20 text-xs">
+                              <Icon icon="solar:user-bold" width={10} className="mr-1" />
+                              {theme.creatorName}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                       {getStatusBadge(theme.status)}
                     </div>
@@ -705,6 +934,17 @@ export default function UnifiedDashboard() {
                     </div>
                     
                     <div className="flex items-center gap-2">
+                      {theme.themeId && (
+                        <Link href={`/themes/${theme.themeId}`} className="flex-shrink-0">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-800"
+                          >
+                            <Icon icon="solar:external-link-linear" width={16} />
+                          </Button>
+                        </Link>
+                      )}
                       {theme.themeId && (
                         <Button
                           variant="outline"
@@ -749,15 +989,7 @@ export default function UnifiedDashboard() {
         {/* Activity Feed */}
         {activities.length > 0 && (
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-white">Recent Activity</h2>
-              <Link href="/dashboard/activity">
-                <Button variant="outline" className="border-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-800">
-                  View All
-                  <Icon icon="solar:alt-arrow-right-linear" width={16} className="ml-2" />
-                </Button>
-              </Link>
-            </div>
+            <h2 className="text-xl font-semibold text-white mb-4">Recent Activity</h2>
             
             <Card className="border border-neutral-800 bg-neutral-900/40">
               <CardContent className="p-6">
@@ -905,29 +1137,173 @@ export default function UnifiedDashboard() {
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Preview Image Upload */}
             <div>
-              <Label htmlFor="previewImage">Preview Image *</Label>
-              <Input
-                id="previewImage"
-                value={uploadForm.previewImage}
-                onChange={(e) => setUploadForm({ ...uploadForm, previewImage: e.target.value })}
-                className="bg-neutral-800 border-neutral-700 text-white mt-2 focus:border-neutral-600"
-                placeholder="https://example.com/preview.jpg"
-                required
+              <Label htmlFor="previewImageCreate">
+                Preview Image * <span className="text-neutral-500 font-normal">(Required for Discord)</span>
+              </Label>
+              <input
+                type="file"
+                ref={previewFileInputRef}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) processPreviewImageFile(file);
+                }}
+                accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                className="hidden"
               />
-              <p className="text-xs text-neutral-500 mt-1">Enter the URL to your preview image</p>
+              <div
+                onClick={() => previewFileInputRef.current?.click()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const file = e.dataTransfer.files[0];
+                  if (file) processPreviewImageFile(file);
+                }}
+                onDragOver={(e) => { e.preventDefault(); setIsDraggingPreview(true); }}
+                onDragLeave={() => setIsDraggingPreview(false)}
+                className={`relative rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition-all mb-3 ${
+                  previewImageUrl
+                    ? "border-green-500 bg-green-500/10"
+                    : isDraggingPreview
+                      ? "border-blue-500 bg-blue-500/10"
+                      : "border-neutral-700 bg-neutral-800 hover:border-neutral-600 hover:bg-neutral-800"
+                }`}
+              >
+                {previewImageUrl ? (
+                  <div className="flex items-center justify-center gap-3">
+                    <img
+                      src={previewImageUrl}
+                      alt="Preview"
+                      className="h-20 w-20 object-cover rounded-lg"
+                    />
+                    <div className="text-left">
+                      <p className="text-sm font-medium text-white">
+                        {previewImageFile?.name || 'Preview image'}
+                      </p>
+                      <p className="text-xs text-neutral-400">
+                        {(previewImageFile?.size || 0) / 1024} KB
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        clearPreviewImage();
+                      }}
+                      className="ml-auto text-neutral-400 hover:text-white transition-colors"
+                    >
+                      <Icon icon="solar:close-circle-bold" width={20} />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-2">
+                    <Icon
+                      icon="solar:gallery-add-linear"
+                      width={32}
+                      className="text-neutral-400"
+                    />
+                    <div>
+                      <p className="text-sm font-medium text-neutral-300">
+                        Upload preview image
+                      </p>
+                      <p className="text-xs text-neutral-500 mt-1">
+                        Drag & drop or click to browse
+                      </p>
+                      <p className="text-xs text-neutral-600 mt-1">
+                        JPEG, PNG, WebP, GIF (max 5MB)
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
+
+            {/* JSON File Upload */}
             <div>
               <Label htmlFor="themeJson">Theme JSON *</Label>
-              <Textarea
-                id="themeJson"
-                value={uploadForm.themeJson}
-                onChange={(e) => setUploadForm({ ...uploadForm, themeJson: e.target.value })}
-                className="bg-neutral-800 border-neutral-700 text-white mt-2 min-h-[200px] font-mono text-sm focus:border-neutral-600"
-                placeholder='{"id": "my-theme", "name": "My Theme", ...}'
-                required
+              <input
+                type="file"
+                ref={jsonFileInputRef}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) processJsonFile(file);
+                }}
+                accept=".json"
+                className="hidden"
               />
+
+              {/* Drag and Drop Zone */}
+              <div
+                onClick={() => jsonFileInputRef.current?.click()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDraggingJson(false);
+                  const file = e.dataTransfer.files[0];
+                  if (file) processJsonFile(file);
+                }}
+                onDragOver={(e) => { e.preventDefault(); setIsDraggingJson(true); }}
+                onDragLeave={() => setIsDraggingJson(false)}
+                className={`relative rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition-all mb-3 ${
+                  isDraggingJson
+                    ? "border-blue-500 bg-blue-500/10"
+                    : themeJsonFile
+                      ? "border-green-500 bg-green-500/10"
+                      : "border-neutral-700 bg-neutral-800 hover:border-neutral-600 hover:bg-neutral-800"
+                }`}
+              >
+                {themeJsonFile ? (
+                  <div className="flex items-center justify-center gap-3">
+                    <Icon
+                      icon="solar:file-check-bold"
+                      width={32}
+                      className="text-green-500"
+                    />
+                    <div className="text-left">
+                      <p className="text-sm font-medium text-white">
+                        {themeJsonFile.name}
+                      </p>
+                      <p className="text-xs text-neutral-400">
+                        {(themeJsonFile.size / 1024).toFixed(1)} KB
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        clearJsonFile();
+                      }}
+                      className="ml-auto text-neutral-400 hover:text-white transition-colors"
+                    >
+                      <Icon icon="solar:close-circle-bold" width={20} />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-2">
+                    <Icon
+                      icon={
+                        isDraggingJson
+                          ? "solar:file-upload-bold"
+                          : "solar:upload-minimalistic-linear"
+                      }
+                      width={32}
+                      className={`${
+                        isDraggingJson ? "text-blue-500" : "text-neutral-400"
+                      }`}
+                    />
+                    <div>
+                      <p className="text-sm font-medium text-neutral-300">
+                        {isDraggingJson ? "Drop your file here" : "Drag & drop JSON file"}
+                      </p>
+                      <p className="text-xs text-neutral-500 mt-1">
+                        or click to browse
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
+
             <div className="flex gap-2 justify-end pt-4">
               <Button
                 type="button"
@@ -1106,9 +1482,14 @@ function DashboardHeader({ user, onLogout }: { user: User | null; onLogout: () =
               Docs
             </Link>
             {(user?.role === "ADMIN" || user?.role === "SUPER_ADMIN") && (
-              <Link href="/admin/users" className="text-sm text-neutral-400 hover:text-white transition-colors">
-                Manage Users
-              </Link>
+              <>
+                <Link href="/admin/users" className="text-sm text-neutral-400 hover:text-white transition-colors">
+                  Manage Users
+                </Link>
+                <Link href="/admin/themes" className="text-sm text-neutral-400 hover:text-white transition-colors">
+                  Theme Approvals
+                </Link>
+              </>
             )}
           </nav>
           
@@ -1143,17 +1524,33 @@ function DashboardHeader({ user, onLogout }: { user: User | null; onLogout: () =
                 </div>
                 <DropdownMenuSeparator className="bg-neutral-800" />
                 <DropdownMenuItem asChild>
+                  <Link href="/" className="cursor-pointer text-neutral-300 hover:text-white hover:bg-neutral-800">
+                    <Icon icon="solar:home-2-linear" width={16} className="mr-2" />
+                    Browse Themes
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link href="/profile" className="cursor-pointer text-neutral-300 hover:text-white hover:bg-neutral-800">
                     <Icon icon="solar:user-linear" width={16} className="mr-2" />
                     Profile
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/settings" className="cursor-pointer text-neutral-300 hover:text-white hover:bg-neutral-800">
-                    <Icon icon="solar:settings-bold" width={16} className="mr-2" />
-                    Settings
-                  </Link>
-                </DropdownMenuItem>
+                {(user?.role === "ADMIN" || user?.role === "SUPER_ADMIN") && (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin/users" className="cursor-pointer text-neutral-300 hover:text-white hover:bg-neutral-800">
+                        <Icon icon="solar:users-group-rounded-bold" width={16} className="mr-2" />
+                        Manage Users
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin/themes" className="cursor-pointer text-neutral-300 hover:text-white hover:bg-neutral-800">
+                        <Icon icon="solar:gallery-wide-bold" width={16} className="mr-2" />
+                        Theme Approvals
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuSeparator className="bg-neutral-800" />
                 <DropdownMenuItem
                   onClick={onLogout}

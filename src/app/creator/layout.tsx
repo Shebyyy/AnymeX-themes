@@ -156,19 +156,10 @@ export default function CreatorLayout({
       label: "Profile",
     },
     {
-      href: "/creator/dashboard",
+      href: "/dashboard",
       icon: "solar:widget-4-linear",
-      label: "My Themes",
+      label: "Dashboard",
     },
-    ...(isAdmin
-      ? [
-          {
-            href: "/admin/dashboard",
-            icon: "solar:shield-check-linear",
-            label: "Admin Dashboard",
-          },
-        ]
-      : []),
   ];
 
   return (

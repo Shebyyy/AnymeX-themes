@@ -254,14 +254,9 @@ export default function AdminLayout({
       label: "Profile",
     },
     {
-      href: "/admin/dashboard",
+      href: "/dashboard",
       icon: "solar:widget-4-linear",
-      label: "Admin Dashboard",
-    },
-    {
-      href: "/creator/dashboard",
-      icon: "solar:palette-bold",
-      label: "Creator Dashboard",
+      label: "Dashboard",
     },
     ...(isAdmin
       ? [
