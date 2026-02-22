@@ -230,9 +230,9 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-300 font-sans antialiased">
+    <div className="min-h-screen bg-neutral-950 text-neutral-300 font-sans antialiased flex flex-col">
       {/* Navigation */}
-      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl rounded-full border border-neutral-800/60 bg-neutral-900/60 backdrop-blur-xl shadow-lg shadow-black/20 transition-all">
+      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-5xl rounded-full border border-neutral-800/60 bg-neutral-900/60 backdrop-blur-xl shadow-lg shadow-black/20 transition-all sm:w-[95%]">
         <div className="px-4 sm:px-6 pl-2">
           <div className="flex h-14 items-center justify-between gap-4">
             {/* Logo */}
@@ -392,7 +392,7 @@ export default function ProfilePage() {
       </nav>
 
       {/* Main Content */}
-      <main className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24">
+      <main className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24 flex-1">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-2">
             Profile Settings

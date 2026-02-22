@@ -13,12 +13,12 @@ function AuthContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<"signin" | "register" | "admin">("signin");
+  const [activeTab, setActiveTab] = useState<"signin" | "register">("signin");
 
   // Handle tab from URL parameter
   useEffect(() => {
     const tab = searchParams.get("tab");
-    if (tab === "signin" || tab === "register" || tab === "admin") {
+    if (tab === "signin" || tab === "register") {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -33,11 +33,6 @@ function AuthContent() {
   const [registerPassword, setRegisterPassword] = useState("");
   const [registerProfileUrl, setRegisterProfileUrl] = useState("");
   const [registerLoading, setRegisterLoading] = useState(false);
-
-  // Admin Login state
-  const [adminUsername, setAdminUsername] = useState("");
-  const [adminPassword, setAdminPassword] = useState("");
-  const [adminLoading, setAdminLoading] = useState(false);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,15 +56,32 @@ function AuthContent() {
         throw new Error(data.error || "Login failed");
       }
 
-      localStorage.setItem("creator_token", data.token);
-      localStorage.setItem("creator_user", JSON.stringify(data.user));
+      // Store token and user info
+      const role = data.user.role;
+      if (role === "ADMIN" || role === "SUPER_ADMIN") {
+        // Store both tokens for admins
+        localStorage.setItem("admin_token", data.token);
+        localStorage.setItem("admin_user", JSON.stringify(data.user));
+        localStorage.setItem("creator_token", data.token);
+        localStorage.setItem("creator_user", JSON.stringify(data.user));
 
-      toast({
-        title: "Welcome back! 👋",
-        description: `Signed in as ${data.user.username}`,
-      });
+        toast({
+          title: "Admin access granted 🔐",
+          description: `Welcome back, ${data.user.username}`,
+        });
 
-      router.push("/creator/dashboard");
+        router.push("/admin/dashboard");
+      } else {
+        localStorage.setItem("creator_token", data.token);
+        localStorage.setItem("creator_user", JSON.stringify(data.user));
+
+        toast({
+          title: "Welcome back! 👋",
+          description: `Signed in as ${data.user.username}`,
+        });
+
+        router.push("/creator/dashboard");
+      }
     } catch (error) {
       toast({
         variant: "destructive",
@@ -124,58 +136,10 @@ function AuthContent() {
     }
   };
 
-  const handleAdminLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAdminLoading(true);
-
-    try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: adminUsername.trim(),
-          password: adminPassword,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Login failed");
-      }
-
-      // Check if user has admin access
-      const role = data.user.role;
-      if (role !== "ADMIN" && role !== "SUPER_ADMIN") {
-        throw new Error("You don't have admin access");
-      }
-
-      localStorage.setItem("admin_token", data.token);
-      localStorage.setItem("admin_user", JSON.stringify(data.user));
-
-      toast({
-        title: "Admin access granted 🔐",
-        description: `Welcome back, ${data.user.username}`,
-      });
-
-      router.push("/admin/dashboard");
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Admin login failed",
-        description: error instanceof Error ? error.message : "An error occurred",
-      });
-    } finally {
-      setAdminLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-300 font-sans antialiased">
       {/* Navigation */}
-      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl rounded-full border border-neutral-800/60 bg-neutral-900/60 backdrop-blur-xl shadow-lg shadow-black/20 transition-all">
+      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-5xl rounded-full border border-neutral-800/60 bg-neutral-900/60 backdrop-blur-xl shadow-lg shadow-black/20 transition-all sm:w-[95%]">
         <div className="px-4 sm:px-6 pl-2">
           <div className="flex h-14 items-center justify-between gap-4">
             <Link href="/" className="flex items-center gap-2 shrink-0 cursor-pointer pl-2">
@@ -201,6 +165,15 @@ function AuthContent() {
               >
                 Docs
               </Link>
+              <div className="h-4 w-px bg-neutral-800 mx-2 hidden sm:block"></div>
+              <a
+                href="https://github.com/RyanYuuki/AnymeX"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full bg-neutral-800 px-5 py-2 text-xs font-semibold text-white hover:bg-neutral-700 border border-neutral-700 transition-colors inline-flex items-center justify-center"
+              >
+                Get App
+              </a>
             </div>
           </div>
         </div>
@@ -238,16 +211,6 @@ function AuthContent() {
             }`}
           >
             Register
-          </button>
-          <button
-            onClick={() => setActiveTab("admin")}
-            className={`flex-1 rounded-lg px-4 py-2.5 text-xs font-medium transition-all ${
-              activeTab === "admin"
-                ? "bg-white text-black"
-                : "text-neutral-400 hover:text-white hover:bg-neutral-800"
-            }`}
-          >
-            Admin
           </button>
         </div>
 
@@ -365,54 +328,6 @@ function AuthContent() {
               >
                 Sign In
               </button>
-            </p>
-          </div>
-        )}
-
-        {/* Admin Login Form */}
-        {activeTab === "admin" && (
-          <div className="rounded-xl border border-neutral-800 bg-neutral-900/30 p-6">
-            <div className="flex items-center gap-2 mb-4 pb-4 border-b border-neutral-800">
-              <Icon icon="solar:shield-check-linear" className="text-indigo-400" width={20} />
-              <span className="text-sm font-medium text-neutral-300">
-                Admin Access
-              </span>
-            </div>
-            <form onSubmit={handleAdminLogin} className="space-y-4">
-              <div>
-                <Label htmlFor="admin-username">Admin Username</Label>
-                <Input
-                  id="admin-username"
-                  type="text"
-                  value={adminUsername}
-                  onChange={(e) => setAdminUsername(e.target.value)}
-                  className="bg-neutral-800 border-neutral-700 text-white"
-                  placeholder="Enter admin username"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="admin-password">Admin Password</Label>
-                <Input
-                  id="admin-password"
-                  type="password"
-                  value={adminPassword}
-                  onChange={(e) => setAdminPassword(e.target.value)}
-                  className="bg-neutral-800 border-neutral-700 text-white"
-                  placeholder="Enter admin password"
-                  required
-                />
-              </div>
-              <Button
-                type="submit"
-                disabled={adminLoading}
-                className="w-full bg-indigo-600 text-white hover:bg-indigo-700"
-              >
-                {adminLoading ? "Verifying..." : "Admin Login"}
-              </Button>
-            </form>
-            <p className="text-xs text-neutral-500 mt-4 text-center">
-              Admin access only. Contact an administrator if you need access.
             </p>
           </div>
         )}

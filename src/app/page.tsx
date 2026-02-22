@@ -412,13 +412,6 @@ export default function Home() {
                                             <Icon icon="solar:palette-bold" width={16} />
                                             Sign In
                                         </Link>
-                                        <a
-                                            href="/auth"
-                                            className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
-                                        >
-                                            <Icon icon="solar:login-3-linear" width={16} />
-                                            Admin
-                                        </a>
                                     </>
                                 )}
                                 <div className="h-4 w-px bg-neutral-800 mx-2"></div>
@@ -517,15 +510,6 @@ export default function Home() {
                                                     >
                                                         <Icon icon="solar:palette-bold" width={14} />
                                                         Sign In / Register
-                                                    </Link>
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem asChild>
-                                                    <Link
-                                                        href="/auth"
-                                                        className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
-                                                    >
-                                                        <Icon icon="solar:login-3-linear" width={14} />
-                                                        Admin Login
                                                     </Link>
                                                 </DropdownMenuItem>
                                             </>

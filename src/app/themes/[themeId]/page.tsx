@@ -10,6 +10,8 @@ import { ThemePreviewRenderer } from "@/components/theme-preview";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+const ENABLE_THEME_PREVIEW = false;
+
 interface Creator {
   id: string;
   username: string;
@@ -287,11 +289,19 @@ export default function ThemeDetailPage({
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-white mb-4">Live Preview</h2>
           <div className="aspect-video w-full overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900/20">
-            <ThemePreviewRenderer
-              themeJson={theme.themeJson}
-              backgroundImage="/preview-bg.jpg"
-              className="w-full h-full"
-            />
+            {ENABLE_THEME_PREVIEW ? (
+              <ThemePreviewRenderer
+                themeJson={theme.themeJson}
+                backgroundImage="/preview-bg.jpg"
+                className="w-full h-full"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-700 flex items-center justify-center">
+                <span className="text-sm md:text-base text-neutral-300 font-medium tracking-wide">
+                  Preview coming soon
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
