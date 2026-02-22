@@ -3,9 +3,9 @@ import Link from "next/link";
 
 export default function DocsPage() {
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-300 font-sans antialiased flex flex-col">
+    <div className="min-h-screen bg-neutral-950 text-neutral-300 font-sans antialiased">
       {/* Navigation */}
-      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-5xl rounded-full border border-neutral-800/60 bg-neutral-900/60 backdrop-blur-xl shadow-lg shadow-black/20 transition-all sm:w-[95%]">
+      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl rounded-full border border-neutral-800/60 bg-neutral-900/60 backdrop-blur-xl shadow-lg shadow-black/20 transition-all">
         <div className="px-4 sm:px-6 pl-2">
           <div className="flex h-14 items-center justify-between gap-4">
             <Link href="/" className="flex items-center gap-2 shrink-0 cursor-pointer pl-2">
@@ -30,7 +30,7 @@ export default function DocsPage() {
                 href="https://github.com/RyanYuuki/AnymeX"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-full bg-neutral-800 px-5 py-2 text-xs font-semibold text-white hover:bg-neutral-700 border border-neutral-700 transition-colors inline-flex items-center justify-center"
+                className="rounded-full bg-white px-5 py-2 text-xs font-semibold text-black hover:bg-neutral-200 transition-colors inline-flex items-center justify-center"
               >
                 Get App
               </a>
@@ -40,7 +40,7 @@ export default function DocsPage() {
       </nav>
 
       {/* Main Content */}
-      <main className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1">
+      <main className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="relative py-24 md:py-32 flex flex-col items-center text-center px-4">
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-white max-w-4xl mb-6">
             Documentation
@@ -559,7 +559,7 @@ export default function DocsPage() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto border-t border-neutral-900 bg-neutral-950 py-10">
+      <footer className="mt-20 border-t border-neutral-900 bg-neutral-950 py-10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-neutral-600">© 2024 AnymeX Inc. All rights reserved.</p>
           <div className="flex items-center gap-6">

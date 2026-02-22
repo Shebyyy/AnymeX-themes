@@ -361,7 +361,7 @@ export default function Home() {
                                                 {userRole === "THEME_CREATOR" && (
                                                     <DropdownMenuItem asChild>
                                                         <Link
-                                                            href="/creator/dashboard"
+                                                            href="/dashboard"
                                                             className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
                                                         >
                                                             <Icon icon="solar:palette-bold" width={14} />
@@ -373,7 +373,7 @@ export default function Home() {
                                                     <>
                                                         <DropdownMenuItem asChild>
                                                             <Link
-                                                                href="/creator/dashboard"
+                                                                href="/dashboard"
                                                                 className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
                                                             >
                                                                 <Icon icon="solar:palette-bold" width={14} />
@@ -382,7 +382,7 @@ export default function Home() {
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem asChild>
                                                             <Link
-                                                                href="/admin/dashboard"
+                                                                href="/dashboard"
                                                                 className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
                                                             >
                                                                 <Icon icon="solar:shield-check-linear" width={14} />
@@ -461,7 +461,7 @@ export default function Home() {
                                                 {userRole === "THEME_CREATOR" && (
                                                     <DropdownMenuItem asChild>
                                                         <Link
-                                                            href="/creator/dashboard"
+                                                            href="/dashboard"
                                                             className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
                                                         >
                                                             <Icon icon="solar:palette-bold" width={14} />
@@ -473,7 +473,7 @@ export default function Home() {
                                                     <>
                                                         <DropdownMenuItem asChild>
                                                             <Link
-                                                                href="/creator/dashboard"
+                                                                href="/dashboard"
                                                                 className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
                                                             >
                                                                 <Icon icon="solar:palette-bold" width={14} />
@@ -482,7 +482,7 @@ export default function Home() {
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem asChild>
                                                             <Link
-                                                                href="/admin/dashboard"
+                                                                href="/dashboard"
                                                                 className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
                                                             >
                                                                 <Icon icon="solar:shield-check-linear" width={14} />
