@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Icon } from "@iconify/react";
+import Link from "next/link";
 
 interface Action {
   label: string;
@@ -21,16 +22,10 @@ export function QuickActionButtons({ actions, className }: QuickActionButtonsPro
       {actions.map((action, index) => {
         const isPrimary = action.variant !== "outline";
         const isFirst = index === 0;
-        
-        return (
-          <Button
-            key={index}
-            variant={action.variant || (isPrimary && isFirst ? "default" : "outline")}
-            className={`flex-1 ${isPrimary && isFirst ? "bg-neutral-100 text-black hover:bg-white" : "border-neutral-700 text-neutral-300 hover:bg-neutral-800 hover:text-white"}`}
-            onClick={action.onClick}
-            asChild={action.href ? "a" : undefined}
-            href={action.href}
-          >
+        const buttonClass = `flex-1 ${isPrimary && isFirst ? "bg-neutral-100 text-black hover:bg-white" : "border-neutral-700 text-neutral-300 hover:bg-neutral-800 hover:text-white"}`;
+
+        const content = (
+          <>
             {action.icon && <Icon icon={action.icon} width={16} className="mr-2" />}
             {action.label}
             {action.badge && (
@@ -38,6 +33,31 @@ export function QuickActionButtons({ actions, className }: QuickActionButtonsPro
                 {action.badge}
               </span>
             )}
+          </>
+        );
+
+        if (action.href) {
+          return (
+            <Link key={index} href={action.href} className={buttonClass}>
+              <Button
+                variant={action.variant || (isPrimary && isFirst ? "default" : "outline")}
+                className="w-full"
+                onClick={action.onClick}
+              >
+                {content}
+              </Button>
+            </Link>
+          );
+        }
+
+        return (
+          <Button
+            key={index}
+            variant={action.variant || (isPrimary && isFirst ? "default" : "outline")}
+            className={buttonClass}
+            onClick={action.onClick}
+          >
+            {content}
           </Button>
         );
       })}

@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Icon } from "@iconify/react";
-import { checkAuth } from "@/lib/auth";
 
 export default function CreatorLayout({
   children,
@@ -16,73 +15,76 @@ export default function CreatorLayout({
 
   const isLoginPage = pathname === "/creator/login";
   const isRegisterPage = pathname === "/creator/register";
+  const isDashboardPage = pathname === "/creator/dashboard";
 
   useEffect(() => {
-    if (!isLoginPage && !isRegisterPage) {
-      checkAuth();
-    } else {
+    const checkAuth = async () => {
       // Check if already logged in
       const creatorToken = localStorage.getItem("creator_token");
       const adminToken = localStorage.getItem("admin_token");
+      const token = creatorToken || adminToken;
       const userStr = localStorage.getItem("creator_user") || localStorage.getItem("admin_user");
-      const token = creatorToken || admin_token;
-      if (token && userStr) {
-        router.push("/creator/dashboard");
+
+      if (isLoginPage || isRegisterPage) {
+        // If on login/register page and already logged in, redirect to dashboard
+        if (token && userStr) {
+          router.push("/creator/dashboard");
+        }
+        setLoading(false);
+        return;
       }
-      setLoading(false);
-    }
+
+      // For dashboard and other protected pages, verify auth
+      if (!token || !userStr) {
+        router.push("/auth");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/auth/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          localStorage.removeItem("creator_token");
+          localStorage.removeItem("admin_token");
+          localStorage.removeItem("creator_user");
+          localStorage.removeItem("admin_user");
+          router.push("/auth");
+          setLoading(false);
+          return;
+        }
+
+        const data = await response.json();
+
+        // Check if user has creator access
+        const role = data.user.role;
+        const isCreator = role === 'THEME_CREATOR' || role === 'ADMIN' || role === 'SUPER_ADMIN';
+
+        if (!isCreator) {
+          localStorage.removeItem("creator_token");
+          localStorage.removeItem("admin_token");
+          localStorage.removeItem("creator_user");
+          localStorage.removeItem("admin_user");
+          router.push("/auth");
+          setLoading(false);
+          return;
+        }
+
+        // Auth successful
+      } catch (error) {
+        console.error("Auth check error:", error);
+        router.push("/auth");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
   }, [isLoginPage, isRegisterPage, router]);
-
-  const checkAuth = async () => {
-    const creatorToken = localStorage.getItem("creator_token");
-    const adminToken = localStorage.getItem("admin_token");
-    const token = creatorToken || adminToken;
-    const userStr = localStorage.getItem("creator_user") || localStorage.getItem("admin_user");
-
-    if (!token || !userStr) {
-      router.push("/auth");
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/auth/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        localStorage.removeItem("creator_token");
-        localStorage.removeItem("admin_token");
-        localStorage.removeItem("creator_user");
-        localStorage.removeItem("admin_user");
-        router.push("/auth");
-        return;
-      }
-
-      const data = await response.json();
-
-      // Check if user has creator access
-      const role = data.user.role;
-      const isCreator = role === 'THEME_CREATOR' || role === 'ADMIN' || role === 'SUPER_ADMIN';
-
-      if (!isCreator) {
-        localStorage.removeItem("creator_token");
-        localStorage.removeItem("admin_token");
-        localStorage.removeItem("creator_user");
-        localStorage.removeItem("admin_user");
-        router.push("/auth");
-        return;
-      }
-
-      router.push("/creator/dashboard");
-    } catch (error) {
-      console.error("Auth check error:", error);
-      router.push("/auth");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -92,17 +94,6 @@ export default function CreatorLayout({
     );
   }
 
-  // If not logged in and not on login/register page, auth check will handle redirect
-  if (!isLoginPage && !isRegisterPage) {
-    return null;
-  }
-
-  // Render login/register pages as-is, redirect dashboard to new page
-  if (isLoginPage || isRegisterPage) {
-    return children;
-  }
-
-  // Dashboard - redirect to new page
-  router.push("/creator/dashboard");
-  return null;
+  // Always render children (let the page handle auth internally)
+  return <>{children}</>;
 }
