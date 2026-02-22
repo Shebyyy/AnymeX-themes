@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { ThemePreviewRenderer } from "@/components/theme-preview";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -680,15 +679,13 @@ export default function ThemeDetailPage({
           <p className="text-neutral-400 mb-8 text-lg">{theme.description}</p>
         )}
 
-        {/* Preview */}
+        {/* Preview - Disabled */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-white mb-4">Live Preview</h2>
-          <div className="aspect-video w-full overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900/20">
-            <ThemePreviewRenderer
-              themeJson={theme.themeJson}
-              backgroundImage="/preview-bg.jpg"
-              className="w-full h-full"
-            />
+          <div className="aspect-video w-full overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900/20 flex items-center justify-center">
+            <span className="text-xs md:text-sm text-neutral-300 font-medium tracking-wide">
+              Preview coming soon
+            </span>
           </div>
         </div>
 
