@@ -20,28 +20,18 @@ export default function AdminLayout({
     if (!isLoginPage) {
       checkAuth();
     } else {
-      // Check if already logged in
+      // Check if already logged in (no async operations here)
       const creatorToken = localStorage.getItem("creator_token");
       const adminToken = localStorage.getItem("admin_token");
       const userStr = localStorage.getItem("creator_user") || localStorage.getItem("admin_user");
       const token = creatorToken || adminToken;
+      
       if (token && userStr) {
         // Check if user has admin access
-        try {
-          const response = await fetch("/api/auth/me", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          if (response.ok) {
-            const role = data.user.role;
-            const isAdmin = role === 'ADMIN' || role === 'SUPER_ADMIN';
-            if (isAdmin) {
-              router.push("/admin/dashboard");
-            }
-          }
-        } catch (error) {
-          console.error("Auth check error:", error);
+        const role = (userStr && JSON.parse(userStr)).role;
+        const isAdmin = role === 'ADMIN' || role === 'SUPER_ADMIN';
+        if (isAdmin) {
+          router.push("/admin/dashboard");
         }
       }
       setLoading(false);
