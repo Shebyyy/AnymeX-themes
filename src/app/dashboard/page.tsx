@@ -76,11 +76,10 @@ interface Stats {
   myThemes?: number;
   totalViews?: number;
   totalLikes?: number;
-  growthPercent?: number;
   totalUsers?: number;
   pendingThemes?: number;
   totalThemes?: number;
-  newUsersThisWeek?: number;
+  themeCreatorsCount?: number;
 }
 
 interface Activity {
@@ -608,7 +607,7 @@ export default function UnifiedDashboard() {
         },
         {
           title: "Theme Creators",
-          value: "View",
+          value: stats?.themeCreatorsCount || 0,
           icon: "solar:users-rounded-bold",
           color: "bg-cyan-500/10 text-cyan-500",
           borderColor: "border-neutral-800",
@@ -637,13 +636,6 @@ export default function UnifiedDashboard() {
         value: stats?.totalLikes || 0,
         icon: "solar:heart-bold",
         color: "bg-red-500/10 text-red-500",
-        borderColor: "border-neutral-800",
-      },
-      {
-        title: "Growth",
-        value: `+${stats?.growthPercent || 0}%`,
-        icon: "solar:graph-up-bold",
-        color: "bg-green-500/10 text-green-500",
         borderColor: "border-neutral-800",
       },
     ];
@@ -906,10 +898,19 @@ export default function UnifiedDashboard() {
                             </Badge>
                           )}
                           {(userRole === "ADMIN" || userRole === "SUPER_ADMIN") && theme.creatorName && (
-                            <Badge variant="outline" className="bg-cyan-500/10 text-cyan-500 border-cyan-500/20 text-xs">
-                              <Icon icon="solar:user-bold" width={10} className="mr-1" />
-                              {theme.creatorName}
-                            </Badge>
+                            theme.creator ? (
+                              <Link href={`/users/${theme.creator.username}`}>
+                                <Badge variant="outline" className="bg-cyan-500/10 text-cyan-500 border-cyan-500/20 text-xs hover:bg-cyan-500/20 transition-colors">
+                                  <Icon icon="solar:user-bold" width={10} className="mr-1" />
+                                  {theme.creatorName}
+                                </Badge>
+                              </Link>
+                            ) : (
+                              <Badge variant="outline" className="bg-cyan-500/10 text-cyan-500 border-cyan-500/20 text-xs">
+                                <Icon icon="solar:user-bold" width={10} className="mr-1" />
+                                {theme.creatorName}
+                              </Badge>
+                            )
                           )}
                         </div>
                       </div>

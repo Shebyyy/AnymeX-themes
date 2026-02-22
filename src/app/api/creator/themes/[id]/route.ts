@@ -134,6 +134,18 @@ export async function PUT(
       );
     }
 
+    // Fetch theme with creator for Discord update
+    const themeWithCreator = await db.theme.findUnique({
+      where: { id: params.id },
+      include: {
+        creator: {
+          select: {
+            username: true,
+          },
+        },
+      },
+    });
+
     const body = await request.json();
     const { name, description, themeJson, category, previewData, previewImage } = body;
 
@@ -173,18 +185,22 @@ export async function PUT(
     });
 
     // Update Discord post if exists and relevant fields changed
-    if (theme.discordPostId && (name || description || previewImage)) {
+    if (themeWithCreator?.discordPostId && (name || description || previewImage)) {
       try {
-        const discordResult = await editDiscordPost(theme.discordPostId, {
-          title: generateDiscordPostTitle(name || theme.name, theme.creatorName),
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://anymex-themes.vercel.app';
+        const creatorUsername = themeWithCreator.creator?.username || themeWithCreator.creatorName;
+        const discordResult = await editDiscordPost(themeWithCreator.discordPostId, {
+          title: generateDiscordPostTitle(name || themeWithCreator.name, themeWithCreator.creatorName),
           content: generateDiscordPostContent(
-            name || theme.name,
-            theme.themeId,
-            description !== undefined ? description : theme.description,
-            theme.creatorName,
-            `${process.env.NEXT_PUBLIC_APP_URL || 'https://anymex-themes.vercel.app'}/themes/${theme.themeId}`
+            name || themeWithCreator.name,
+            themeWithCreator.themeId,
+            description !== undefined ? description : themeWithCreator.description,
+            themeWithCreator.creatorName,
+            creatorUsername,
+            `${appUrl}/themes/${themeWithCreator.themeId}`,
+            appUrl
           ),
-          imageUrl: previewImage && (previewImage.startsWith('http') ? previewImage : `${process.env.NEXT_PUBLIC_APP_URL || ''}${previewImage}`),
+          imageUrl: previewImage && (previewImage.startsWith('http') ? previewImage : `${appUrl}${previewImage}`),
         });
 
         if (!discordResult.success) {
@@ -206,6 +222,9 @@ export async function PUT(
       if (previewData !== undefined) changedFields.push('Preview Data');
       if (previewImage) changedFields.push('Preview Image');
 
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://anymex-themes.vercel.app';
+      const creatorUsername = themeWithCreator?.creator?.username || themeWithCreator?.creatorName;
+
       await sendModLog({
         action: 'THEME_UPDATED',
         userId: currentUser.id,
@@ -215,6 +234,7 @@ export async function PUT(
         themeName: updatedTheme.name,
         details: {
           'Changed Fields': changedFields.join(', ') || 'None',
+          'Creator Profile': `[View Profile](${appUrl}/users/${creatorUsername})`,
         },
       });
     } catch (logError) {
@@ -300,11 +320,24 @@ export async function DELETE(
     }
 
     // Store theme info for mod log before deletion
+    const themeWithCreator = await db.theme.findUnique({
+      where: { id: params.id },
+      include: {
+        creator: {
+          select: {
+            username: true,
+          },
+        },
+      },
+    });
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://anymex-themes.vercel.app';
     const themeInfo = {
       id: theme.id,
       themeId: theme.themeId,
       name: theme.name,
       creatorName: theme.creatorName,
+      creatorUsername: themeWithCreator?.creator?.username,
       category: theme.category,
       status: theme.status,
     };
@@ -315,6 +348,17 @@ export async function DELETE(
 
     // Send mod log
     try {
+      const modLogDetails: Record<string, any> = {
+        'Original Creator': themeInfo.creatorName,
+        Category: themeInfo.category || 'N/A',
+        Status: themeInfo.status,
+      };
+
+      // Add creator profile link if username is available
+      if (themeInfo.creatorUsername) {
+        modLogDetails['Creator Profile'] = `[View Profile](${appUrl}/users/${themeInfo.creatorUsername})`;
+      }
+
       await sendModLog({
         action: 'THEME_DELETED',
         userId: currentUser.id,
@@ -322,11 +366,7 @@ export async function DELETE(
         userRole: currentUser.role,
         themeId: themeInfo.themeId || undefined,
         themeName: themeInfo.name,
-        details: {
-          'Original Creator': themeInfo.creatorName,
-          Category: themeInfo.category || 'N/A',
-          Status: themeInfo.status,
-        },
+        details: modLogDetails,
       });
     } catch (logError) {
       console.error('Failed to send mod log:', logError);

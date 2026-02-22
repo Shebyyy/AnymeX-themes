@@ -36,9 +36,16 @@ export async function PUT(
       );
     }
 
-    // Check if theme exists
+    // Check if theme exists with creator info
     const theme = await db.theme.findUnique({
       where: { id: params.id },
+      include: {
+        creator: {
+          select: {
+            username: true,
+          },
+        },
+      },
     });
 
     if (!theme) {
@@ -56,6 +63,20 @@ export async function PUT(
     // Send mod log for status changes
     if (status === 'APPROVED' || status === 'REJECTED') {
       try {
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://anymex-themes.vercel.app';
+        const creatorUsername = theme.creator?.username || theme.creatorName;
+        const modLogDetails: Record<string, any> = {
+          'Original Creator': updatedTheme.creatorName,
+          Category: updatedTheme.category || 'N/A',
+          'Previous Status': theme.status,
+          'New Status': status,
+        };
+
+        // Add creator profile link if username is available
+        if (creatorUsername) {
+          modLogDetails['Creator Profile'] = `[View Profile](${appUrl}/users/${creatorUsername})`;
+        }
+
         await sendModLog({
           action: status === 'APPROVED' ? 'THEME_APPROVED' : 'THEME_REJECTED',
           userId: currentUser.id,
@@ -63,12 +84,7 @@ export async function PUT(
           userRole: currentUser.role,
           themeId: updatedTheme.themeId || undefined,
           themeName: updatedTheme.name,
-          details: {
-            'Original Creator': updatedTheme.creatorName,
-            Category: updatedTheme.category || 'N/A',
-            'Previous Status': theme.status,
-            'New Status': status,
-          },
+          details: modLogDetails,
         });
       } catch (logError) {
         console.error('Failed to send mod log:', logError);

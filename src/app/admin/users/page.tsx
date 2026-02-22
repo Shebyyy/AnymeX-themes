@@ -32,6 +32,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import Link from "next/link";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -466,7 +467,9 @@ export default function UsersPage() {
                       className="border-neutral-800 hover:bg-neutral-800/50"
                     >
                       <TableCell>
-                        <p className="font-medium text-white">{user.username}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium text-white">{user.username}</p>
+                        </div>
                       </TableCell>
                       <TableCell>{getRoleBadge(user.role)}</TableCell>
                       <TableCell>
@@ -497,9 +500,12 @@ export default function UsersPage() {
                         )}
                       </TableCell>
                       <TableCell>
-                        <span className="text-neutral-300">
-                          {user._count.createdThemes}
-                        </span>
+                        <Link
+                          href={`/users/${user.username}`}
+                          className="text-blue-400 hover:text-blue-300 hover:underline"
+                        >
+                          {user._count.createdThemes} themes
+                        </Link>
                       </TableCell>
                       <TableCell>
                         <span className="text-sm text-neutral-500">
@@ -510,11 +516,22 @@ export default function UsersPage() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
+                          <Link href={`/users/${user.username}`}>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
+                              title="View Profile"
+                            >
+                              <Icon icon="solar:user-circle-bold" width={16} />
+                            </Button>
+                          </Link>
                           <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => openEditDialog(user)}
                             className="text-neutral-400 hover:text-white hover:bg-neutral-800"
+                            title="Edit User"
                           >
                             <Icon icon="solar:pen-bold" width={16} />
                           </Button>
@@ -523,6 +540,7 @@ export default function UsersPage() {
                             size="icon"
                             onClick={() => openResetPasswordDialog(user)}
                             className="text-neutral-400 hover:text-white hover:bg-neutral-800"
+                            title="Reset Password"
                           >
                             <Icon icon="solar:lock-keyhole-bold" width={16} />
                           </Button>
@@ -531,6 +549,7 @@ export default function UsersPage() {
                             size="icon"
                             onClick={() => openDeleteDialog(user)}
                             className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                            title="Delete User"
                           >
                             <Icon icon="solar:trash-bin-minimalistic-bold" width={16} />
                           </Button>

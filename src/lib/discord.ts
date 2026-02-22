@@ -350,15 +350,19 @@ export function generateDiscordPostContent(
   themeId: string | null,
   description: string | null,
   creatorName: string,
-  themeUrl: string
+  creatorUsername: string,
+  themeUrl: string,
+  appUrl?: string
 ): string {
-  const themeLink = themeId ? `https://anymex-themes.vercel.app/themes/${themeId}` : themeUrl;
+  const baseUrl = appUrl || 'https://anymex-themes.vercel.app';
+  const themeLink = themeId ? `${baseUrl}/themes/${themeId}` : themeUrl;
+  const creatorProfileLink = `${baseUrl}/users/${creatorUsername}`;
 
   return `🔗 **Theme Page:** <${themeLink}>
 
 📝 **Description:** ${description || 'No description provided'}
 
-✨ **Created by:** ${creatorName}
+✨ **Created by:** [${creatorName}](${creatorProfileLink})
 
 ---
 _Uploaded via AnymeX Theme Creator Hub_`;

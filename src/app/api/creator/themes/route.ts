@@ -167,16 +167,19 @@ export async function POST(request: NextRequest) {
     let discordPostId = null;
     if (themeId && previewImage) {
       try {
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://anymex-themes.vercel.app';
         const discordResult = await postToDiscord({
           title: generateDiscordPostTitle(name, currentUser.username),
           content: generateDiscordPostContent(
             name,
             themeId,
             description,
-            currentUser.username,
-            `${process.env.NEXT_PUBLIC_APP_URL || 'https://anymex-themes.vercel.app'}/themes/${themeId}`
+            currentUser.username, // creatorName (display name)
+            currentUser.username, // creatorUsername (for profile link)
+            `${appUrl}/themes/${themeId}`, // themeUrl
+            appUrl // appUrl for profile link
           ),
-          imageUrl: previewImage.startsWith('http') ? previewImage : `${process.env.NEXT_PUBLIC_APP_URL || ''}${previewImage}`,
+          imageUrl: previewImage.startsWith('http') ? previewImage : `${appUrl}${previewImage}`,
         });
 
         if (discordResult.success && discordResult.threadId) {
@@ -195,6 +198,14 @@ export async function POST(request: NextRequest) {
 
     // Send mod log
     try {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://anymex-themes.vercel.app';
+      const modLogDetails: Record<string, any> = {
+        Category: category || 'N/A',
+        Status: theme.status,
+        'Discord Posted': discordPostId ? 'Yes' : 'No',
+        'Creator Profile': `[View Profile](${appUrl}/users/${currentUser.username})`,
+      };
+
       await sendModLog({
         action: 'THEME_CREATED',
         userId: currentUser.id,
@@ -202,11 +213,7 @@ export async function POST(request: NextRequest) {
         userRole: currentUser.role,
         themeId: theme.themeId,
         themeName: theme.name,
-        details: {
-          Category: category || 'N/A',
-          Status: theme.status,
-          'Discord Posted': discordPostId ? 'Yes' : 'No',
-        },
+        details: modLogDetails,
       });
     } catch (logError) {
       console.error('Failed to send mod log:', logError);

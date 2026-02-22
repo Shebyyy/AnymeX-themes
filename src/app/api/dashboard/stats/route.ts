@@ -28,27 +28,18 @@ export async function GET(request: NextRequest) {
 
     if (isAdmin) {
       // Admin stats
-      const [totalUsers, totalThemes, pendingThemes] = await Promise.all([
+      const [totalUsers, totalThemes, pendingThemes, themeCreatorsCount] = await Promise.all([
         db.user.count({ where: { isActive: true } }),
         db.theme.count(),
         db.theme.count({ where: { status: "PENDING" } }),
+        db.user.count({ where: { role: "THEME_CREATOR", isActive: true } }),
       ]);
-
-      // Calculate new users this week
-      const oneWeekAgo = new Date();
-      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-      
-      const newUsersThisWeek = await db.user.count({
-        where: {
-          createdAt: { gte: oneWeekAgo },
-        },
-      });
 
       stats = {
         totalUsers,
         totalThemes,
         pendingThemes,
-        newUsersThisWeek,
+        themeCreatorsCount,
       };
     } else {
       // Creator stats
@@ -65,14 +56,10 @@ export async function GET(request: NextRequest) {
       const totalViews = themesData.reduce((sum, t) => sum + t.viewsCount, 0);
       const totalLikes = themesData.reduce((sum, t) => sum + t.likesCount, 0);
 
-      // Calculate growth percentage (mock - 15% growth)
-      const growthPercent = 15;
-
       stats = {
         myThemes,
         totalViews,
         totalLikes,
-        growthPercent,
       };
     }
 

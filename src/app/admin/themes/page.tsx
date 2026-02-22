@@ -320,7 +320,16 @@ export default function ThemesPage() {
                       </TableCell>
                       <TableCell>
                         <div>
-                          <p className="text-neutral-300">{theme.creatorName}</p>
+                          {theme.creator ? (
+                            <Link
+                              href={`/users/${theme.creator.username}`}
+                              className="text-neutral-300 hover:text-white hover:underline"
+                            >
+                              {theme.creatorName}
+                            </Link>
+                          ) : (
+                            <p className="text-neutral-300">{theme.creatorName}</p>
+                          )}
                           {theme.creator && (
                             <p className="text-xs text-neutral-600">
                               @{theme.creator.username}

@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { getAvatarUrl } from "@/lib/avatar";
 
 const ENABLE_THEME_PREVIEW = false;
 
@@ -58,7 +59,7 @@ export default function Home() {
     const [authChecked, setAuthChecked] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userRole, setUserRole] = useState<string | null>(null);
-    const [user, setUser] = useState<{ username: string; role: string } | null>(null);
+    const [user, setUser] = useState<{ username: string; role: string; profileUrl?: string | null } | null>(null);
     const { toast } = useToast();
 
     // Get or create user token
@@ -340,7 +341,24 @@ export default function Home() {
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <button className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors">
-                                                    <Icon icon="solar:user-circle-linear" width={16} />
+                                                    <div className="w-6 h-6 rounded-full overflow-hidden border border-neutral-700 bg-neutral-800">
+                                                        {user ? (
+                                                            <img
+                                                                src={getAvatarUrl(user.username, user.profileUrl)}
+                                                                alt={user.username}
+                                                                className="w-full h-full object-cover"
+                                                                onError={(e) => {
+                                                                    const target = e.target as HTMLImageElement;
+                                                                    target.style.display = 'none';
+                                                                    const icon = target.parentElement?.querySelector('div');
+                                                                    if (icon) icon.style.display = 'flex';
+                                                                }}
+                                                            />
+                                                        ) : null}
+                                                        <div className="w-full h-full hidden items-center justify-center">
+                                                            <Icon icon="solar:user-bold" width={14} className="text-neutral-400" />
+                                                        </div>
+                                                    </div>
                                                     {user?.username || "Profile"}
                                                     <Icon icon="solar:alt-arrow-down-linear" width={14} />
                                                 </button>
@@ -692,7 +710,15 @@ export default function Home() {
                                                   </h3>
                                                   <div className="flex items-center gap-1 mt-0.5">
                                                       <span className="text-xs text-neutral-500">by</span>
-                                                      {theme.creator?.profileUrl ? (
+                                                      {theme.creator ? (
+                                                          <Link
+                                                              href={`/users/${theme.creator.username}`}
+                                                              onClick={e => e.stopPropagation()}
+                                                              className="text-xs text-neutral-400 hover:text-neutral-200 cursor-pointer hover:underline"
+                                                          >
+                                                              {theme.creatorName}
+                                                          </Link>
+                                                      ) : theme.creator?.profileUrl ? (
                                                           <a
                                                               href={theme.creator.profileUrl}
                                                               target="_blank"
@@ -716,16 +742,10 @@ export default function Home() {
                                                   </h3>
                                                   <div className="flex items-center gap-1 mt-0.5">
                                                       <span className="text-xs text-neutral-500">by</span>
-                                                      {theme.creator?.profileUrl ? (
-                                                          <a
-                                                              href={theme.creator.profileUrl}
-                                                              target="_blank"
-                                                              rel="noopener noreferrer"
-                                                              onClick={e => e.stopPropagation()}
-                                                              className="text-xs text-neutral-400 hover:text-neutral-200 cursor-pointer hover:underline"
-                                                          >
+                                                      {theme.creator ? (
+                                                          <span className="text-xs text-neutral-400">
                                                               {theme.creatorName}
-                                                          </a>
+                                                          </span>
                                                       ) : (
                                                           <span className="text-xs text-neutral-400">
                                                               {theme.creatorName}

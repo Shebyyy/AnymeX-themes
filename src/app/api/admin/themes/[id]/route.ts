@@ -26,9 +26,16 @@ export async function DELETE(
       );
     }
 
-    // Check if theme exists
+    // Check if theme exists with creator info
     const theme = await db.theme.findUnique({
       where: { id: params.id },
+      include: {
+        creator: {
+          select: {
+            username: true,
+          },
+        },
+      },
     });
 
     if (!theme) {
@@ -53,11 +60,13 @@ export async function DELETE(
     }
 
     // Store theme info for mod log before deletion
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://anymex-themes.vercel.app';
     const themeInfo = {
       id: theme.id,
       themeId: theme.themeId,
       name: theme.name,
       creatorName: theme.creatorName,
+      creatorUsername: theme.creator?.username,
       category: theme.category,
       status: theme.status,
       createdBy: theme.createdBy,
@@ -69,6 +78,19 @@ export async function DELETE(
 
     // Send mod log
     try {
+      const modLogDetails: Record<string, any> = {
+        'Original Creator': themeInfo.creatorName,
+        'Creator ID': themeInfo.createdBy || 'Unknown',
+        Category: themeInfo.category || 'N/A',
+        Status: themeInfo.status,
+        'Deleted By': currentUser.role,
+      };
+
+      // Add creator profile link if username is available
+      if (themeInfo.creatorUsername) {
+        modLogDetails['Creator Profile'] = `[View Profile](${appUrl}/users/${themeInfo.creatorUsername})`;
+      }
+
       await sendModLog({
         action: 'THEME_DELETED',
         userId: currentUser.id,
@@ -76,13 +98,7 @@ export async function DELETE(
         userRole: currentUser.role,
         themeId: themeInfo.themeId || undefined,
         themeName: themeInfo.name,
-        details: {
-          'Original Creator': themeInfo.creatorName,
-          'Creator ID': themeInfo.createdBy || 'Unknown',
-          Category: themeInfo.category || 'N/A',
-          Status: themeInfo.status,
-          'Deleted By': currentUser.role,
-        },
+        details: modLogDetails,
       });
     } catch (logError) {
       console.error('Failed to send mod log:', logError);

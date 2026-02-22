@@ -642,15 +642,13 @@ export default function ThemeDetailPage({
             </div>
             <p className="text-neutral-400 flex items-center gap-2 text-sm">
               <span>by</span>
-              {theme.creator?.profileUrl ? (
-                <a
-                  href={theme.creator.profileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+              {theme.creator ? (
+                <Link
+                  href={`/users/${theme.creator.username}`}
                   className="text-neutral-300 hover:text-white cursor-pointer hover:underline"
                 >
                   {theme.creatorName}
-                </a>
+                </Link>
               ) : (
                 <span className="text-neutral-300">{theme.creatorName}</span>
               )}
