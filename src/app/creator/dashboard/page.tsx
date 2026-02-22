@@ -340,7 +340,7 @@ export default function CreatorDashboard() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 
   const renderContent = () => {
