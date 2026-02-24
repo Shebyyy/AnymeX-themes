@@ -215,6 +215,19 @@ export default function UserProfilePage() {
     }
   };
 
+  const getRoleGradient = (role: string) => {
+    switch (role) {
+      case "SUPER_ADMIN":
+        return "from-red-600 via-red-700 to-red-800";
+      case "ADMIN":
+        return "from-orange-600 via-orange-700 to-orange-800";
+      case "THEME_CREATOR":
+        return "from-purple-600 via-purple-700 to-purple-800";
+      default:
+        return "from-neutral-600 via-neutral-700 to-neutral-800";
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "APPROVED":
@@ -227,6 +240,21 @@ export default function UserProfilePage() {
         return "bg-red-900/30 text-red-300 border-red-900/50";
       default:
         return "bg-neutral-500/10 text-neutral-400 border-neutral-500/20";
+    }
+  };
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case "Dark":
+        return "bg-neutral-500";
+      case "Light":
+        return "bg-gray-400";
+      case "AMOLED":
+        return "bg-black";
+      case "Other":
+        return "bg-purple-500";
+      default:
+        return "bg-neutral-500";
     }
   };
 
@@ -246,10 +274,26 @@ export default function UserProfilePage() {
         </nav>
         <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24">
           <div className="space-y-4">
-            <Skeleton className="h-56 w-full rounded-xl" />
-            <Skeleton className="h-32 w-full rounded-xl" />
-            <Skeleton className="h-16 w-full rounded-xl" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Skeleton className="h-48 w-full rounded-2xl" />
+            <div className="flex gap-4">
+              <Skeleton className="w-32 h-32 rounded-full -mt-16 border-4 border-neutral-950" />
+              <div className="flex-1 space-y-2 pt-4">
+                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-4 w-64" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 pt-6">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="h-24 w-full rounded-xl" />
+              ))}
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-20 w-full rounded-xl" />
+              ))}
+            </div>
+            <Skeleton className="h-6 w-48 rounded" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
                 <Skeleton key={i} className="h-64 w-full rounded-xl" />
               ))}
@@ -263,6 +307,8 @@ export default function UserProfilePage() {
   if (!userProfile) {
     return null;
   }
+
+  const totalCategories = Object.values(userStats?.categories || {}).reduce((a, b) => a + b, 0);
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-300 font-sans antialiased flex flex-col">
@@ -497,193 +543,243 @@ export default function UserProfilePage() {
       </nav>
 
       {/* Main Content */}
-      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24 flex-1">
+      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 flex-1">
         <div className="space-y-6">
-          {/* User Profile Header Card */}
-          <Card className="border-neutral-800 bg-gradient-to-br from-neutral-900/90 to-neutral-800/90 backdrop-blur-xl overflow-hidden">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex flex-col gap-4">
-                {/* Top Row: Avatar + User Info + Admin Actions */}
-                <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                  {/* Avatar */}
-                  <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full border-2 border-neutral-700 overflow-hidden bg-gradient-to-br from-neutral-700 to-neutral-800 shrink-0">
-                    <img
-                      src={getAvatarUrl(userProfile.username, userProfile.profileUrl)}
-                      alt={`${userProfile.username}'s avatar`}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        // Fallback to icon if image fails to load
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        const icon = target.parentElement?.querySelector('div');
-                        if (icon) icon.style.display = 'flex';
-                      }}
-                    />
-                    {/* Fallback icon (hidden by default) */}
-                    <div className="w-full h-full flex items-center justify-center hidden">
-                      <Icon icon="solar:user-bold" width={20} className="sm:w-[28px] text-neutral-400" />
-                    </div>
+          {/* Profile Header */}
+          <div className="mb-8">
+            {/* Gradient Banner */}
+            <div
+              className={`bg-gradient-to-br ${getRoleGradient(userProfile.role)} h-48 sm:h-56 rounded-2xl relative mb-0 overflow-hidden`}
+            >
+              {/* Subtle pattern overlay */}
+              <div
+                className="absolute inset-0 opacity-50"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                }}
+              ></div>
+            </div>
+
+            {/* Avatar & Info Section */}
+            <div className="px-4 sm:px-6 -mt-16 sm:-mt-20 relative z-10">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start sm:items-end">
+                {/* Avatar */}
+                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden shadow-2xl border-4 border-neutral-950 bg-neutral-950 flex-shrink-0">
+                  <img
+                    src={getAvatarUrl(userProfile.username, userProfile.profileUrl)}
+                    alt={`${userProfile.username}'s avatar`}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = "none";
+                      const icon = target.parentElement?.querySelector("div");
+                      if (icon) icon.style.display = "flex";
+                    }}
+                  />
+                  {/* Fallback icon */}
+                  <div className="w-full h-full hidden items-center justify-center bg-gradient-to-br from-purple-400 to-purple-600">
+                    <Icon icon="solar:user-bold" width={48} className="text-white" />
+                  </div>
+                </div>
+
+                {/* User Info */}
+                <div className="flex-1 space-y-3 sm:pb-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 flex-wrap">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-white">
+                      {userProfile.username}
+                    </h1>
+                    <Badge
+                      variant="outline"
+                      className={getRoleColor(userProfile.role)}
+                    >
+                      {userProfile.role.replace(/_/g, " ")}
+                    </Badge>
+                    <Badge
+                      variant="outline"
+                      className={
+                        userProfile.isActive
+                          ? "bg-green-500/10 text-green-400 border-green-500/20"
+                          : "bg-red-500/10 text-red-400 border-red-500/20"
+                      }
+                    >
+                      {userProfile.isActive ? "Active" : "Inactive"}
+                    </Badge>
                   </div>
 
-                  {/* User Info */}
-                  <div className="flex-1 space-y-2">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                      <h1 className="text-xl sm:text-2xl font-semibold text-white">
-                        {userProfile.username}
-                      </h1>
-                      <Badge variant="outline" className={getRoleColor(userProfile.role)}>
-                        {userProfile.role.replace(/_/g, " ")}
-                      </Badge>
-                      <Badge
-                        variant="outline"
-                        className={
-                          userProfile.isActive
-                            ? "bg-green-500/10 text-green-400 border-green-500/20"
-                            : "bg-red-500/10 text-red-400 border-red-500/20"
-                        }
-                      >
-                        {userProfile.isActive ? "Active" : "Inactive"}
-                      </Badge>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm">
-                      {userProfile.profileUrl && (
-                        <a
-                          href={userProfile.profileUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-400 hover:text-blue-300 underline break-all"
-                        >
-                          {userProfile.profileUrl}
-                        </a>
-                      )}
-                      <div className="text-neutral-500">
-                        <Icon icon="solar:calendar-bold" width={14} className="inline mr-1" />
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-neutral-400">
+                    <div className="flex items-center gap-1.5">
+                      <Icon icon="solar:calendar-bold" width={16} />
+                      <span>
                         Joined{" "}
                         {new Date(userProfile.createdAt).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "long",
-                          day: "numeric",
                         })}
-                      </div>
+                      </span>
                     </div>
+                    {userProfile.profileUrl && (
+                      <a
+                        href={userProfile.profileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-purple-400 hover:text-purple-300"
+                      >
+                        <Icon icon="solar:link-bold" width={16} />
+                        <span className="break-all">{userProfile.profileUrl}</span>
+                      </a>
+                    )}
                   </div>
-
-                  {/* Admin Actions */}
-                  {isAdmin && !isOwnProfile && (
-                    <div className="flex gap-2 shrink-0">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-neutral-700 text-neutral-300 hover:bg-neutral-800"
-                      >
-                        <Icon icon="solar:shield-check-bold" width={16} className="mr-1" />
-                        <span className="hidden sm:inline">View Details</span>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={`border-neutral-700 hover:bg-neutral-800 ${
-                          userProfile.isActive ? "text-yellow-400" : "text-green-400"
-                        }`}
-                      >
-                        <Icon
-                          icon={userProfile.isActive ? "solar:shield-cross-bold" : "solar:shield-check-bold"}
-                          width={16}
-                          className="mr-1"
-                        />
-                        <span className="hidden sm:inline">
-                          {userProfile.isActive ? "Ban" : "Activate"}
-                        </span>
-                      </Button>
-                    </div>
-                  )}
                 </div>
 
-                {/* Stats Bar */}
-                {userStats && (
-                  <div className="grid grid-cols-5 gap-2 sm:gap-4 pt-4 border-t border-neutral-800">
-                    <div className="text-center p-2 rounded-lg bg-neutral-800/30">
-                      <div className="text-lg sm:text-xl font-semibold text-white">{userStats.totalThemes}</div>
-                      <div className="text-[10px] sm:text-xs text-neutral-500">Themes</div>
-                    </div>
-                    <div className="text-center p-2 rounded-lg bg-neutral-800/30">
-                      <div className="text-lg sm:text-xl font-semibold text-white">{userStats.totalLikes}</div>
-                      <div className="text-[10px] sm:text-xs text-neutral-500">Likes</div>
-                    </div>
-                    <div className="text-center p-2 rounded-lg bg-neutral-800/30">
-                      <div className="text-lg sm:text-xl font-semibold text-white">{userStats.totalViews}</div>
-                      <div className="text-[10px] sm:text-xs text-neutral-500">Views</div>
-                    </div>
-                    <div className="text-center p-2 rounded-lg bg-neutral-800/30">
-                      <div className="text-lg sm:text-xl font-semibold text-green-400">{userStats.approvedThemes}</div>
-                      <div className="text-[10px] sm:text-xs text-neutral-500">Approved</div>
-                    </div>
-                    <div className="text-center p-2 rounded-lg bg-neutral-800/30">
-                      <div className="text-lg sm:text-xl font-semibold text-yellow-400">{userStats.pendingThemes}</div>
-                      <div className="text-[10px] sm:text-xs text-neutral-500">Pending</div>
-                    </div>
+                {/* Admin Actions */}
+                {isAdmin && !isOwnProfile && (
+                  <div className="flex gap-2 shrink-0 sm:pb-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-neutral-700 text-neutral-300 hover:bg-neutral-800"
+                    >
+                      <Icon icon="solar:shield-check-bold" width={16} className="mr-1" />
+                      <span className="hidden sm:inline">View Details</span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className={`border-neutral-700 hover:bg-neutral-800 ${
+                        userProfile.isActive ? "text-yellow-400" : "text-green-400"
+                      }`}
+                    >
+                      <Icon
+                        icon={userProfile.isActive ? "solar:shield-cross-bold" : "solar:shield-check-bold"}
+                        width={16}
+                        className="mr-1"
+                      />
+                      <span className="hidden sm:inline">
+                        {userProfile.isActive ? "Ban" : "Activate"}
+                      </span>
+                    </Button>
                   </div>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          {/* Category Breakdown Card */}
-          {userStats?.categories && (
-            <Card className="border-neutral-800 bg-neutral-900/30">
-              <CardContent className="p-4 sm:p-6">
-                <h2 className="text-sm font-semibold text-white mb-4">Themes by Category</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="p-3 rounded-lg bg-neutral-800/50 border border-neutral-800">
-                    <div className="text-2xl sm:text-3xl font-semibold text-white mb-1">
-                      {userStats.categories.Dark || 0}
+          {/* Stats Section */}
+          {userStats && (
+            <div className="mb-8">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+                <div className="bg-neutral-900/50 border border-neutral-800 rounded-xl p-4 sm:p-5 transition-all hover:translate-y-[-2px] hover:shadow-lg hover:shadow-black/30">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                      <Icon icon="solar:palette-bold" width={16} className="sm:w-5 sm:h-5 text-purple-400" />
                     </div>
-                    <div className="text-xs text-neutral-500">Dark Themes</div>
-                  </div>
-                  <div className="p-3 rounded-lg bg-neutral-800/50 border border-neutral-800">
-                    <div className="text-2xl sm:text-3xl font-semibold text-white mb-1">
-                      {userStats.categories.Light || 0}
+                    <div className="text-2xl sm:text-3xl font-bold text-white">
+                      {userStats.totalThemes}
                     </div>
-                    <div className="text-xs text-neutral-500">Light Themes</div>
                   </div>
-                  <div className="p-3 rounded-lg bg-neutral-800/50 border border-neutral-800">
-                    <div className="text-2xl sm:text-3xl font-semibold text-white mb-1">
-                      {userStats.categories.AMOLED || 0}
-                    </div>
-                    <div className="text-xs text-neutral-500">AMOLED Themes</div>
-                  </div>
-                  <div className="p-3 rounded-lg bg-neutral-800/50 border border-neutral-800">
-                    <div className="text-2xl sm:text-3xl font-semibold text-white mb-1">
-                      {userStats.categories.Other || 0}
-                    </div>
-                    <div className="text-xs text-neutral-500">Other Themes</div>
-                  </div>
+                  <div className="text-xs sm:text-sm text-neutral-500">Total Themes</div>
                 </div>
-              </CardContent>
-            </Card>
+
+                <div className="bg-neutral-900/50 border border-neutral-800 rounded-xl p-4 sm:p-5 transition-all hover:translate-y-[-2px] hover:shadow-lg hover:shadow-black/30">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-pink-500/10 flex items-center justify-center">
+                      <Icon icon="solar:heart-bold" width={16} className="sm:w-5 sm:h-5 text-pink-400" />
+                    </div>
+                    <div className="text-2xl sm:text-3xl font-bold text-white">
+                      {userStats.totalLikes}
+                    </div>
+                  </div>
+                  <div className="text-xs sm:text-sm text-neutral-500">Total Likes</div>
+                </div>
+
+                <div className="bg-neutral-900/50 border border-neutral-800 rounded-xl p-4 sm:p-5 transition-all hover:translate-y-[-2px] hover:shadow-lg hover:shadow-black/30">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                      <Icon icon="solar:eye-bold" width={16} className="sm:w-5 sm:h-5 text-blue-400" />
+                    </div>
+                    <div className="text-2xl sm:text-3xl font-bold text-white">
+                      {userStats.totalViews}
+                    </div>
+                  </div>
+                  <div className="text-xs sm:text-sm text-neutral-500">Total Views</div>
+                </div>
+
+                <div className="bg-neutral-900/50 border border-neutral-800 rounded-xl p-4 sm:p-5 transition-all hover:translate-y-[-2px] hover:shadow-lg hover:shadow-black/30">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
+                      <Icon icon="solar:check-circle-bold" width={16} className="sm:w-5 sm:h-5 text-green-400" />
+                    </div>
+                    <div className="text-2xl sm:text-3xl font-bold text-green-400">
+                      {userStats.approvedThemes}
+                    </div>
+                  </div>
+                  <div className="text-xs sm:text-sm text-neutral-500">Approved</div>
+                </div>
+
+                <div className="bg-neutral-900/50 border border-neutral-800 rounded-xl p-4 sm:p-5 transition-all hover:translate-y-[-2px] hover:shadow-lg hover:shadow-black/30">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-yellow-500/10 flex items-center justify-center">
+                      <Icon icon="solar:clock-circle-bold" width={16} className="sm:w-5 sm:h-5 text-yellow-400" />
+                    </div>
+                    <div className="text-2xl sm:text-3xl font-bold text-yellow-400">
+                      {userStats.pendingThemes}
+                    </div>
+                  </div>
+                  <div className="text-xs sm:text-sm text-neutral-500">Pending</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Category Breakdown */}
+          {userStats?.categories && (
+            <div className="mb-8">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {["Dark", "Light", "AMOLED", "Other"].map((category) => {
+                  const count = userStats.categories[category as keyof typeof userStats.categories] || 0;
+                  const percentage = totalCategories > 0 ? (count / totalCategories) * 100 : 0;
+                  return (
+                    <div key={category} className="bg-neutral-900/30 border border-neutral-800 rounded-xl p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm font-medium text-neutral-300">{category}</span>
+                        <span className="text-lg font-bold text-white">{count}</span>
+                      </div>
+                      <div className="w-full bg-neutral-800 rounded-full h-2">
+                        <div
+                          className={`${getCategoryColor(category)} h-2 rounded-full transition-all`}
+                          style={{ width: `${percentage}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           )}
 
           {/* Themes Section */}
           <section className="space-y-6">
             {/* Page Header */}
-            <div>
-              <h2 className="text-2xl font-semibold text-white mb-2">
-                {userProfile.username}'s Themes
-              </h2>
-              <p className="text-neutral-400">
-                {userStats?.totalThemes || 0} theme{userStats?.totalThemes !== 1 ? "s" : ""} created
-              </p>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-1">
+                  {userProfile.username}'s Themes
+                </h2>
+                <p className="text-neutral-400 text-sm">
+                  {userStats?.totalThemes || 0} theme{userStats?.totalThemes !== 1 ? "s" : ""} created
+                </p>
+              </div>
             </div>
 
             {/* Filters */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center bg-neutral-900/20 border border-neutral-800/50 p-1.5 rounded-xl backdrop-blur-sm">
+            <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center bg-neutral-900/20 border border-neutral-800/50 p-1.5 rounded-xl backdrop-blur-sm">
               {/* Category Filter */}
               <div className="flex items-center p-1 rounded-xl bg-neutral-900 border border-neutral-800/50 w-full sm:w-auto overflow-x-auto">
                 {["All", "Dark", "Light", "AMOLED"].map((category) => (
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
-                    className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all whitespace-nowrap ${
+                    className={`rounded-lg px-4 py-2 text-xs font-medium transition-all whitespace-nowrap ${
                       selectedCategory === category
                         ? "bg-neutral-800 text-white shadow-sm"
                         : "text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50"
@@ -697,8 +793,8 @@ export default function UserProfilePage() {
               {/* Sort */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="shrink-0 flex items-center gap-2 rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs font-medium text-neutral-300 hover:bg-neutral-800 transition-all">
-                    <Icon icon="solar:sort-vertical-linear" width={14} />
+                  <button className="shrink-0 flex items-center gap-2 rounded-xl border border-neutral-800 bg-neutral-900 px-4 py-2 text-xs font-medium text-neutral-300 hover:bg-neutral-800 transition-all">
+                    <Icon icon="solar:sort-vertical-linear" width={16} />
                     <span>
                       {sortBy === "newest" && "Newest"}
                       {sortBy === "oldest" && "Oldest"}
@@ -757,19 +853,16 @@ export default function UserProfilePage() {
                 ? themes.map((theme) => (
                     <Card
                       key={theme.id}
-                      className="group border-neutral-800 bg-neutral-900/20 p-2 transition-all hover:border-neutral-700 hover:bg-neutral-900/40 hover:shadow-lg hover:shadow-black/50"
+                      className="group border-neutral-800 bg-neutral-900/20 rounded-xl overflow-hidden transition-all hover:translate-y-[-2px] hover:border-neutral-700 hover:bg-neutral-900/40 hover:shadow-lg hover:shadow-black/50"
                     >
                       {theme.themeId ? (
-                        <Link
-                          href={`/themes/${theme.themeId}`}
-                          className="block"
-                        >
+                        <Link href={`/themes/${theme.themeId}`} className="block">
                           {/* Preview Placeholder */}
-                          <div className="aspect-video w-full overflow-hidden rounded-lg bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-700 flex items-center justify-center">
-                            <Icon icon="solar:palette-bold" width={32} className="text-neutral-500" />
+                          <div className="aspect-video w-full bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-700 flex items-center justify-center">
+                            <Icon icon="solar:palette-bold" width={40} className="text-neutral-500" />
                           </div>
 
-                          <div className="p-3 space-y-2">
+                          <div className="p-4 space-y-3">
                             <h3 className="text-sm font-medium text-neutral-100 group-hover:text-white">
                               {theme.name}
                             </h3>
@@ -790,20 +883,20 @@ export default function UserProfilePage() {
                               )}
                             </div>
 
-                            <div className="flex items-center gap-3 text-xs text-neutral-500">
+                            <div className="flex items-center gap-4 text-xs text-neutral-500">
                               <div className="flex items-center gap-1">
-                                <Icon icon="solar:heart-bold" width={14} />
+                                <Icon icon="solar:heart-bold" width={16} />
                                 {theme.likesCount}
                               </div>
                               <div className="flex items-center gap-1">
-                                <Icon icon="solar:eye-bold" width={14} />
+                                <Icon icon="solar:eye-bold" width={16} />
                                 {theme.viewsCount}
                               </div>
                             </div>
                           </div>
                         </Link>
                       ) : (
-                        <div className="p-3 space-y-2">
+                        <div className="p-4 space-y-3">
                           <h3 className="text-sm font-medium text-neutral-100">
                             {theme.name}
                           </h3>
@@ -824,13 +917,13 @@ export default function UserProfilePage() {
                             )}
                           </div>
 
-                          <div className="flex items-center gap-3 text-xs text-neutral-500">
+                          <div className="flex items-center gap-4 text-xs text-neutral-500">
                             <div className="flex items-center gap-1">
-                              <Icon icon="solar:heart-bold" width={14} />
+                              <Icon icon="solar:heart-bold" width={16} />
                               {theme.likesCount}
                             </div>
                             <div className="flex items-center gap-1">
-                              <Icon icon="solar:eye-bold" width={14} />
+                              <Icon icon="solar:eye-bold" width={16} />
                               {theme.viewsCount}
                             </div>
                           </div>
@@ -847,7 +940,9 @@ export default function UserProfilePage() {
                       />
                       <p className="text-neutral-400">No themes found</p>
                       <p className="text-neutral-500 text-sm mt-1">
-                        {selectedCategory !== "All" ? `Try a different category filter` : "This creator hasn't published any themes yet"}
+                        {selectedCategory !== "All"
+                          ? `Try a different category filter`
+                          : "This creator hasn't published any themes yet"}
                       </p>
                     </div>
                   )}
