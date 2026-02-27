@@ -17,6 +17,7 @@ import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getAvatarUrl } from "@/lib/avatar";
+import { authFetchMe, authLogout, clearStoredAuth, getOrCreateAnonymousToken, getStoredAuthToken } from "@/lib/api-client";
 
 const ENABLE_THEME_PREVIEW = false;
 
@@ -64,45 +65,26 @@ export default function Home() {
 
     // Get or create user token
     useEffect(() => {
-        let token = localStorage.getItem("anymex_token");
-        if (!token) {
-            token = `anymex_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-            localStorage.setItem("anymex_token", token);
-        }
+        const token = getOrCreateAnonymousToken();
         setUserToken(token);
-
-        // Also set cookie for server-side access
-        document.cookie = `anymex_token=${token}; path=/; max-age=31536000; SameSite=Lax`;
 
         // Check if user is logged in
         checkAuth();
     }, []);
 
     const checkAuth = async () => {
-        const creatorToken = localStorage.getItem("creator_token");
-        const adminToken = localStorage.getItem("admin_token");
-        const userStr = localStorage.getItem("creator_user") || localStorage.getItem("admin_user");
+        const token = getStoredAuthToken();
 
-        if ((creatorToken || adminToken) && userStr) {
+        if (token) {
             try {
-                const token = creatorToken || adminToken;
-                const response = await fetch("/api/auth/me", {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+                const data = await authFetchMe(token);
 
-                if (response.ok) {
-                    const data = await response.json();
+                if (data?.user) {
                     setIsLoggedIn(true);
                     setUser(data.user);
                     setUserRole(data.user.role);
                 } else {
-                    // Clear invalid tokens
-                    localStorage.removeItem("creator_token");
-                    localStorage.removeItem("admin_token");
-                    localStorage.removeItem("creator_user");
-                    localStorage.removeItem("admin_user");
+                    clearStoredAuth();
                 }
             } catch (error) {
                 console.error("Auth check error:", error);
@@ -113,26 +95,16 @@ export default function Home() {
     };
 
     const handleLogout = async () => {
-        const creatorToken = localStorage.getItem("creator_token");
-        const adminToken = localStorage.getItem("admin_token");
-        const token = creatorToken || adminToken;
+        const token = getStoredAuthToken();
 
         try {
             if (token) {
-                await fetch("/api/auth/logout", {
-                    method: "POST",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+                await authLogout(token);
             }
         } catch (error) {
             console.error("Logout error:", error);
         } finally {
-            localStorage.removeItem("creator_token");
-            localStorage.removeItem("admin_token");
-            localStorage.removeItem("creator_user");
-            localStorage.removeItem("admin_user");
+            clearStoredAuth();
             setIsLoggedIn(false);
             setUser(null);
             setUserRole(null);
