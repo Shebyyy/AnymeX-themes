@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { authFetchMe, authLogout, clearStoredAuth, getOrCreateAnonymousToken, getStoredAuthToken } from "@/lib/api-client";
 
 interface Creator {
   id: string;
@@ -62,38 +63,28 @@ export default function ThemeDetailPage({
 
   // Get user token and check auth
   useEffect(() => {
-    let token = localStorage.getItem("anymex_token");
-    if (!token) {
-      token = `anymex_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      localStorage.setItem("anymex_token", token);
-    }
+    const token = getOrCreateAnonymousToken();
     setUserToken(token);
     checkAuth();
   }, []);
 
   const checkAuth = async () => {
-    const creatorToken = localStorage.getItem("creator_token");
-    const adminToken = localStorage.getItem("admin_token");
+    const token = getStoredAuthToken();
 
-    if (!creatorToken && !adminToken) {
+    if (!token) {
       setUser(null);
       return;
     }
 
     try {
-      const token = creatorToken || adminToken;
-      const response = await fetch("/api/auth/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const data = await authFetchMe(token);
 
-      if (!response.ok) {
+      if (!data?.user) {
         setUser(null);
+        clearStoredAuth();
         return;
       }
 
-      const data = await response.json();
       setUser(data.user);
     } catch (error) {
       console.error("Auth check error:", error);
@@ -102,26 +93,16 @@ export default function ThemeDetailPage({
   };
 
   const handleLogout = async () => {
-    const creatorToken = localStorage.getItem("creator_token");
-    const adminToken = localStorage.getItem("admin_token");
-    const token = creatorToken || adminToken;
+    const token = getStoredAuthToken();
 
     try {
       if (token) {
-        await fetch("/api/auth/logout", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        await authLogout(token);
       }
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
-      localStorage.removeItem("creator_token");
-      localStorage.removeItem("admin_token");
-      localStorage.removeItem("creator_user");
-      localStorage.removeItem("admin_user");
+      clearStoredAuth();
       setUser(null);
     }
   };

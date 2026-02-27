@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
+import { authFetchMe, authLogout, clearStoredAuth, getStoredAuthToken } from "@/lib/api-client";
 
 interface User {
   id: string;
@@ -146,38 +147,34 @@ export default function UnifiedDashboard() {
   }, [user]);
   
   const checkAuth = async () => {
-    const creatorToken = localStorage.getItem("creator_token");
-    const adminToken = localStorage.getItem("admin_token");
-    const userStr = localStorage.getItem("creator_user") || localStorage.getItem("admin_user");
-    
-    if ((creatorToken || adminToken) && userStr) {
+    const token = getStoredAuthToken();
+
+    if (token) {
       try {
-        const token = creatorToken || adminToken;
-        const response = await fetch("/api/auth/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
+        const data = await authFetchMe(token);
+
+        if (data?.user) {
           setUser(data.user);
           setUserRole(data.user.role);
-        } else {
-          localStorage.clear();
-          router.push("/auth");
+          return;
         }
       } catch (error) {
         console.error("Auth check error:", error);
-        router.push("/auth");
       }
-    } else {
-      router.push("/auth");
     }
+
+    clearStoredAuth();
+    router.push("/auth");
   };
   
   const fetchDashboardData = async () => {
     try {
-      const token = localStorage.getItem("creator_token") || localStorage.getItem("admin_token");
-      
+      const token = getStoredAuthToken();
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
       // Fetch user stats
       const statsRes = await fetch("/api/dashboard/stats", {
         headers: { Authorization: `Bearer ${token}` },
@@ -213,17 +210,14 @@ export default function UnifiedDashboard() {
   
   const handleLogout = async () => {
     try {
-      const token = localStorage.getItem("creator_token") || localStorage.getItem("admin_token");
+      const token = getStoredAuthToken();
       if (token) {
-        await fetch("/api/auth/logout", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await authLogout(token);
       }
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
-      localStorage.clear();
+      clearStoredAuth();
       setUser(null);
       setUserRole(null);
       router.push("/auth");
@@ -265,7 +259,7 @@ export default function UnifiedDashboard() {
         throw new Error("Preview image is required");
       }
 
-      const token = localStorage.getItem("creator_token") || localStorage.getItem("admin_token");
+      const token = getStoredAuthToken();
       const response = await fetch("/api/creator/themes", {
         method: "POST",
         headers: {
@@ -316,7 +310,7 @@ export default function UnifiedDashboard() {
     setEditing(true);
     
     try {
-      const token = localStorage.getItem("creator_token") || localStorage.getItem("admin_token");
+      const token = getStoredAuthToken();
       const response = await fetch(`/api/creator/themes/${selectedTheme.id}`, {
         method: "PUT",
         headers: {
@@ -354,7 +348,7 @@ export default function UnifiedDashboard() {
     setDeleting(true);
     
     try {
-      const token = localStorage.getItem("creator_token") || localStorage.getItem("admin_token");
+      const token = getStoredAuthToken();
       const response = await fetch(`/api/creator/themes/${selectedTheme.id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
@@ -1444,7 +1438,7 @@ function DashboardHeader({ user, onLogout }: { user: User | null; onLogout: () =
   useEffect(() => {
     const fetchPendingCount = async () => {
       try {
-        const token = localStorage.getItem("creator_token") || localStorage.getItem("admin_token");
+        const token = getStoredAuthToken();
         const response = await fetch("/api/dashboard/pending-count", {
           headers: { Authorization: `Bearer ${token}` },
         });

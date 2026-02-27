@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { authFetchMe, authLogout, clearStoredAuth, getStoredAuthToken } from "@/lib/api-client";
 
 interface User {
   id: string;
@@ -31,29 +32,18 @@ export default function DocsPage() {
   }, []);
 
   const checkAuth = async () => {
-    const creatorToken = localStorage.getItem("creator_token");
-    const adminToken = localStorage.getItem("admin_token");
-    const userStr = localStorage.getItem("creator_user") || localStorage.getItem("admin_user");
+    const token = getStoredAuthToken();
 
-    if ((creatorToken || adminToken) && userStr) {
+    if (token) {
       try {
-        const token = creatorToken || adminToken;
-        const response = await fetch("/api/auth/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const data = await authFetchMe(token);
 
-        if (response.ok) {
-          const data = await response.json();
+        if (data?.user) {
           setIsLoggedIn(true);
           setUser(data.user);
           setUserRole(data.user.role);
         } else {
-          localStorage.removeItem("creator_token");
-          localStorage.removeItem("admin_token");
-          localStorage.removeItem("creator_user");
-          localStorage.removeItem("admin_user");
+          clearStoredAuth();
         }
       } catch (error) {
         console.error("Auth check error:", error);
@@ -62,26 +52,16 @@ export default function DocsPage() {
   };
 
   const handleLogout = async () => {
-    const creatorToken = localStorage.getItem("creator_token");
-    const adminToken = localStorage.getItem("admin_token");
-    const token = creatorToken || adminToken;
+    const token = getStoredAuthToken();
 
     try {
       if (token) {
-        await fetch("/api/auth/logout", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        await authLogout(token);
       }
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
-      localStorage.removeItem("creator_token");
-      localStorage.removeItem("admin_token");
-      localStorage.removeItem("creator_user");
-      localStorage.removeItem("admin_user");
+      clearStoredAuth();
       setIsLoggedIn(false);
       setUser(null);
       setUserRole(null);

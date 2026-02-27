@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
+import { authFetchMe, authLogout, clearStoredAuth, getStoredAuthToken } from "@/lib/api-client";
 
 interface User {
   id: string;
@@ -54,33 +55,22 @@ export default function ProfilePage() {
   }, []);
 
   const checkAuth = async () => {
-    const creatorToken = localStorage.getItem("creator_token");
-    const adminToken = localStorage.getItem("admin_token");
-    const userStr = localStorage.getItem("creator_user") || localStorage.getItem("admin_user");
+    const token = getStoredAuthToken();
 
-    if (!creatorToken && !adminToken) {
+    if (!token) {
       router.push("/");
       return;
     }
 
     try {
-      const token = creatorToken || adminToken;
-      const response = await fetch("/api/auth/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const data = await authFetchMe(token);
 
-      if (!response.ok) {
-        localStorage.removeItem("creator_token");
-        localStorage.removeItem("admin_token");
-        localStorage.removeItem("creator_user");
-        localStorage.removeItem("admin_user");
+      if (!data?.user) {
+        clearStoredAuth();
         router.push("/");
         return;
       }
 
-      const data = await response.json();
       setUser(data.user);
       setUsername(data.user.username);
       setProfileUrl(data.user.profileUrl || "");
@@ -93,26 +83,16 @@ export default function ProfilePage() {
   };
 
   const handleLogout = async () => {
-    const creatorToken = localStorage.getItem("creator_token");
-    const adminToken = localStorage.getItem("admin_token");
-    const token = creatorToken || adminToken;
+    const token = getStoredAuthToken();
 
     try {
       if (token) {
-        await fetch("/api/auth/logout", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        await authLogout(token);
       }
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
-      localStorage.removeItem("creator_token");
-      localStorage.removeItem("admin_token");
-      localStorage.removeItem("creator_user");
-      localStorage.removeItem("admin_user");
+      clearStoredAuth();
       router.push("/");
     }
   };
@@ -121,9 +101,8 @@ export default function ProfilePage() {
     e.preventDefault();
     setSaving(true);
 
-    const creatorToken = localStorage.getItem("creator_token");
-    const adminToken = localStorage.getItem("admin_token");
-    const token = creatorToken || adminToken;
+    const token = getStoredAuthToken();
+    const creatorToken = typeof window !== "undefined" ? localStorage.getItem("creator_token") : null;
 
     try {
       const response = await fetch("/api/profile/update", {
@@ -175,9 +154,7 @@ export default function ProfilePage() {
     e.preventDefault();
     setChangingPassword(true);
 
-    const creatorToken = localStorage.getItem("creator_token");
-    const adminToken = localStorage.getItem("admin_token");
-    const token = creatorToken || adminToken;
+    const token = getStoredAuthToken();
 
     try {
       const response = await fetch("/api/auth/change-password", {
