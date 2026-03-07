@@ -34,7 +34,8 @@ export async function createSession(userId: string): Promise<string> {
     });
 
   if (error) {
-    throw new Error('Failed to create session');
+    console.error('Session creation error:', error);
+    throw new Error(`Failed to create session: ${error.message}`);
   }
 
   return token;
