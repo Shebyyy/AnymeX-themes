@@ -50,23 +50,13 @@ export async function validateSession(token: string) {
       userId,
       token,
       expiresAt,
-      createdAt,
-      user:User (
-        id,
-        username,
-        passwordHash,
-        role,
-        profileUrl,
-        isActive,
-        createdAt,
-        updatedAt,
-        lastLoginAt
-      )
+      createdAt
     `)
     .eq('token', token)
     .single();
 
   if (error || !session) {
+    console.error('Session validation error:', error);
     return null;
   }
 
@@ -76,13 +66,25 @@ export async function validateSession(token: string) {
     return null;
   }
 
+  // Get user separately
+  const { data: user, error: userError } = await supabase
+    .from('User')
+    .select('id, username, passwordHash, role, profileUrl, isActive, createdAt, updatedAt, lastLoginAt')
+    .eq('id', session.userId)
+    .single();
+
+  if (userError || !user) {
+    console.error('User fetch error:', userError);
+    return null;
+  }
+
   // Update last login
   await supabase
     .from('User')
     .update({ lastLoginAt: new Date().toISOString() })
     .eq('id', session.userId);
 
-  return session.user;
+  return user;
 }
 
 export async function destroySession(token: string): Promise<void> {
