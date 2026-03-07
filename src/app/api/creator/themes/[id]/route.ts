@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { supabase } from '@/lib/db';
 import { validateSession } from '@/lib/auth';
 import {
   editDiscordPost,
@@ -43,20 +43,13 @@ export async function GET(
       );
     }
 
-    const theme = await db.theme.findUnique({
-      where: { id: params.id },
-      include: {
-        creator: {
-          select: {
-            id: true,
-            username: true,
-            profileUrl: true,
-          },
-        },
-      },
-    });
+    const { data: theme, error: findError } = await supabase
+      .from('Theme')
+      .select('*, creator:User(id, username, profileUrl)')
+      .eq('id', params.id)
+      .single();
 
-    if (!theme) {
+    if (findError || !theme) {
       return NextResponse.json(
         { error: 'Theme not found' },
         { status: 404 }
@@ -64,7 +57,7 @@ export async function GET(
     }
 
     // THEME_CREATOR can only access their own themes
-    if (currentUser.role === 'THEME_CREATOR' && theme.createdBy !== currentUser.id) {
+    if (currentUser.role === 'THEME_CREATOR' && (theme as any).createdBy !== currentUser.id) {
       return NextResponse.json(
         { error: 'Unauthorized - You can only access your own themes' },
         { status: 403 }
@@ -115,11 +108,13 @@ export async function PUT(
       );
     }
 
-    const theme = await db.theme.findUnique({
-      where: { id: params.id },
-    });
+    const { data: theme, error: findError } = await supabase
+      .from('Theme')
+      .select('*')
+      .eq('id', params.id)
+      .single();
 
-    if (!theme) {
+    if (findError || !theme) {
       return NextResponse.json(
         { error: 'Theme not found' },
         { status: 404 }
@@ -127,7 +122,7 @@ export async function PUT(
     }
 
     // THEME_CREATOR can only edit their own themes
-    if (currentUser.role === 'THEME_CREATOR' && theme.createdBy !== currentUser.id) {
+    if (currentUser.role === 'THEME_CREATOR' && (theme as any).createdBy !== currentUser.id) {
       return NextResponse.json(
         { error: 'Unauthorized - You can only edit your own themes' },
         { status: 403 }
@@ -135,16 +130,11 @@ export async function PUT(
     }
 
     // Fetch theme with creator for Discord update
-    const themeWithCreator = await db.theme.findUnique({
-      where: { id: params.id },
-      include: {
-        creator: {
-          select: {
-            username: true,
-          },
-        },
-      },
-    });
+    const { data: themeWithCreator, error: creatorFindError } = await supabase
+      .from('Theme')
+      .select('*, creator:User(username)')
+      .eq('id', params.id)
+      .single();
 
     const body = await request.json();
     const { name, description, themeJson, category, previewData, previewImage } = body;
@@ -172,32 +162,40 @@ export async function PUT(
       }
     }
 
-    const updatedTheme = await db.theme.update({
-      where: { id: params.id },
-      data: {
-        ...(name && { name }),
-        ...(description !== undefined && { description }),
-        ...(themeJson && { themeJson }),
-        ...(category !== undefined && { category }),
-        ...(previewData !== undefined && { previewData }),
-        ...(previewImage && { previewImage }),
-      },
-    });
+    // Build update data
+    const updateData: any = {};
+    if (name) updateData.name = name;
+    if (description !== undefined) updateData.description = description;
+    if (themeJson) updateData.themeJson = themeJson;
+    if (category !== undefined) updateData.category = category;
+    if (previewData !== undefined) updateData.previewData = previewData;
+    if (previewImage) updateData.previewImage = previewImage;
+
+    const { data: updatedTheme, error: updateError } = await supabase
+      .from('Theme')
+      .update(updateData)
+      .eq('id', params.id)
+      .select()
+      .single();
+
+    if (updateError) {
+      throw updateError;
+    }
 
     // Update Discord post if exists and relevant fields changed
     if (themeWithCreator?.discordPostId && (name || description || previewImage)) {
       try {
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://anymex-themes.vercel.app';
-        const creatorUsername = themeWithCreator.creator?.username || themeWithCreator.creatorName;
-        const discordResult = await editDiscordPost(themeWithCreator.discordPostId, {
-          title: generateDiscordPostTitle(name || themeWithCreator.name, themeWithCreator.creatorName),
+        const creatorUsername = (themeWithCreator.creator as any)?.username || (themeWithCreator as any).creatorName;
+        const discordResult = await editDiscordPost((themeWithCreator as any).discordPostId, {
+          title: generateDiscordPostTitle(name || (themeWithCreator as any).name, (themeWithCreator as any).creatorName),
           content: generateDiscordPostContent(
-            name || themeWithCreator.name,
-            themeWithCreator.themeId,
-            description !== undefined ? description : themeWithCreator.description,
-            themeWithCreator.creatorName,
+            name || (themeWithCreator as any).name,
+            (themeWithCreator as any).themeId,
+            description !== undefined ? description : (themeWithCreator as any).description,
+            (themeWithCreator as any).creatorName,
             creatorUsername,
-            `${appUrl}/themes/${themeWithCreator.themeId}`,
+            `${appUrl}/themes/${(themeWithCreator as any).themeId}`,
             appUrl
           ),
           imageUrl: previewImage && (previewImage.startsWith('http') ? previewImage : `${appUrl}${previewImage}`),
@@ -223,15 +221,15 @@ export async function PUT(
       if (previewImage) changedFields.push('Preview Image');
 
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://anymex-themes.vercel.app';
-      const creatorUsername = themeWithCreator?.creator?.username || themeWithCreator?.creatorName;
+      const creatorUsername = (themeWithCreator?.creator as any)?.username || (themeWithCreator as any)?.creatorName;
 
       await sendModLog({
         action: 'THEME_UPDATED',
         userId: currentUser.id,
         username: currentUser.username,
         userRole: currentUser.role,
-        themeId: updatedTheme.themeId,
-        themeName: updatedTheme.name,
+        themeId: (updatedTheme as any).themeId,
+        themeName: (updatedTheme as any).name,
         details: {
           'Changed Fields': changedFields.join(', ') || 'None',
           'Creator Profile': `[View Profile](${appUrl}/users/${creatorUsername})`,
@@ -286,11 +284,13 @@ export async function DELETE(
       );
     }
 
-    const theme = await db.theme.findUnique({
-      where: { id: params.id },
-    });
+    const { data: theme, error: findError } = await supabase
+      .from('Theme')
+      .select('*')
+      .eq('id', params.id)
+      .single();
 
-    if (!theme) {
+    if (findError || !theme) {
       return NextResponse.json(
         { error: 'Theme not found' },
         { status: 404 }
@@ -298,7 +298,7 @@ export async function DELETE(
     }
 
     // THEME_CREATOR can only delete their own themes
-    if (currentUser.role === 'THEME_CREATOR' && theme.createdBy !== currentUser.id) {
+    if (currentUser.role === 'THEME_CREATOR' && (theme as any).createdBy !== currentUser.id) {
       return NextResponse.json(
         { error: 'Unauthorized - You can only delete your own themes' },
         { status: 403 }
@@ -306,9 +306,9 @@ export async function DELETE(
     }
 
     // Delete Discord post if exists
-    if (theme.discordPostId) {
+    if ((theme as any).discordPostId) {
       try {
-        const deleteResult = await deleteDiscordPost(theme.discordPostId);
+        const deleteResult = await deleteDiscordPost((theme as any).discordPostId);
         if (!deleteResult.success) {
           console.error('Failed to delete Discord post:', deleteResult.error);
           // Continue with theme deletion even if Discord deletion fails
@@ -320,31 +320,31 @@ export async function DELETE(
     }
 
     // Store theme info for mod log before deletion
-    const themeWithCreator = await db.theme.findUnique({
-      where: { id: params.id },
-      include: {
-        creator: {
-          select: {
-            username: true,
-          },
-        },
-      },
-    });
+    const { data: themeWithCreator, error: creatorFindError } = await supabase
+      .from('Theme')
+      .select('*, creator:User(username)')
+      .eq('id', params.id)
+      .single();
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://anymex-themes.vercel.app';
     const themeInfo = {
-      id: theme.id,
-      themeId: theme.themeId,
-      name: theme.name,
-      creatorName: theme.creatorName,
-      creatorUsername: themeWithCreator?.creator?.username,
-      category: theme.category,
-      status: theme.status,
+      id: (theme as any).id,
+      themeId: (theme as any).themeId,
+      name: (theme as any).name,
+      creatorName: (theme as any).creatorName,
+      creatorUsername: (themeWithCreator?.creator as any)?.username,
+      category: (theme as any).category,
+      status: (theme as any).status,
     };
 
-    await db.theme.delete({
-      where: { id: params.id },
-    });
+    const { error: deleteError } = await supabase
+      .from('Theme')
+      .delete()
+      .eq('id', params.id);
+
+    if (deleteError) {
+      throw deleteError;
+    }
 
     // Send mod log
     try {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { supabase } from '@/lib/db';
 import { validateSession } from '@/lib/auth';
 import { deleteDiscordPost, sendModLog } from '@/lib/discord';
 
@@ -27,18 +27,13 @@ export async function DELETE(
     }
 
     // Check if theme exists with creator info
-    const theme = await db.theme.findUnique({
-      where: { id: params.id },
-      include: {
-        creator: {
-          select: {
-            username: true,
-          },
-        },
-      },
-    });
+    const { data: theme, error: findError } = await supabase
+      .from('Theme')
+      .select('*, creator:User(username)')
+      .eq('id', params.id)
+      .single();
 
-    if (!theme) {
+    if (findError || !theme) {
       return NextResponse.json(
         { error: 'Theme not found' },
         { status: 404 }
@@ -66,15 +61,20 @@ export async function DELETE(
       themeId: theme.themeId,
       name: theme.name,
       creatorName: theme.creatorName,
-      creatorUsername: theme.creator?.username,
+      creatorUsername: (theme.creator as any)?.username,
       category: theme.category,
       status: theme.status,
       createdBy: theme.createdBy,
     };
 
-    await db.theme.delete({
-      where: { id: params.id },
-    });
+    const { error: deleteError } = await supabase
+      .from('Theme')
+      .delete()
+      .eq('id', params.id);
+
+    if (deleteError) {
+      throw deleteError;
+    }
 
     // Send mod log
     try {

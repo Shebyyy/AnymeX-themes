@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { supabase } from '@/lib/db';
 import { hashPassword, validateSession, isAdmin, generateToken } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
@@ -52,11 +52,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if target user exists
-    const targetUser = await db.user.findUnique({
-      where: { id: userId },
-    });
+    const { data: targetUser, error: findError } = await supabase
+      .from('User')
+      .select('*')
+      .eq('id', userId)
+      .single();
 
-    if (!targetUser) {
+    if (findError || !targetUser) {
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
@@ -66,15 +68,25 @@ export async function POST(request: NextRequest) {
     // Update password
     const newPasswordHash = await hashPassword(newPassword);
 
-    await db.user.update({
-      where: { id: userId },
-      data: { passwordHash: newPasswordHash },
-    });
+    const { error: updateError } = await supabase
+      .from('User')
+      .update({ passwordHash: newPasswordHash })
+      .eq('id', userId);
+
+    if (updateError) {
+      throw updateError;
+    }
 
     // Invalidate all sessions for the user
-    await db.sessionToken.deleteMany({
-      where: { userId },
-    });
+    const { error: deleteError } = await supabase
+      .from('SessionToken')
+      .delete()
+      .eq('userId', userId);
+
+    if (deleteError) {
+      console.error('Failed to invalidate sessions:', deleteError);
+      // Don't fail the request if session invalidation fails
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

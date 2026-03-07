@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { supabase, generateId } from '@/lib/db';
 import { validateSession, hashPassword } from '@/lib/auth';
 
 // GET /api/admin/users - List all users
@@ -23,25 +23,40 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const users = await db.user.findMany({
-      select: {
-        id: true,
-        username: true,
-        role: true,
-        isActive: true,
-        profileUrl: true,
-        createdAt: true,
-        lastLoginAt: true,
-        _count: {
-          select: {
-            createdThemes: true,
-          },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+    // Get users with theme counts
+    const { data: users, error: usersError } = await supabase
+      .from('User')
+      .select('id, username, role, isActive, profileUrl, createdAt, lastLoginAt')
+      .order('createdAt', { ascending: false });
 
-    return NextResponse.json({ success: true, users });
+    if (usersError) {
+      throw usersError;
+    }
+
+    // Get theme counts for each user
+    const { data: themeCounts, error: countsError } = await supabase
+      .from('Theme')
+      .select('createdBy');
+
+    // Count themes per user
+    const themeCountMap: Record<string, number> = {};
+    if (themeCounts) {
+      themeCounts.forEach((theme: any) => {
+        if (theme.createdBy) {
+          themeCountMap[theme.createdBy] = (themeCountMap[theme.createdBy] || 0) + 1;
+        }
+      });
+    }
+
+    // Add theme count to each user
+    const usersWithCount = users?.map((user: any) => ({
+      ...user,
+      _count: {
+        createdThemes: themeCountMap[user.id] || 0,
+      },
+    })) || [];
+
+    return NextResponse.json({ success: true, users: usersWithCount });
   } catch (error) {
     console.error('Get users error:', error);
     return NextResponse.json(
@@ -90,9 +105,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if username already exists
-    const existingUser = await db.user.findUnique({
-      where: { username },
-    });
+    const { data: existingUser, error: findError } = await supabase
+      .from('User')
+      .select('*')
+      .eq('username', username)
+      .single();
 
     if (existingUser) {
       return NextResponse.json(
@@ -111,22 +128,22 @@ export async function POST(request: NextRequest) {
 
     const passwordHash = await hashPassword(password);
 
-    const newUser = await db.user.create({
-      data: {
+    const { data: newUser, error: createError } = await supabase
+      .from('User')
+      .insert({
+        id: generateId(),
         username,
         passwordHash,
         role: role || 'USER',
         profileUrl: profileUrl || null,
-      },
-      select: {
-        id: true,
-        username: true,
-        role: true,
         isActive: true,
-        profileUrl: true,
-        createdAt: true,
-      },
-    });
+      })
+      .select('id, username, role, isActive, profileUrl, createdAt')
+      .single();
+
+    if (createError) {
+      throw createError;
+    }
 
     return NextResponse.json({ success: true, user: newUser }, { status: 201 });
   } catch (error) {

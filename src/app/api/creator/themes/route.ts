@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { supabase, generateId } from '@/lib/db';
 import { validateSession } from '@/lib/auth';
 import {
   postToDiscord,
@@ -39,29 +39,24 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Build where clause
-    const where: any = {};
-    
+    // Build query
+    let query = supabase
+      .from('Theme')
+      .select('*, creator:User(id, username, profileUrl)')
+      .order('createdAt', { ascending: false });
+
     // If THEME_CREATOR (not admin), only show own themes
     if (currentUser.role === 'THEME_CREATOR') {
-      where.createdBy = currentUser.id;
+      query = query.eq('createdBy', currentUser.id);
     }
 
-    const themes = await db.theme.findMany({
-      where,
-      include: {
-        creator: {
-          select: {
-            id: true,
-            username: true,
-            profileUrl: true,
-          },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+    const { data: themes, error } = await query;
 
-    return NextResponse.json({ success: true, themes, canEditAll: isAdmin });
+    if (error) {
+      throw error;
+    }
+
+    return NextResponse.json({ success: true, themes: themes || [], canEditAll: isAdmin });
   } catch (error) {
     console.error('Get creator themes error:', error);
     return NextResponse.json(
@@ -137,9 +132,11 @@ export async function POST(request: NextRequest) {
     const themeId = parsedJson.id || name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
 
     // Check if themeId already exists
-    const existingTheme = await db.theme.findFirst({
-      where: { themeId }
-    });
+    const { data: existingTheme, error: findError } = await supabase
+      .from('Theme')
+      .select('*')
+      .eq('themeId', themeId)
+      .single();
 
     if (existingTheme) {
       return NextResponse.json(
@@ -148,8 +145,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const theme = await db.theme.create({
-      data: {
+    const { data: theme, error: createError } = await supabase
+      .from('Theme')
+      .insert({
+        id: generateId(),
         themeId,
         name,
         description: description || null,
@@ -158,10 +157,19 @@ export async function POST(request: NextRequest) {
         category: category || null,
         previewData: previewData || null,
         previewImage: previewImage || null,
+        likesCount: 0,
+        viewsCount: 0,
         status: isAdmin ? 'APPROVED' : 'PENDING',
         createdBy: currentUser.id,
-      },
-    });
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    if (createError) {
+      throw createError;
+    }
 
     // Post to Discord - all themes are posted directly without approval
     let discordPostId = null;
@@ -185,10 +193,14 @@ export async function POST(request: NextRequest) {
         if (discordResult.success && discordResult.threadId) {
           discordPostId = discordResult.threadId;
           // Update theme with Discord post ID
-          await db.theme.update({
-            where: { id: theme.id },
-            data: { discordPostId },
-          });
+          const { error: updateError } = await supabase
+            .from('Theme')
+            .update({ discordPostId })
+            .eq('id', (theme as any).id);
+
+          if (updateError) {
+            console.error('Failed to update Discord post ID:', updateError);
+          }
         }
       } catch (discordError) {
         console.error('Failed to post to Discord:', discordError);
@@ -201,7 +213,7 @@ export async function POST(request: NextRequest) {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://anymex-themes.vercel.app';
       const modLogDetails: Record<string, any> = {
         Category: category || 'N/A',
-        Status: theme.status,
+        Status: (theme as any).status,
         'Discord Posted': discordPostId ? 'Yes' : 'No',
         'Creator Profile': `[View Profile](${appUrl}/users/${currentUser.username})`,
       };
@@ -211,8 +223,8 @@ export async function POST(request: NextRequest) {
         userId: currentUser.id,
         username: currentUser.username,
         userRole: currentUser.role,
-        themeId: theme.themeId,
-        themeName: theme.name,
+        themeId: (theme as any).themeId,
+        themeName: (theme as any).name,
         details: modLogDetails,
       });
     } catch (logError) {

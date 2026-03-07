@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { supabase } from '@/lib/db';
 
 // GET /api/users/[username]/themes - Get themes by user with filters
 export async function GET(
@@ -13,60 +13,60 @@ export async function GET(
     const sort = searchParams.get('sort') || 'newest';
 
     // Find user by username
-    const user = await db.user.findUnique({
-      where: { username },
-    });
+    const { data: user, error: findError } = await supabase
+      .from('User')
+      .select('*')
+      .eq('username', username)
+      .single();
 
-    if (!user) {
+    if (findError || !user) {
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
       );
     }
 
-    // Build where clause
-    const where: any = {
-      createdBy: user.id,
-    };
-
-    // Add category filter
-    if (category && category !== 'All') {
-      where.category = category;
-    }
+    // Build query
+    let query = supabase
+      .from('Theme')
+      .select('id, themeId, name, description, category, likesCount, viewsCount, status, createdAt')
+      .eq('createdBy', (user as any).id);
 
     // Determine sort order
-    let orderBy: any = { createdAt: 'desc' };
+    let ascending = false;
+    let sortColumn = 'createdAt';
     if (sort === 'likes') {
-      orderBy = { likesCount: 'desc' };
+      sortColumn = 'likesCount';
+      ascending = false;
     } else if (sort === 'views') {
-      orderBy = { viewsCount: 'desc' };
+      sortColumn = 'viewsCount';
+      ascending = false;
     } else if (sort === 'newest') {
-      orderBy = { createdAt: 'desc' };
+      sortColumn = 'createdAt';
+      ascending = false;
     } else if (sort === 'oldest') {
-      orderBy = { createdAt: 'asc' };
+      sortColumn = 'createdAt';
+      ascending = true;
     }
 
-    // Fetch themes
-    const themes = await db.theme.findMany({
-      where,
-      orderBy,
-      select: {
-        id: true,
-        themeId: true,
-        name: true,
-        description: true,
-        category: true,
-        likesCount: true,
-        viewsCount: true,
-        status: true,
-        createdAt: true,
-      },
-    });
+    query = query.order(sortColumn, { ascending });
+
+    const { data: themes, error: themesError } = await query;
+
+    if (themesError) {
+      throw themesError;
+    }
+
+    // Filter by category client-side
+    let filteredThemes = themes || [];
+    if (category && category !== 'All') {
+      filteredThemes = filteredThemes.filter((theme: any) => theme.category === category);
+    }
 
     return NextResponse.json({
       success: true,
-      themes,
-      total: themes.length,
+      themes: filteredThemes,
+      total: filteredThemes.length,
     });
   } catch (error) {
     console.error('Get user themes error:', error);

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { supabase } from "@/lib/db";
 
 // GET /api/dashboard/stats - Get dashboard statistics
 export async function GET(request: NextRequest) {
@@ -12,52 +12,72 @@ export async function GET(request: NextRequest) {
     const token = authHeader.replace("Bearer ", "");
     
     // Get user info from token
-    const sessionToken = await db.sessionToken.findUnique({
-      where: { token },
-      include: { user: true },
-    });
+    const { data: sessionToken, error: sessionError } = await supabase
+      .from('SessionToken')
+      .select('*, User(*)')
+      .eq('token', token)
+      .single();
 
-    if (!sessionToken) {
+    if (sessionError || !sessionToken) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const user = sessionToken.user;
+    const user = sessionToken.User as any;
     const isAdmin = user.role === "ADMIN" || user.role === "SUPER_ADMIN";
 
     let stats: any = {};
 
     if (isAdmin) {
       // Admin stats
-      const [totalUsers, totalThemes, pendingThemes, themeCreatorsCount] = await Promise.all([
-        db.user.count({ where: { isActive: true } }),
-        db.theme.count(),
-        db.theme.count({ where: { status: "PENDING" } }),
-        db.user.count({ where: { role: "THEME_CREATOR", isActive: true } }),
-      ]);
+      // Get active users count
+      const { count: totalUsers, error: usersError } = await supabase
+        .from('User')
+        .select('*', { count: 'exact', head: true })
+        .eq('isActive', true);
+
+      // Get total themes count
+      const { count: totalThemes, error: themesError } = await supabase
+        .from('Theme')
+        .select('*', { count: 'exact', head: true });
+
+      // Get pending themes count
+      const { count: pendingThemes, error: pendingError } = await supabase
+        .from('Theme')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'PENDING');
+
+      // Get theme creators count
+      const { count: themeCreatorsCount, error: creatorsError } = await supabase
+        .from('User')
+        .select('*', { count: 'exact', head: true })
+        .eq('role', 'THEME_CREATOR')
+        .eq('isActive', true);
 
       stats = {
-        totalUsers,
-        totalThemes,
-        pendingThemes,
-        themeCreatorsCount,
+        totalUsers: totalUsers || 0,
+        totalThemes: totalThemes || 0,
+        pendingThemes: pendingThemes || 0,
+        themeCreatorsCount: themeCreatorsCount || 0,
       };
     } else {
       // Creator stats
-      const [myThemes, themesData] = await Promise.all([
-        db.theme.count({
-          where: { createdBy: user.id },
-        }),
-        db.theme.findMany({
-          where: { createdBy: user.id },
-          select: { viewsCount: true, likesCount: true },
-        }),
-      ]);
+      // Get my themes count
+      const { count: myThemes, error: countError } = await supabase
+        .from('Theme')
+        .select('*', { count: 'exact', head: true })
+        .eq('createdBy', user.id);
 
-      const totalViews = themesData.reduce((sum, t) => sum + t.viewsCount, 0);
-      const totalLikes = themesData.reduce((sum, t) => sum + t.likesCount, 0);
+      // Get themes data for views and likes
+      const { data: themesData, error: themesError } = await supabase
+        .from('Theme')
+        .select('viewsCount, likesCount')
+        .eq('createdBy', user.id);
+
+      const totalViews = themesData?.reduce((sum: number, t: any) => sum + (t.viewsCount || 0), 0) || 0;
+      const totalLikes = themesData?.reduce((sum: number, t: any) => sum + (t.likesCount || 0), 0) || 0;
 
       stats = {
-        myThemes,
+        myThemes: myThemes || 0,
         totalViews,
         totalLikes,
       };

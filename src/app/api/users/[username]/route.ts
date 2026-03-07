@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { supabase } from '@/lib/db';
 
 // GET /api/users/[username] - Get user profile with stats
 export async function GET(
@@ -10,11 +10,13 @@ export async function GET(
     const { username } = params;
 
     // Find user by username
-    const user = await db.user.findUnique({
-      where: { username },
-    });
+    const { data: user, error: findError } = await supabase
+      .from('User')
+      .select('*')
+      .eq('username', username)
+      .single();
 
-    if (!user) {
+    if (findError || !user) {
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
@@ -22,25 +24,18 @@ export async function GET(
     }
 
     // Get all themes by this user
-    const themes = await db.theme.findMany({
-      where: { createdBy: user.id },
-      select: {
-        id: true,
-        name: true,
-        status: true,
-        category: true,
-        likesCount: true,
-        viewsCount: true,
-        createdAt: true,
-      },
-    });
+    const { data: themes, error: themesError } = await supabase
+      .from('Theme')
+      .select('id, name, status, category, likesCount, viewsCount, createdAt')
+      .eq('createdBy', (user as any).id);
 
     // Calculate stats
-    const totalThemes = themes.length;
-    const totalLikes = themes.reduce((sum, t) => sum + t.likesCount, 0);
-    const totalViews = themes.reduce((sum, t) => sum + t.viewsCount, 0);
-    const approvedThemes = themes.filter(t => t.status === 'APPROVED').length;
-    const pendingThemes = themes.filter(t => t.status === 'PENDING').length;
+    const themesList = themes || [];
+    const totalThemes = themesList.length;
+    const totalLikes = themesList.reduce((sum: number, t: any) => sum + (t.likesCount || 0), 0);
+    const totalViews = themesList.reduce((sum: number, t: any) => sum + (t.viewsCount || 0), 0);
+    const approvedThemes = themesList.filter((t: any) => t.status === 'APPROVED').length;
+    const pendingThemes = themesList.filter((t: any) => t.status === 'PENDING').length;
 
     // Category breakdown
     const categories: Record<string, number> = {
@@ -49,7 +44,7 @@ export async function GET(
       AMOLED: 0,
       Other: 0,
     };
-    themes.forEach(theme => {
+    themesList.forEach((theme: any) => {
       if (theme.category && categories[theme.category] !== undefined) {
         categories[theme.category]++;
       } else {
@@ -60,13 +55,13 @@ export async function GET(
     return NextResponse.json({
       success: true,
       user: {
-        id: user.id,
-        username: user.username,
-        role: user.role,
-        profileUrl: user.profileUrl,
-        isActive: user.isActive,
-        createdAt: user.createdAt,
-        lastLoginAt: user.lastLoginAt,
+        id: (user as any).id,
+        username: (user as any).username,
+        role: (user as any).role,
+        profileUrl: (user as any).profileUrl,
+        isActive: (user as any).isActive,
+        createdAt: (user as any).createdAt,
+        lastLoginAt: (user as any).lastLoginAt,
       },
       stats: {
         totalThemes,

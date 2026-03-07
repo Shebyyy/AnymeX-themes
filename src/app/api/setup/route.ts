@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { supabase, generateId } from '@/lib/db';
 import { hashPassword } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
@@ -15,9 +15,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if any users already exist
-    const existingUsers = await db.user.count();
+    const { count, error: countError } = await supabase
+      .from('User')
+      .select('*', { count: 'exact', head: true });
 
-    if (existingUsers > 0) {
+    if (countError) {
+      console.error('Error counting users:', countError);
+    }
+
+    if (count && count > 0) {
       return NextResponse.json(
         { error: 'Setup already completed. Users already exist.' },
         { status: 400 }
@@ -25,9 +31,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if username already exists
-    const existingUsername = await db.user.findUnique({
-      where: { username },
-    });
+    const { data: existingUsername } = await supabase
+      .from('User')
+      .select('id')
+      .eq('username', username)
+      .single();
 
     if (existingUsername) {
       return NextResponse.json(
@@ -39,21 +47,25 @@ export async function POST(request: NextRequest) {
     const passwordHash = await hashPassword(password);
 
     // Create the first SUPER_ADMIN user
-    const user = await db.user.create({
-      data: {
+    const { data: user, error } = await supabase
+      .from('User')
+      .insert({
+        id: generateId(),
         username,
         passwordHash,
         role: 'SUPER_ADMIN',
         isActive: true,
-      },
-      select: {
-        id: true,
-        username: true,
-        role: true,
-        isActive: true,
-        createdAt: true,
-      },
-    });
+      })
+      .select('id, username, role, isActive, createdAt')
+      .single();
+
+    if (error) {
+      console.error('Error creating super admin:', error);
+      return NextResponse.json(
+        { error: 'Failed to create super admin' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
