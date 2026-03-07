@@ -1,4 +1,4 @@
-import { db } from './db';
+import { supabase } from './db';
 
 // Simple password hashing (for production, use bcrypt or argon2)
 export async function hashPassword(password: string): Promise<string> {
@@ -25,41 +25,66 @@ export async function createSession(userId: string): Promise<string> {
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
 
-  await db.sessionToken.create({
-    data: {
+  const { error } = await supabase
+    .from('SessionToken')
+    .insert({
       userId,
       token,
-      expiresAt,
-    },
-  });
+      expiresAt: expiresAt.toISOString(),
+    });
+
+  if (error) {
+    throw new Error('Failed to create session');
+  }
 
   return token;
 }
 
 export async function validateSession(token: string) {
-  const session = await db.sessionToken.findUnique({
-    where: { token },
-    include: { user: true },
-  });
+  const { data: session, error } = await supabase
+    .from('SessionToken')
+    .select(`
+      id,
+      userId,
+      token,
+      expiresAt,
+      createdAt,
+      user:User (
+        id,
+        username,
+        passwordHash,
+        role,
+        profileUrl,
+        isActive,
+        createdAt,
+        updatedAt,
+        lastLoginAt
+      )
+    `)
+    .eq('token', token)
+    .single();
 
-  if (!session || session.expiresAt < new Date()) {
-    if (session) {
-      await db.sessionToken.delete({ where: { id: session.id } });
-    }
+  if (error || !session) {
+    return null;
+  }
+
+  const expiresAtDate = new Date(session.expiresAt);
+  if (expiresAtDate < new Date()) {
+    await supabase.from('SessionToken').delete().eq('id', session.id);
     return null;
   }
 
   // Update last login
-  await db.user.update({
-    where: { id: session.userId },
-    data: { lastLoginAt: new Date() },
-  });
+  await supabase
+    .from('User')
+    .update({ lastLoginAt: new Date().toISOString() })
+    .eq('id', session.userId);
 
   return session.user;
 }
 
 export async function destroySession(token: string): Promise<void> {
-  await db.sessionToken.deleteMany({ where: { token } });
+  await supabase.from('SessionToken').delete().eq('token', token);
 }
 
 export async function isAdmin(token: string): Promise<boolean> {

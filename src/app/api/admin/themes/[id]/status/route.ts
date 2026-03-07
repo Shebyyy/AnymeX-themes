@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { supabase } from '@/lib/db';
 import { validateSession } from '@/lib/auth';
 import { sendModLog } from '@/lib/discord';
 
@@ -37,34 +37,35 @@ export async function PUT(
     }
 
     // Check if theme exists with creator info
-    const theme = await db.theme.findUnique({
-      where: { id: params.id },
-      include: {
-        creator: {
-          select: {
-            username: true,
-          },
-        },
-      },
-    });
+    const { data: theme, error: findError } = await supabase
+      .from('Theme')
+      .select('*, creator:User(username)')
+      .eq('id', params.id)
+      .single();
 
-    if (!theme) {
+    if (findError || !theme) {
       return NextResponse.json(
         { error: 'Theme not found' },
         { status: 404 }
       );
     }
 
-    const updatedTheme = await db.theme.update({
-      where: { id: params.id },
-      data: { status },
-    });
+    const { data: updatedTheme, error: updateError } = await supabase
+      .from('Theme')
+      .update({ status })
+      .eq('id', params.id)
+      .select()
+      .single();
+
+    if (updateError) {
+      throw updateError;
+    }
 
     // Send mod log for status changes
     if (status === 'APPROVED' || status === 'REJECTED') {
       try {
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://anymex-themes.vercel.app';
-        const creatorUsername = theme.creator?.username || theme.creatorName;
+        const creatorUsername = (theme.creator as any)?.username || theme.creatorName;
         const modLogDetails: Record<string, any> = {
           'Original Creator': updatedTheme.creatorName,
           Category: updatedTheme.category || 'N/A',

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { supabase } from '@/lib/db';
 import { validateSession, hashPassword } from '@/lib/auth';
 
 // GET /api/admin/users/[id] - Get a specific user
@@ -26,32 +26,33 @@ export async function GET(
       );
     }
 
-    const user = await db.user.findUnique({
-      where: { id: params.id },
-      select: {
-        id: true,
-        username: true,
-        role: true,
-        isActive: true,
-        profileUrl: true,
-        createdAt: true,
-        lastLoginAt: true,
-        _count: {
-          select: {
-            createdThemes: true,
-          },
-        },
-      },
-    });
+    const { data: user, error: findError } = await supabase
+      .from('User')
+      .select('id, username, role, isActive, profileUrl, createdAt, lastLoginAt')
+      .eq('id', params.id)
+      .single();
 
-    if (!user) {
+    if (findError || !user) {
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
       );
     }
 
-    return NextResponse.json({ success: true, user });
+    // Get theme count for the user
+    const { count: themeCount, error: countError } = await supabase
+      .from('Theme')
+      .select('*', { count: 'exact', head: true })
+      .eq('createdBy', params.id);
+
+    const userWithCount = {
+      ...user,
+      _count: {
+        createdThemes: themeCount || 0,
+      },
+    };
+
+    return NextResponse.json({ success: true, user: userWithCount });
   } catch (error) {
     console.error('Get user error:', error);
     return NextResponse.json(
@@ -89,11 +90,13 @@ export async function PUT(
     const { role, isActive, profileUrl } = body;
 
     // Check if target user exists
-    const targetUser = await db.user.findUnique({
-      where: { id: params.id },
-    });
+    const { data: targetUser, error: findError } = await supabase
+      .from('User')
+      .select('*')
+      .eq('id', params.id)
+      .single();
 
-    if (!targetUser) {
+    if (findError || !targetUser) {
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
@@ -101,7 +104,7 @@ export async function PUT(
     }
 
     // Prevent modifying SUPER_ADMIN users unless you are a SUPER_ADMIN
-    if (targetUser.role === 'SUPER_ADMIN' && currentUser.role !== 'SUPER_ADMIN') {
+    if ((targetUser as any).role === 'SUPER_ADMIN' && currentUser.role !== 'SUPER_ADMIN') {
       return NextResponse.json(
         { error: 'Cannot modify SUPER_ADMIN users' },
         { status: 403 }
@@ -116,23 +119,22 @@ export async function PUT(
       );
     }
 
-    const updatedUser = await db.user.update({
-      where: { id: params.id },
-      data: {
-        ...(role !== undefined && { role }),
-        ...(isActive !== undefined && { isActive }),
-        ...(profileUrl !== undefined && { profileUrl }),
-      },
-      select: {
-        id: true,
-        username: true,
-        role: true,
-        isActive: true,
-        profileUrl: true,
-        createdAt: true,
-        lastLoginAt: true,
-      },
-    });
+    // Build update data
+    const updateData: any = {};
+    if (role !== undefined) updateData.role = role;
+    if (isActive !== undefined) updateData.isActive = isActive;
+    if (profileUrl !== undefined) updateData.profileUrl = profileUrl;
+
+    const { data: updatedUser, error: updateError } = await supabase
+      .from('User')
+      .update(updateData)
+      .eq('id', params.id)
+      .select('id, username, role, isActive, profileUrl, createdAt, lastLoginAt')
+      .single();
+
+    if (updateError) {
+      throw updateError;
+    }
 
     return NextResponse.json({ success: true, user: updatedUser });
   } catch (error) {
@@ -169,11 +171,13 @@ export async function DELETE(
     }
 
     // Check if target user exists
-    const targetUser = await db.user.findUnique({
-      where: { id: params.id },
-    });
+    const { data: targetUser, error: findError } = await supabase
+      .from('User')
+      .select('*')
+      .eq('id', params.id)
+      .single();
 
-    if (!targetUser) {
+    if (findError || !targetUser) {
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
@@ -181,7 +185,7 @@ export async function DELETE(
     }
 
     // Prevent deleting yourself
-    if (targetUser.id === currentUser.id) {
+    if ((targetUser as any).id === currentUser.id) {
       return NextResponse.json(
         { error: 'Cannot delete your own account' },
         { status: 400 }
@@ -189,16 +193,21 @@ export async function DELETE(
     }
 
     // Prevent deleting SUPER_ADMIN users unless you are a SUPER_ADMIN
-    if (targetUser.role === 'SUPER_ADMIN' && currentUser.role !== 'SUPER_ADMIN') {
+    if ((targetUser as any).role === 'SUPER_ADMIN' && currentUser.role !== 'SUPER_ADMIN') {
       return NextResponse.json(
         { error: 'Cannot delete SUPER_ADMIN users' },
         { status: 403 }
       );
     }
 
-    await db.user.delete({
-      where: { id: params.id },
-    });
+    const { error: deleteError } = await supabase
+      .from('User')
+      .delete()
+      .eq('id', params.id);
+
+    if (deleteError) {
+      throw deleteError;
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

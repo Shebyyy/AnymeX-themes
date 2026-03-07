@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { supabase } from "@/lib/db";
+import { validateSession } from "@/lib/auth";
 
 export async function PATCH(request: NextRequest) {
   try {
@@ -9,19 +10,14 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const session = await db.sessionToken.findUnique({
-      where: { token },
-      include: { user: true },
-    });
+    const user = await validateSession(token);
 
-    if (!session || !session.user) {
+    if (!user) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
     const body = await request.json();
     const { username, profileUrl } = body;
-
-    const user = session.user;
 
     // Validate username
     if (username && username.trim().length < 3) {
@@ -33,9 +29,11 @@ export async function PATCH(request: NextRequest) {
 
     // Check if username is unique (if changing)
     if (username && username.trim() !== user.username) {
-      const existingUser = await db.user.findUnique({
-        where: { username: username.trim() },
-      });
+      const { data: existingUser } = await supabase
+        .from("User")
+        .select("id")
+        .eq("username", username.trim())
+        .single();
 
       if (existingUser) {
         return NextResponse.json(
@@ -58,15 +56,23 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Update user
-    const updatedUser = await db.user.update({
-      where: { id: user.id },
-      data: {
-        ...(username && { username: username.trim() }),
-        ...(profileUrl !== undefined && {
-          profileUrl: profileUrl.trim() || null,
-        }),
-      },
-    });
+    const updateData: Record<string, unknown> = {};
+    if (username) updateData.username = username.trim();
+    if (profileUrl !== undefined) updateData.profileUrl = profileUrl.trim() || null;
+
+    const { data: updatedUser, error } = await supabase
+      .from("User")
+      .update(updateData)
+      .eq("id", user.id)
+      .select("id, username, role, profileUrl, isActive, createdAt, updatedAt, lastLoginAt")
+      .single();
+
+    if (error) {
+      return NextResponse.json(
+        { error: "Failed to update profile" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ user: updatedUser });
   } catch (error) {

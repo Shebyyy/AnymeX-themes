@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { supabase } from "@/lib/db";
 
 // POST /api/themes/[id]/view - Track a theme view
 export async function POST(
@@ -18,11 +18,13 @@ export async function POST(
     }
 
     // Check if theme exists
-    const theme = await db.theme.findUnique({
-      where: { id },
-    });
+    const { data: theme, error: themeError } = await supabase
+      .from("Theme")
+      .select("*")
+      .eq("id", id)
+      .single();
 
-    if (!theme) {
+    if (themeError || !theme) {
       return NextResponse.json(
         { error: "Theme not found" },
         { status: 404 }
@@ -30,31 +32,31 @@ export async function POST(
     }
 
     // Check if user already viewed this theme
-    const existingView = await db.themeView.findUnique({
-      where: {
-        themeId_userToken: {
-          themeId: id,
-          userToken,
-        },
-      },
-    });
+    const { data: existingView } = await supabase
+      .from("ThemeView")
+      .select("id")
+      .eq("themeId", id)
+      .eq("userToken", userToken)
+      .single();
 
     // Only count view if user hasn't viewed before
     if (!existingView) {
-      await db.themeView.create({
-        data: {
+      await supabase
+        .from("ThemeView")
+        .insert({
           themeId: id,
           userToken,
-        },
-      });
+        });
 
       // Increment view count
-      const updatedTheme = await db.theme.update({
-        where: { id },
-        data: { viewsCount: theme.viewsCount + 1 },
-      });
+      const { data: updatedTheme } = await supabase
+        .from("Theme")
+        .update({ viewsCount: theme.viewsCount + 1 })
+        .eq("id", id)
+        .select("viewsCount")
+        .single();
 
-      return NextResponse.json({ viewsCount: updatedTheme.viewsCount });
+      return NextResponse.json({ viewsCount: updatedTheme?.viewsCount || theme.viewsCount + 1 });
     }
 
     // User already viewed, return current count

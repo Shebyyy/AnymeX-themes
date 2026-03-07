@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { supabase } from "@/lib/db";
 
 // GET /api/themes/[id]/json - Get theme JSON content
 export async function GET(
@@ -10,21 +10,13 @@ export async function GET(
     const { id } = await params;
 
     // Find the theme
-    const theme = await db.theme.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        creatorName: true,
-        category: true,
-        themeJson: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
+    const { data: theme, error } = await supabase
+      .from("Theme")
+      .select("id, name, description, creatorName, category, themeJson, createdAt, updatedAt")
+      .eq("id", id)
+      .single();
 
-    if (!theme) {
+    if (error || !theme) {
       return NextResponse.json(
         { error: "Theme not found" },
         { status: 404 }

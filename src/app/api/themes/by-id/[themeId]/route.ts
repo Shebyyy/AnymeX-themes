@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { supabase } from "@/lib/db";
 
 // GET /api/themes/by-id/[themeId] - Get a theme by its themeId
 export async function GET(
@@ -9,20 +9,20 @@ export async function GET(
   try {
     const { themeId } = await params;
 
-    const theme = await db.theme.findFirst({
-      where: { themeId },
-      include: {
-        creator: {
-          select: {
-            id: true,
-            username: true,
-            profileUrl: true,
-          },
-        },
-      },
-    });
+    const { data: theme, error } = await supabase
+      .from("Theme")
+      .select(`
+        *,
+        creator:User!Theme_createdBy_fkey (
+          id,
+          username,
+          profileUrl
+        )
+      `)
+      .eq("themeId", themeId)
+      .single();
 
-    if (!theme) {
+    if (error || !theme) {
       return NextResponse.json(
         { error: "Theme not found" },
         { status: 404 }
@@ -30,12 +30,12 @@ export async function GET(
     }
 
     // Increment view count
-    await db.theme.update({
-      where: { id: theme.id },
-      data: { viewsCount: { increment: 1 } },
-    });
+    await supabase
+      .from("Theme")
+      .update({ viewsCount: theme.viewsCount + 1 })
+      .eq("id", theme.id);
 
-    return NextResponse.json(theme);
+    return NextResponse.json({ ...theme, viewsCount: theme.viewsCount + 1 });
   } catch (error) {
     console.error("Error fetching theme:", error);
     return NextResponse.json(

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { supabase } from "@/lib/db";
 
 // GET /api/dashboard/pending-count - Get pending themes count
 export async function GET(request: NextRequest) {
@@ -11,27 +11,29 @@ export async function GET(request: NextRequest) {
 
     const token = authHeader.replace("Bearer ", "");
     
-    const sessionToken = await db.sessionToken.findUnique({
-      where: { token },
-      include: { user: true },
-    });
+    const { data: sessionToken, error: sessionError } = await supabase
+      .from('SessionToken')
+      .select('*, User(*)')
+      .eq('token', token)
+      .single();
 
-    if (!sessionToken) {
+    if (sessionError || !sessionToken) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const user = sessionToken.user;
+    const user = sessionToken.User as any;
 
     // Only admins can see pending count
     if (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN") {
       return NextResponse.json({ count: 0 });
     }
 
-    const count = await db.theme.count({
-      where: { status: "PENDING" },
-    });
+    const { count, error } = await supabase
+      .from('Theme')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'PENDING');
 
-    return NextResponse.json({ count });
+    return NextResponse.json({ count: count || 0 });
   } catch (error) {
     console.error("Error fetching pending count:", error);
     return NextResponse.json(

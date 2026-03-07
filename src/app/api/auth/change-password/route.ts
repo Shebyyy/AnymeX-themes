@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { supabase } from '@/lib/db';
 import { verifyPassword, hashPassword, validateSession } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
@@ -52,10 +52,14 @@ export async function POST(request: NextRequest) {
     // Update password
     const newPasswordHash = await hashPassword(newPassword);
 
-    await db.user.update({
-      where: { id: user.id },
-      data: { passwordHash: newPasswordHash },
-    });
+    const { error } = await supabase
+      .from('User')
+      .update({ passwordHash: newPasswordHash })
+      .eq('id', user.id);
+
+    if (error) {
+      throw error;
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

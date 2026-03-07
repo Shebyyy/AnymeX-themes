@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { supabase } from '@/lib/db';
 import { hashPassword, createSession } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
@@ -22,9 +22,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if username already exists
-    const existingUser = await db.user.findUnique({
-      where: { username },
-    });
+    const { data: existingUser } = await supabase
+      .from('User')
+      .select('id')
+      .eq('username', username)
+      .single();
 
     if (existingUser) {
       return NextResponse.json(
@@ -44,22 +46,25 @@ export async function POST(request: NextRequest) {
 
     const passwordHash = await hashPassword(password);
 
-    const user = await db.user.create({
-      data: {
+    const { data: user, error } = await supabase
+      .from('User')
+      .insert({
         username,
         passwordHash,
         profileUrl,
         role: userRole,
         isActive: true,
-      },
-      select: {
-        id: true,
-        username: true,
-        role: true,
-        isActive: true,
-        createdAt: true,
-      },
-    });
+      })
+      .select('id, username, role, isActive, createdAt')
+      .single();
+
+    if (error) {
+      console.error('Error creating user:', error);
+      return NextResponse.json(
+        { error: 'Failed to create user' },
+        { status: 500 }
+      );
+    }
 
     // Create session
     const token = await createSession(user.id);

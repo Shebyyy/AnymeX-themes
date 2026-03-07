@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { supabase } from '@/lib/db';
 import { validateSession } from '@/lib/auth';
 
 // GET /api/admin/themes - List all themes with filters
@@ -27,35 +27,36 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
     const search = searchParams.get('search');
 
-    const where: any = {};
+    // Build query
+    let query = supabase
+      .from('Theme')
+      .select('*, creator:User(id, username, profileUrl)')
+      .order('createdAt', { ascending: false });
 
+    // Apply status filter
     if (status && ['PENDING', 'APPROVED', 'REJECTED', 'BROKEN'].includes(status)) {
-      where.status = status;
+      query = query.eq('status', status);
     }
 
+    // Apply search filter (need to handle OR condition differently in Supabase)
+    const { data: themes, error } = await query;
+
+    if (error) {
+      throw error;
+    }
+
+    // Filter by search term client-side since Supabase doesn't support OR easily
+    let filteredThemes = themes || [];
     if (search) {
-      where.OR = [
-        { name: { contains: search } },
-        { creatorName: { contains: search } },
-        { description: { contains: search } },
-      ];
+      const searchLower = search.toLowerCase();
+      filteredThemes = filteredThemes.filter((theme: any) => 
+        theme.name?.toLowerCase().includes(searchLower) ||
+        theme.creatorName?.toLowerCase().includes(searchLower) ||
+        theme.description?.toLowerCase().includes(searchLower)
+      );
     }
 
-    const themes = await db.theme.findMany({
-      where,
-      include: {
-        creator: {
-          select: {
-            id: true,
-            username: true,
-            profileUrl: true,
-          },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return NextResponse.json({ success: true, themes });
+    return NextResponse.json({ success: true, themes: filteredThemes });
   } catch (error) {
     console.error('Get themes error:', error);
     return NextResponse.json(

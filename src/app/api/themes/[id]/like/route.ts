@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { supabase } from "@/lib/db";
 
 // POST /api/themes/[id]/like - Like or unlike a theme
 export async function POST(
@@ -18,11 +18,13 @@ export async function POST(
     }
 
     // Check if theme exists
-    const theme = await db.theme.findUnique({
-      where: { id },
-    });
+    const { data: theme, error: themeError } = await supabase
+      .from("Theme")
+      .select("*")
+      .eq("id", id)
+      .single();
 
-    if (!theme) {
+    if (themeError || !theme) {
       return NextResponse.json(
         { error: "Theme not found" },
         { status: 404 }
@@ -30,45 +32,46 @@ export async function POST(
     }
 
     // Check if user already liked this theme
-    const existingLike = await db.themeLike.findUnique({
-      where: {
-        themeId_userToken: {
-          themeId: id,
-          userToken,
-        },
-      },
-    });
+    const { data: existingLike } = await supabase
+      .from("ThemeLike")
+      .select("id")
+      .eq("themeId", id)
+      .eq("userToken", userToken)
+      .single();
 
     let newLikesCount = theme.likesCount;
     let isLiked = false;
 
     if (existingLike) {
       // Unlike: remove the like record and decrement count
-      await db.themeLike.delete({
-        where: { id: existingLike.id },
-      });
+      await supabase
+        .from("ThemeLike")
+        .delete()
+        .eq("id", existingLike.id);
       newLikesCount = Math.max(0, theme.likesCount - 1);
       isLiked = false;
     } else {
       // Like: create a like record and increment count
-      await db.themeLike.create({
-        data: {
+      await supabase
+        .from("ThemeLike")
+        .insert({
           themeId: id,
           userToken,
-        },
-      });
+        });
       newLikesCount = theme.likesCount + 1;
       isLiked = true;
     }
 
     // Update theme's like count
-    const updatedTheme = await db.theme.update({
-      where: { id },
-      data: { likesCount: newLikesCount },
-    });
+    const { data: updatedTheme } = await supabase
+      .from("Theme")
+      .update({ likesCount: newLikesCount })
+      .eq("id", id)
+      .select("likesCount")
+      .single();
 
     return NextResponse.json({
-      likesCount: updatedTheme.likesCount,
+      likesCount: updatedTheme?.likesCount || newLikesCount,
       isLiked,
     });
   } catch (error) {

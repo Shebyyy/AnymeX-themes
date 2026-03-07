@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { supabase } from "@/lib/db";
 
 // GET /api/themes - Search and filter themes
 export async function GET(request: NextRequest) {
@@ -8,41 +8,54 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search") || "";
     const category = searchParams.get("category") || "";
 
-    const where: any = {};
+    let query = supabase
+      .from("Theme")
+      .select(`
+        id,
+        themeId,
+        name,
+        description,
+        creatorName,
+        themeJson,
+        category,
+        previewData,
+        previewImage,
+        discordPostId,
+        likesCount,
+        viewsCount,
+        status,
+        createdBy,
+        createdAt,
+        updatedAt,
+        creator:User!Theme_createdBy_fkey (
+          id,
+          username,
+          profileUrl
+        )
+      `)
+      .order("likesCount", { ascending: false });
 
+    // Filter by category
     if (category && category !== "All") {
-      where.category = category;
+      query = query.eq("category", category);
     }
 
+    // Filter by search
     if (search && search.trim() !== "") {
-      const searchCondition = [
-        { name: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } },
-        { creatorName: { contains: search, mode: "insensitive" } },
-      ];
-
-      if (Object.keys(where).length > 0) {
-        where.AND = [{ ...where }, { OR: searchCondition }];
-      } else {
-        where.OR = searchCondition;
-      }
+      query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%,creatorName.ilike.%${search}%`);
     }
 
-    const themes = await db.theme.findMany({
-      where,
-      orderBy: { likesCount: "desc" },
-      include: {
-        creator: {
-          select: {
-            id: true,
-            username: true,
-            profileUrl: true,
-          },
-        },
-      },
-    });
+    const { data: themes, error } = await query;
 
-    return NextResponse.json(themes);
+    if (error) {
+      console.error("Error fetching themes:", error);
+      return NextResponse.json(
+        { error: "Failed to fetch themes" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(themes || []);
   } catch (error) {
     console.error("Error fetching themes:", error);
     return NextResponse.json(
@@ -81,9 +94,11 @@ export async function POST(request: NextRequest) {
     const themeId = parsedJson.id || name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
 
     // Check if themeId already exists
-    const existingTheme = await db.theme.findFirst({
-      where: { themeId }
-    });
+    const { data: existingTheme } = await supabase
+      .from("Theme")
+      .select("id")
+      .eq("themeId", themeId)
+      .single();
 
     if (existingTheme) {
       return NextResponse.json(
@@ -92,16 +107,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const theme = await db.theme.create({
-      data: {
+    const { data: theme, error } = await supabase
+      .from("Theme")
+      .insert({
         themeId,
         name,
         creatorName,
         description: description || null,
         category: category || "Dark",
         themeJson,
-      },
-    });
+        status: "PENDING",
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error creating theme:", error);
+      return NextResponse.json(
+        { error: "Failed to create theme" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json(theme, { status: 201 });
   } catch (error) {
