@@ -161,6 +161,8 @@ export async function POST(request: NextRequest) {
         viewsCount: 0,
         status: isAdmin ? 'APPROVED' : 'PENDING',
         createdBy: currentUser.id,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       })
       .select()
       .single();

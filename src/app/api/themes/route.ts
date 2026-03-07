@@ -120,6 +120,8 @@ export async function POST(request: NextRequest) {
         likesCount: 0,
         viewsCount: 0,
         status: "PENDING",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       })
       .select()
       .single();
