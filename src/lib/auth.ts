@@ -1,4 +1,4 @@
-import { supabase } from './db';
+import { supabase, generateId } from './db';
 
 // Simple password hashing (for production, use bcrypt or argon2)
 export async function hashPassword(password: string): Promise<string> {
@@ -28,6 +28,7 @@ export async function createSession(userId: string): Promise<string> {
   const { error } = await supabase
     .from('SessionToken')
     .insert({
+      id: generateId(),
       userId,
       token,
       expiresAt: expiresAt.toISOString(),

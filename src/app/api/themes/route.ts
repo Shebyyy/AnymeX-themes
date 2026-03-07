@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/db";
+import { supabase, generateId } from "@/lib/db";
 
 // GET /api/themes - Search and filter themes
 export async function GET(request: NextRequest) {
@@ -110,12 +110,15 @@ export async function POST(request: NextRequest) {
     const { data: theme, error } = await supabase
       .from("Theme")
       .insert({
+        id: generateId(),
         themeId,
         name,
         creatorName,
         description: description || null,
         category: category || "Dark",
         themeJson,
+        likesCount: 0,
+        viewsCount: 0,
         status: "PENDING",
       })
       .select()

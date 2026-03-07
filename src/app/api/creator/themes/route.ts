@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/db';
+import { supabase, generateId } from '@/lib/db';
 import { validateSession } from '@/lib/auth';
 import {
   postToDiscord,
@@ -148,6 +148,7 @@ export async function POST(request: NextRequest) {
     const { data: theme, error: createError } = await supabase
       .from('Theme')
       .insert({
+        id: generateId(),
         themeId,
         name,
         description: description || null,
@@ -156,6 +157,8 @@ export async function POST(request: NextRequest) {
         category: category || null,
         previewData: previewData || null,
         previewImage: previewImage || null,
+        likesCount: 0,
+        viewsCount: 0,
         status: isAdmin ? 'APPROVED' : 'PENDING',
         createdBy: currentUser.id,
       })

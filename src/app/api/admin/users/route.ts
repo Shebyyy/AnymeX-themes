@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/db';
+import { supabase, generateId } from '@/lib/db';
 import { validateSession, hashPassword } from '@/lib/auth';
 
 // GET /api/admin/users - List all users
@@ -131,10 +131,12 @@ export async function POST(request: NextRequest) {
     const { data: newUser, error: createError } = await supabase
       .from('User')
       .insert({
+        id: generateId(),
         username,
         passwordHash,
         role: role || 'USER',
         profileUrl: profileUrl || null,
+        isActive: true,
       })
       .select('id, username, role, isActive, profileUrl, createdAt')
       .single();

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/db';
+import { supabase, generateId } from '@/lib/db';
 import { hashPassword } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
     const { data: user, error } = await supabase
       .from('User')
       .insert({
+        id: generateId(),
         username,
         passwordHash,
         role: 'SUPER_ADMIN',

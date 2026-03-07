@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/db";
+import { supabase, generateId } from "@/lib/db";
 
 // POST /api/themes/[id]/view - Track a theme view
 export async function POST(
@@ -44,6 +44,7 @@ export async function POST(
       await supabase
         .from("ThemeView")
         .insert({
+          id: generateId(),
           themeId: id,
           userToken,
         });
