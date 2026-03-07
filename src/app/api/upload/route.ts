@@ -1,5 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { put } from '@vercel/blob';
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize Supabase client
+const supabaseUrl = process.env.SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+
+const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false,
+  },
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,16 +48,36 @@ export async function POST(request: NextRequest) {
     const extension = file.name.split('.').pop() || 'png';
     const filename = `preview_${timestamp}_${random}.${extension}`;
 
-    // Upload to Vercel Blob Storage
-    const blob = await put(`previews/${filename}`, file, {
-      access: 'public',
-      contentType: file.type,
-    });
+    // Convert File to ArrayBuffer then to Buffer
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    // Upload to Supabase Storage
+    const { data, error } = await supabase.storage
+      .from('previews')
+      .upload(filename, buffer, {
+        contentType: file.type,
+        upsert: false,
+      });
+
+    if (error) {
+      console.error('Supabase upload error:', error);
+      return NextResponse.json(
+        { error: 'Failed to upload file to storage' },
+        { status: 500 }
+      );
+    }
+
+    // Get public URL
+    const { data: urlData } = supabase.storage
+      .from('previews')
+      .getPublicUrl(data.path);
 
     return NextResponse.json({
       success: true,
-      url: blob.url,
-      filename: blob.pathname.split('/').pop() || filename,
+      url: urlData.publicUrl,
+      filename: filename,
+      path: data.path,
     });
   } catch (error) {
     console.error('Error uploading file:', error);
@@ -61,33 +92,31 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const url = searchParams.get('url');
+    const path = searchParams.get('path');
 
-    if (!url) {
+    if (!path) {
       return NextResponse.json(
-        { error: 'URL is required' },
+        { error: 'File path is required' },
         { status: 400 }
       );
     }
 
-    // Security: Only allow files from our Vercel Blob
-    // The URL should contain the blob store domain
-    const blobUrl = process.env.BLOB_READ_WRITE_TOKEN ? url : undefined;
+    // Delete from Supabase Storage
+    const { error } = await supabase.storage
+      .from('previews')
+      .remove([path]);
 
-    if (!blobUrl) {
+    if (error) {
+      console.error('Supabase delete error:', error);
       return NextResponse.json(
-        { error: 'Blob storage not configured' },
+        { error: 'Failed to delete file' },
         { status: 500 }
       );
     }
 
-    // Note: Vercel Blob doesn't have a direct delete API in the same way
-    // For now, we'll return success as the file can be cleaned up later
-    // In production, you might want to implement cleanup via Vercel's dashboard or API
-
     return NextResponse.json({
       success: true,
-      message: 'File deletion noted. Cleanup will happen automatically.',
+      message: 'File deleted successfully',
     });
   } catch (error) {
     console.error('Error deleting file:', error);
