@@ -1,96 +1,203 @@
-# AnymeX Themes - Master Design System
+# Design System Master File
 
-Primary source of truth for the redesign. Page overrides belong in `design-system/anymex-themes/pages/*.md`.
+> **LOGIC:** When building a specific page, first check `design-system/pages/[page-name].md`.
+> If that file exists, its rules **override** this Master file.
+> If not, strictly follow the rules below.
 
-## Product Direction
+---
 
-- Product type: community marketplace for AnymeX themes
-- UX goals: fast discovery, creator trust, low friction upload/review
-- Tone: cinematic dark, creator-first, high contrast
-- Interaction: calm motion, no layout-shifting hovers, keyboard-visible focus
+**Project:** AnymeX Themes
+**Generated:** 2026-03-31 10:10:57
+**Category:** Analytics Dashboard
 
-## Core Tokens
+---
 
-### Color
+## Global Rules
 
-| Token | Value | Use |
-|---|---|---|
-| `primary` | `#EC4899` | Main brand action |
-| `secondary` | `#F472B6` | Supporting highlights |
-| `accent` | `#F97316` | CTA and active intent |
-| `bg-dark` | `#10111A` | Primary dark background |
-| `surface-dark` | `#17192A` | Cards, popovers |
-| `border-dark` | `#2B2E45` | Dividers and containers |
-| `text-primary` | `#F7F8FC` | Primary text |
-| `text-muted` | `#A8ADC8` | Secondary text |
+### Color Palette
+
+| Role | Hex | CSS Variable |
+|------|-----|--------------|
+| Primary | `#0F172A` | `--color-primary` |
+| Secondary | `#1E293B` | `--color-secondary` |
+| CTA/Accent | `#22C55E` | `--color-cta` |
+| Background | `#020617` | `--color-background` |
+| Text | `#F8FAFC` | `--color-text` |
+
+**Color Notes:** Dark bg + green positive indicators
 
 ### Typography
 
-- Heading/UI mono: `Fira Code`
-- Body/text: `Fira Sans`
-- Scale:
-  - Display: 48/56 semibold
-  - H1: 36/44 semibold
-  - H2: 28/36 semibold
-  - Body: 16/24 regular
-  - Meta: 12/16 medium
+- **Heading Font:** Satoshi
+- **Body Font:** General Sans
+- **Mood:** premium, modern, clean, sophisticated, versatile, balanced
+- **Google Fonts:** [Satoshi + General Sans](https://fonts.google.com/share?selection.family=DM+Sans:wght@400;500;700)
 
-### Radius + Depth
+**CSS Import:**
+```css
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+```
 
-- Radius: `10px` default, `14px` elevated
-- Shadows:
-  - Soft: `0 8px 30px rgba(0,0,0,0.18)`
-  - Elevated: `0 16px 48px rgba(0,0,0,0.28)`
+### Spacing Variables
 
-### Motion
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--space-xs` | `4px` / `0.25rem` | Tight gaps |
+| `--space-sm` | `8px` / `0.5rem` | Icon gaps, inline spacing |
+| `--space-md` | `16px` / `1rem` | Standard padding |
+| `--space-lg` | `24px` / `1.5rem` | Section padding |
+| `--space-xl` | `32px` / `2rem` | Large gaps |
+| `--space-2xl` | `48px` / `3rem` | Section margins |
+| `--space-3xl` | `64px` / `4rem` | Hero padding |
 
-- Duration: `150ms` micro, `220ms` default
-- Easing: `cubic-bezier(0.2, 0.8, 0.2, 1)`
-- Respect `prefers-reduced-motion`
+### Shadow Depths
 
-## Layout System
+| Level | Value | Usage |
+|-------|-------|-------|
+| `--shadow-sm` | `0 1px 2px rgba(0,0,0,0.05)` | Subtle lift |
+| `--shadow-md` | `0 4px 6px rgba(0,0,0,0.1)` | Cards, buttons |
+| `--shadow-lg` | `0 10px 15px rgba(0,0,0,0.1)` | Modals, dropdowns |
+| `--shadow-xl` | `0 20px 25px rgba(0,0,0,0.15)` | Hero images, featured cards |
 
-- Max content width: `1280px`
-- Horizontal gutter: `16px` mobile, `24px` tablet, `32px` desktop
-- Sticky nav offset: keep `96px` top content clearance on pages using fixed nav
-- Grid:
-  - Theme cards: 1/2/3/4 columns by breakpoint
-  - Dashboard stats: 1/2/4/5 columns depending on role
+---
 
-## Components
+## Component Specs
 
-- Navigation: floating glass bar with clear active state and compact mobile menu
-- Cards: blurred surface with subtle border and stronger hover border
-- Buttons:
-  - Primary: pink/orange emphasis
-  - Secondary: muted filled
-  - Ghost: icon actions
-- Form controls: dark inputs, visible ring on focus, 44px min tap target
-- Tables: dense but readable, sticky header where possible
+### Buttons
 
-## Page Blueprint
+```css
+/* Primary Button */
+.btn-primary {
+  background: #22C55E;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 200ms ease;
+  cursor: pointer;
+}
 
-- `/`: hero + search as primary CTA, category pills, theme card grid
-- `/themes/[themeId]`: detail hero, metadata, actions, JSON/share utility
-- `/users/[username]`: profile hero, stats strip, filtered theme grid
-- `/docs`: structured article cards, examples, checklists
-- `/auth`: split sign in/register card with same visual language
-- `/profile`: account settings cards and security dialog
-- `/setup`: first-run single card flow
-- `/dashboard`: creator/admin hybrid cockpit with role-aware cards
-- `/admin/*`: dense management surfaces prioritizing scan speed
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
 
-## Accessibility + Quality Rules
+/* Secondary Button */
+.btn-secondary {
+  background: transparent;
+  color: #0F172A;
+  border: 2px solid #0F172A;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 200ms ease;
+  cursor: pointer;
+}
+```
 
-- No emojis as icons in product UI
-- Every clickable non-button element must show `cursor-pointer`
-- Focus ring must be visible and pass 3:1 contrast minimum
-- Body text contrast target: 4.5:1 minimum
-- Test breakpoints: 375, 768, 1024, 1440
+### Cards
 
-## Anti-Patterns
+```css
+.card {
+  background: #020617;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: var(--shadow-md);
+  transition: all 200ms ease;
+  cursor: pointer;
+}
 
-- Pure black blocks without hierarchy
-- Hover transforms that move layout
-- Multiple competing accent colors in the same viewport
-- Low-opacity borders on light backgrounds
+.card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+```
+
+### Inputs
+
+```css
+.input {
+  padding: 12px 16px;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 200ms ease;
+}
+
+.input:focus {
+  border-color: #0F172A;
+  outline: none;
+  box-shadow: 0 0 0 3px #0F172A20;
+}
+```
+
+### Modals
+
+```css
+.modal-overlay {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: var(--shadow-xl);
+  max-width: 500px;
+  width: 90%;
+}
+```
+
+---
+
+## Style Guidelines
+
+**Style:** Data-Dense Dashboard
+
+**Keywords:** Multiple charts/widgets, data tables, KPI cards, minimal padding, grid layout, space-efficient, maximum data visibility
+
+**Best For:** Business intelligence dashboards, financial analytics, enterprise reporting, operational dashboards, data warehousing
+
+**Key Effects:** Hover tooltips, chart zoom on click, row highlighting on hover, smooth filter animations, data loading spinners
+
+### Page Pattern
+
+**Pattern Name:** Marketplace / Directory
+
+- **Conversion Strategy:**  map hover pins,  card carousel, Search bar is the CTA. Reduce friction to search. Popular searches suggestions.
+- **CTA Placement:** Hero Search Bar + Navbar 'List your item'
+- **Section Order:** 1. Hero (Search focused), 2. Categories, 3. Featured Listings, 4. Trust/Safety, 5. CTA (Become a host/seller)
+
+---
+
+## Anti-Patterns (Do NOT Use)
+
+- ❌ Ornate design
+- ❌ No filtering
+
+### Additional Forbidden Patterns
+
+- ❌ **Emojis as icons** — Use SVG icons (Heroicons, Lucide, Simple Icons)
+- ❌ **Missing cursor:pointer** — All clickable elements must have cursor:pointer
+- ❌ **Layout-shifting hovers** — Avoid scale transforms that shift layout
+- ❌ **Low contrast text** — Maintain 4.5:1 minimum contrast ratio
+- ❌ **Instant state changes** — Always use transitions (150-300ms)
+- ❌ **Invisible focus states** — Focus states must be visible for a11y
+
+---
+
+## Pre-Delivery Checklist
+
+Before delivering any UI code, verify:
+
+- [ ] No emojis used as icons (use SVG instead)
+- [ ] All icons from consistent icon set (Heroicons/Lucide)
+- [ ] `cursor-pointer` on all clickable elements
+- [ ] Hover states with smooth transitions (150-300ms)
+- [ ] Light mode: text contrast 4.5:1 minimum
+- [ ] Focus states visible for keyboard navigation
+- [ ] `prefers-reduced-motion` respected
+- [ ] Responsive: 375px, 768px, 1024px, 1440px
+- [ ] No content hidden behind fixed navbars
+- [ ] No horizontal scroll on mobile
