@@ -86,9 +86,9 @@ export default function SetupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-300 font-sans antialiased flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background text-foreground font-sans antialiased flex items-center justify-center p-4">
       {/* Ambient Background Glow */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-96 bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none z-0" />
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-96 bg-primary/20 blur-[120px] rounded-full pointer-events-none z-0" />
 
       <div className="relative z-10 w-full max-w-md">
         {/* Logo */}
@@ -96,18 +96,18 @@ export default function SetupPage() {
           <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white text-black">
             <Icon icon="solar:play-stream-bold" width={22} />
           </div>
-          <span className="text-xl font-semibold tracking-tight text-white">
+          <span className="text-xl font-semibold tracking-tight modern-gradient-text">
             AnymeX Setup
           </span>
         </div>
 
         {/* Setup Card */}
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 backdrop-blur-xl p-8 shadow-2xl">
+        <div className="modern-surface rounded-2xl p-8 shadow-2xl">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-semibold text-white mb-2">
+            <h1 className="text-2xl font-semibold text-foreground mb-2">
               Initial Setup
             </h1>
-            <p className="text-sm text-neutral-400">
+            <p className="text-sm text-muted-foreground">
               Create your super admin account to get started
             </p>
           </div>
@@ -124,7 +124,7 @@ export default function SetupPage() {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="bg-neutral-800 border-neutral-700 text-white pl-10"
+                  className="bg-card border-border text-foreground pl-10"
                   placeholder="Choose a username"
                   required
                 />
@@ -142,7 +142,7 @@ export default function SetupPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-neutral-800 border-neutral-700 text-white pl-10"
+                  className="bg-card border-border text-foreground pl-10"
                   placeholder="Choose a strong password"
                   required
                 />
@@ -160,7 +160,7 @@ export default function SetupPage() {
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="bg-neutral-800 border-neutral-700 text-white pl-10"
+                  className="bg-card border-border text-foreground pl-10"
                   placeholder="Confirm your password"
                   required
                 />
@@ -169,7 +169,7 @@ export default function SetupPage() {
 
             <Button
               type="submit"
-              className="w-full bg-white text-black hover:bg-neutral-200"
+              className="w-full bg-primary text-primary-foreground hover:opacity-90"
               disabled={loading}
             >
               {loading ? (

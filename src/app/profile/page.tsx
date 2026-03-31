@@ -219,7 +219,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-950 text-neutral-300 font-sans antialiased flex items-center justify-center">
+      <div className="min-h-screen bg-background text-foreground font-sans antialiased flex items-center justify-center">
         <Icon icon="solar:loading-circle-linear" className="animate-spin text-white" width={48} />
       </div>
     );
@@ -230,9 +230,9 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-300 font-sans antialiased">
+    <div className="min-h-screen bg-background text-foreground font-sans antialiased">
       {/* Navigation */}
-      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl rounded-full border border-neutral-800/60 bg-neutral-900/60 backdrop-blur-xl shadow-lg shadow-black/20 transition-all">
+      <nav className="modern-nav fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl rounded-full transition-all">
         <div className="px-4 sm:px-6 pl-2">
           <div className="flex h-14 items-center justify-between gap-4">
             {/* Logo */}
@@ -242,7 +242,7 @@ export default function ProfilePage() {
                 alt="AnymeX"
                 className="w-8 h-8"
               />
-              <span className="text-sm font-semibold tracking-tight text-white">
+              <span className="text-sm font-semibold tracking-tight text-foreground">
                 AnymeX
               </span>
             </Link>
@@ -396,17 +396,17 @@ export default function ProfilePage() {
       {/* Main Content */}
       <main className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-2">
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight modern-gradient-text mb-2">
             Profile Settings
           </h1>
-          <p className="text-neutral-400">
+          <p className="text-muted-foreground">
             Manage your account information and preferences
           </p>
         </div>
 
         <div className="space-y-6">
           {/* Profile Information Card */}
-          <Card className="border-neutral-800 bg-neutral-900/30">
+          <Card className="modern-surface">
             <CardHeader>
               <CardTitle className="text-white">Profile Information</CardTitle>
               <CardDescription>
@@ -471,7 +471,7 @@ export default function ProfilePage() {
           </Card>
 
           {/* Account Information Card */}
-          <Card className="border-neutral-800 bg-neutral-900/30">
+          <Card className="modern-surface">
             <CardHeader>
               <CardTitle className="text-white">Account Information</CardTitle>
               <CardDescription>
@@ -501,7 +501,7 @@ export default function ProfilePage() {
           </Card>
 
           {/* Security Card */}
-          <Card className="border-neutral-800 bg-neutral-900/30">
+          <Card className="modern-surface">
             <CardHeader>
               <CardTitle className="text-white">Security</CardTitle>
               <CardDescription>
@@ -524,7 +524,7 @@ export default function ProfilePage() {
 
       {/* Change Password Dialog */}
       <Dialog open={changePasswordDialogOpen} onOpenChange={setChangePasswordDialogOpen}>
-        <DialogContent className="bg-neutral-900 border-neutral-800 text-neutral-200">
+        <DialogContent className="bg-card border-border text-foreground">
           <DialogHeader>
             <DialogTitle className="text-white">Change Password</DialogTitle>
             <DialogDescription className="text-neutral-400">
@@ -580,7 +580,7 @@ export default function ProfilePage() {
       </Dialog>
 
       {/* Footer */}
-      <footer className="mt-auto border-t border-neutral-900 bg-neutral-950 py-10">
+      <footer className="mt-auto border-t border-border/70 bg-card/20 py-10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-neutral-600">
             © 2024 AnymeX Inc. All rights reserved.

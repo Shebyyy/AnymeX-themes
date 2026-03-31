@@ -1,16 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-// Initialize Supabase client
-const supabaseUrl = process.env.SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-  },
-});
+import { deleteRepoFile, readRepoFile, repoRawUrl, writeRepoBinaryFile } from '@/lib/github-store';
 
 export async function POST(request: NextRequest) {
   try {
@@ -52,32 +41,18 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Upload to Supabase Storage
-    const { data, error } = await supabase.storage
-      .from('previews')
-      .upload(filename, buffer, {
-        contentType: file.type,
-        upsert: false,
-      });
-
-    if (error) {
-      console.error('Supabase upload error:', error);
-      return NextResponse.json(
-        { error: 'Failed to upload file to storage' },
-        { status: 500 }
-      );
-    }
-
-    // Get public URL
-    const { data: urlData } = supabase.storage
-      .from('previews')
-      .getPublicUrl(data.path);
+    const repoPath = `uploads/previews/${filename}`;
+    await writeRepoBinaryFile(
+      repoPath,
+      buffer.toString('base64'),
+      `feat(upload): add preview ${filename}`,
+    );
 
     return NextResponse.json({
       success: true,
-      url: urlData.publicUrl,
+      url: repoRawUrl(repoPath),
       filename: filename,
-      path: data.path,
+      path: repoPath,
     });
   } catch (error) {
     console.error('Error uploading file:', error);
@@ -101,18 +76,14 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Delete from Supabase Storage
-    const { error } = await supabase.storage
-      .from('previews')
-      .remove([path]);
-
-    if (error) {
-      console.error('Supabase delete error:', error);
+    const file = await readRepoFile(path);
+    if (!file.sha) {
       return NextResponse.json(
-        { error: 'Failed to delete file' },
-        { status: 500 }
+        { success: true, message: 'File already deleted' },
+        { status: 200 }
       );
     }
+    await deleteRepoFile(path, `chore(upload): delete ${path}`, file.sha);
 
     return NextResponse.json({
       success: true,

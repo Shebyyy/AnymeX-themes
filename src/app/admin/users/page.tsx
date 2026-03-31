@@ -314,19 +314,19 @@ export default function UsersPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Users</h1>
-          <p className="text-neutral-400">
+          <h1 className="text-3xl font-bold modern-gradient-text mb-2">Users</h1>
+          <p className="text-muted-foreground">
             Manage admin accounts and their permissions
           </p>
         </div>
         <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-neutral-800 text-white hover:bg-neutral-700">
+            <Button className="bg-primary text-primary-foreground hover:opacity-90">
               <Icon icon="solar:user-plus-bold" width={18} className="mr-2" />
               Create User
             </Button>
           </DialogTrigger>
-          <DialogContent className="bg-neutral-900 border-neutral-800 text-neutral-200 max-w-lg">
+          <DialogContent className="bg-card border-border text-foreground max-w-lg">
             <DialogHeader>
               <DialogTitle className="text-white">Create New User</DialogTitle>
               <DialogDescription className="text-neutral-400">
@@ -420,7 +420,7 @@ export default function UsersPage() {
       </div>
 
       {/* Users Table */}
-      <Card className="border-neutral-800 bg-neutral-900/40">
+      <Card className="modern-surface">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
@@ -564,7 +564,7 @@ export default function UsersPage() {
 
       {/* Edit User Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="bg-neutral-900 border-neutral-800 text-neutral-200 max-w-lg">
+        <DialogContent className="bg-card border-border text-foreground max-w-lg">
           <DialogHeader>
             <DialogTitle className="text-white">Edit User</DialogTitle>
             <DialogDescription className="text-neutral-400">
@@ -649,7 +649,7 @@ export default function UsersPage() {
 
       {/* Reset Password Dialog */}
       <Dialog open={resetPasswordDialogOpen} onOpenChange={setResetPasswordDialogOpen}>
-        <DialogContent className="bg-neutral-900 border-neutral-800 text-neutral-200">
+        <DialogContent className="bg-card border-border text-foreground">
           <DialogHeader>
             <DialogTitle className="text-white">Reset Password</DialogTitle>
             <DialogDescription className="text-neutral-400">
@@ -695,7 +695,7 @@ export default function UsersPage() {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className="bg-neutral-900 border-neutral-800 text-neutral-200">
+        <AlertDialogContent className="bg-card border-border text-foreground">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">
               Delete User

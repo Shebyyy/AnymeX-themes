@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase, generateId } from "@/lib/db";
+import { enqueueThemeCounterDelta, getProjectedCounts } from "@/lib/metrics-buffer";
 
 // POST /api/themes/[id]/view - Track a theme view
 export async function POST(
@@ -49,19 +50,14 @@ export async function POST(
           userToken,
         });
 
-      // Increment view count
-      const { data: updatedTheme } = await supabase
-        .from("Theme")
-        .update({ viewsCount: theme.viewsCount + 1 })
-        .eq("id", id)
-        .select("viewsCount")
-        .single();
-
-      return NextResponse.json({ viewsCount: updatedTheme?.viewsCount || theme.viewsCount + 1 });
+      enqueueThemeCounterDelta(id, { views: 1 });
+      const projected = getProjectedCounts(id, theme.likesCount || 0, theme.viewsCount || 0);
+      return NextResponse.json({ viewsCount: projected.viewsCount + 1 });
     }
 
     // User already viewed, return current count
-    return NextResponse.json({ viewsCount: theme.viewsCount });
+    const projected = getProjectedCounts(id, theme.likesCount || 0, theme.viewsCount || 0);
+    return NextResponse.json({ viewsCount: projected.viewsCount });
   } catch (error) {
     console.error("Error tracking view:", error);
     return NextResponse.json(

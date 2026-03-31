@@ -218,8 +218,8 @@ export default function ThemesPage() {
     <div className="p-6 lg:p-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Themes</h1>
-        <p className="text-neutral-400">
+        <h1 className="text-3xl font-bold modern-gradient-text mb-2">Themes</h1>
+        <p className="text-muted-foreground">
           Manage and moderate community themes
         </p>
       </div>
@@ -235,14 +235,14 @@ export default function ThemesPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-neutral-800/50 border-neutral-800 text-white pl-10"
+              className="bg-card/70 border-border text-foreground pl-10"
               placeholder="Search themes..."
             />
           </div>
         </div>
         <div className="sm:w-48">
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="bg-neutral-800/50 border-neutral-800 text-white">
+            <SelectTrigger className="bg-card/70 border-border text-foreground">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-neutral-800 border-neutral-800">
@@ -257,7 +257,7 @@ export default function ThemesPage() {
       </div>
 
       {/* Themes Table */}
-      <Card className="border-neutral-800 bg-neutral-900/40">
+      <Card className="modern-surface">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>

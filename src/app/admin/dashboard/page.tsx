@@ -112,8 +112,8 @@ export default function AdminDashboard() {
     <div className="p-6 lg:p-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
-        <p className="text-neutral-400">
+        <h1 className="text-3xl font-bold modern-gradient-text mb-2">Dashboard</h1>
+        <p className="text-muted-foreground">
           Welcome to the AnymeX Admin Dashboard
         </p>
       </div>
@@ -122,7 +122,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
         {loading
           ? Array.from({ length: 5 }).map((_, i) => (
-              <Card key={i} className="border-neutral-800 bg-neutral-900/40">
+              <Card key={i} className="modern-surface">
                 <CardHeader className="pb-3">
                   <Skeleton className="h-4 w-24" />
                 </CardHeader>
@@ -133,7 +133,7 @@ export default function AdminDashboard() {
             ))
           : statCards.map((stat) => (
               <Link key={stat.title} href={stat.link}>
-                <Card className="border-neutral-800 bg-neutral-900/40 hover:border-neutral-700 hover:bg-neutral-900/60 transition-all cursor-pointer">
+                <Card className="border-border bg-card/70 hover:border-primary/40 hover:bg-card transition-all cursor-pointer">
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-sm font-medium text-neutral-400">
@@ -155,7 +155,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <Card className="border-neutral-800 bg-neutral-900/40">
+      <Card className="modern-surface">
         <CardHeader>
           <CardTitle className="text-white">Quick Actions</CardTitle>
         </CardHeader>
