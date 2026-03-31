@@ -573,7 +573,7 @@ export default function Home() {
 
                 {/* Search & Filters */}
                 <div className="sticky top-24 z-40 mb-10 backdrop-blur-md md:backdrop-blur-none bg-background/80 md:bg-transparent border-b border-border md:border-none -mx-4 md:mx-0 px-4 md:px-0 md:py-0">
-                    <div className="modern-surface flex flex-col md:flex-row gap-4 justify-between items-center md:p-1.5 md:rounded-2xl py-4">
+                    <div className="modern-surface flex flex-col md:flex-row gap-4 justify-between items-center md:p-1.5 rounded-2xl py-4">
                         {/* Search */}
                         <div className="relative w-full md:max-w-sm group">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-500 group-focus-within:text-neutral-300 transition-colors">
@@ -592,29 +592,31 @@ export default function Home() {
                         </div>
 
                         {/* Filters & Sort */}
-                        <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto no-scrollbar pb-1 md:pb-0">
-                            <div className="flex items-center p-1 rounded-xl bg-neutral-900 border border-neutral-800/50 md:border-transparent md:bg-transparent">
+                        <div className="flex items-center w-full md:w-auto overflow-x-auto no-scrollbar pb-1 md:pb-0">
+                            <div className="flex items-center rounded-2xl bg-card/60 border border-border/70 overflow-hidden">
                                 {["All", "Dark", "Light", "AMOLED"].map(category => (
                                     <button
                                         key={category}
                                         onClick={() => handleCategoryFilter(category)}
-                                        className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+                                        className={`cursor-pointer px-3 py-1.5 text-xs font-medium transition-colors duration-200 ${
                                             selectedCategory === category
-                                                ? "bg-neutral-800 text-white shadow-sm"
-                                                : "text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50"
+                                                ? "bg-card text-foreground"
+                                                : "text-muted-foreground hover:text-foreground hover:bg-card/70"
                                         }`}
                                     >
                                         {category}
                                     </button>
                                 ))}
+                                <div className="h-6 w-px bg-border/70 mx-1 hidden md:block" />
+                                <button
+                                    className="shrink-0 cursor-pointer flex items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-card/70 transition-colors duration-200 ml-auto md:ml-0"
+                                    // NOTE: current API sorts by likes count; this button is visual until backend sort is wired.
+                                    onClick={() => handleCategoryFilter(selectedCategory)}
+                                >
+                                    <Icon icon="solar:sort-vertical-linear" width={14} />
+                                    <span>Popular</span>
+                                </button>
                             </div>
-
-                            <div className="h-6 w-px bg-neutral-800 mx-1 hidden md:block"></div>
-
-                            <button className="shrink-0 flex items-center gap-2 rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs font-medium text-neutral-300 hover:bg-neutral-800 transition-all ml-auto md:ml-0">
-                                <Icon icon="solar:sort-vertical-linear" width={14} />
-                                <span>Popular</span>
-                            </button>
                         </div>
                     </div>
                 </div>
