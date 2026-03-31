@@ -1,4 +1,4 @@
-import { loadDb, saveDb } from "./github-store";
+import { loadDb, saveDbWithRetry } from "./github-store";
 
 // Generate a CUID-like ID (compatible with Prisma's cuid())
 export function generateId(): string {
@@ -168,7 +168,7 @@ class QueryBuilder {
       if (this.op === "insert") {
         const next = [...rows, ...this.insertPayload];
         (db as any)[this.table] = next;
-        await saveDb(db as any, sha, `chore(db): insert ${this.insertPayload.length} in ${this.table}`);
+        await saveDbWithRetry(db as any, sha, `chore(db): insert ${this.insertPayload.length} in ${this.table}`);
         const inserted = this.insertPayload;
         if (this.singleRow) return { data: inserted[0] || null, error: null };
         return { data: inserted, error: null };
@@ -184,7 +184,7 @@ class QueryBuilder {
           return updated;
         });
         (db as any)[this.table] = next;
-        await saveDb(db as any, sha, `chore(db): update ${updatedRows.length} in ${this.table}`);
+        await saveDbWithRetry(db as any, sha, `chore(db): update ${updatedRows.length} in ${this.table}`);
 
         let data: any = updatedRows;
         data = await this.attachRelations(data);
@@ -198,7 +198,7 @@ class QueryBuilder {
         const next = rows.filter((row: any) => !toDeleteIds.has(row.id));
         const deleted = rows.filter((row: any) => toDeleteIds.has(row.id));
         (db as any)[this.table] = next;
-        await saveDb(db as any, sha, `chore(db): delete ${deleted.length} in ${this.table}`);
+        await saveDbWithRetry(db as any, sha, `chore(db): delete ${deleted.length} in ${this.table}`);
         if (this.singleRow) return { data: deleted[0] || null, error: null };
         return { data: deleted, error: null };
       }

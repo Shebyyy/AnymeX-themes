@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase, generateId } from "@/lib/db";
+import { enqueueThemeCounterDelta, getProjectedCounts } from "@/lib/metrics-buffer";
 
 // POST /api/themes/[id]/like - Like or unlike a theme
 export async function POST(
@@ -39,7 +40,8 @@ export async function POST(
       .eq("userToken", userToken)
       .single();
 
-    let newLikesCount = theme.likesCount;
+    const projected = getProjectedCounts(id, theme.likesCount || 0, theme.viewsCount || 0);
+    let newLikesCount = projected.likesCount;
     let isLiked = false;
 
     if (existingLike) {
@@ -48,7 +50,8 @@ export async function POST(
         .from("ThemeLike")
         .delete()
         .eq("id", existingLike.id);
-      newLikesCount = Math.max(0, theme.likesCount - 1);
+      enqueueThemeCounterDelta(id, { likes: -1 });
+      newLikesCount = Math.max(0, projected.likesCount - 1);
       isLiked = false;
     } else {
       // Like: create a like record and increment count
@@ -59,20 +62,13 @@ export async function POST(
           themeId: id,
           userToken,
         });
-      newLikesCount = theme.likesCount + 1;
+      enqueueThemeCounterDelta(id, { likes: 1 });
+      newLikesCount = projected.likesCount + 1;
       isLiked = true;
     }
 
-    // Update theme's like count
-    const { data: updatedTheme } = await supabase
-      .from("Theme")
-      .update({ likesCount: newLikesCount })
-      .eq("id", id)
-      .select("likesCount")
-      .single();
-
     return NextResponse.json({
-      likesCount: updatedTheme?.likesCount || newLikesCount,
+      likesCount: newLikesCount,
       isLiked,
     });
   } catch (error) {
