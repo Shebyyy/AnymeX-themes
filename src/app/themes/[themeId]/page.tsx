@@ -263,7 +263,7 @@ export default function ThemeDetailPage({
               {/* Logo */}
               <Link href="/" className="flex items-center gap-2 shrink-0 cursor-pointer pl-2">
                 <img
-                  src="https://raw.githubusercontent.com/RyanYuuki/AnymeX/main/assets/images/logo_transparent.png"
+                  src="https://raw.githubusercontent.com/Shebyyy/AnymeX-themes/main/public/logo/anymex-logo.png"
                   alt="AnymeX"
                   className="w-8 h-8"
                 />
@@ -449,7 +449,7 @@ export default function ThemeDetailPage({
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 shrink-0 cursor-pointer pl-2">
               <img
-                src="https://raw.githubusercontent.com/RyanYuuki/AnymeX/main/assets/images/logo_transparent.png"
+                src="https://raw.githubusercontent.com/Shebyyy/AnymeX-themes/main/public/logo/anymex-logo.png"
                 alt="AnymeX"
                 className="w-8 h-8"
               />

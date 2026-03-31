@@ -170,7 +170,7 @@ export default function CreatorLayout({
           {/* Logo */}
           <div className="flex items-center gap-2 p-6 border-b border-neutral-800">
             <img
-              src="https://raw.githubusercontent.com/RyanYuuki/AnymeX/main/assets/images/logo_transparent.png"
+              src="https://raw.githubusercontent.com/Shebyyy/AnymeX-themes/main/public/logo/anymex-logo.png"
               alt="AnymeX"
               className="w-8 h-8"
             />
@@ -251,7 +251,7 @@ export default function CreatorLayout({
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center gap-2">
               <img
-                src="https://raw.githubusercontent.com/RyanYuuki/AnymeX/main/assets/images/logo_transparent.png"
+                src="https://raw.githubusercontent.com/Shebyyy/AnymeX-themes/main/public/logo/anymex-logo.png"
                 alt="AnymeX"
                 className="w-8 h-8"
               />
