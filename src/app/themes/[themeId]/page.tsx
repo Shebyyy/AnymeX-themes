@@ -255,9 +255,9 @@ export default function ThemeDetailPage({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-950 text-neutral-300 font-sans antialiased">
+      <div className="min-h-screen bg-background text-foreground font-sans antialiased">
         {/* Navigation */}
-        <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl rounded-full border border-neutral-800/60 bg-neutral-900/60 backdrop-blur-xl shadow-lg shadow-black/20 transition-all">
+        <nav className="modern-nav fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl rounded-full transition-all">
           <div className="px-4 sm:px-6 pl-2">
             <div className="flex h-14 items-center justify-between gap-4">
               {/* Logo */}
@@ -441,9 +441,9 @@ export default function ThemeDetailPage({
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-300 font-sans antialiased">
+      <div className="min-h-screen bg-background text-foreground font-sans antialiased">
       {/* Navigation */}
-      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl rounded-full border border-neutral-800/60 bg-neutral-900/60 backdrop-blur-xl shadow-lg shadow-black/20 transition-all">
+      <nav className="modern-nav fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl rounded-full transition-all">
         <div className="px-4 sm:px-6 pl-2">
           <div className="flex h-14 items-center justify-between gap-4">
             {/* Logo */}
@@ -453,7 +453,7 @@ export default function ThemeDetailPage({
                 alt="AnymeX"
                 className="w-8 h-8"
               />
-              <span className="text-sm font-semibold tracking-tight text-white">
+              <span className="text-sm font-semibold tracking-tight text-foreground">
                 AnymeX
               </span>
             </Link>
@@ -613,7 +613,7 @@ export default function ThemeDetailPage({
       </nav>
 
       {/* Main Content */}
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24">
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24">
         {/* Back Button */}
         <Link
           href="/"
@@ -681,9 +681,9 @@ export default function ThemeDetailPage({
 
         {/* Preview - Disabled */}
         <div className="mb-8">
-          <h2 className="text-xl font-semibold text-white mb-4">Live Preview</h2>
-          <div className="aspect-video w-full overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900/20 flex items-center justify-center">
-            <span className="text-xs md:text-sm text-neutral-300 font-medium tracking-wide">
+          <h2 className="text-xl font-semibold text-foreground mb-4">Live Preview</h2>
+          <div className="modern-surface aspect-video w-full overflow-hidden rounded-xl flex items-center justify-center">
+            <span className="text-xs md:text-sm text-muted-foreground font-medium tracking-wide">
               Preview coming soon
             </span>
           </div>
@@ -693,7 +693,7 @@ export default function ThemeDetailPage({
         <div className="flex flex-wrap gap-3 mb-8">
           <Button
             onClick={applyTheme}
-            className="flex items-center gap-2 bg-neutral-100 text-black hover:bg-white"
+            className="flex items-center gap-2 bg-primary text-primary-foreground hover:opacity-90"
           >
             <Icon icon="solar:magic-stick-3-linear" width={16} />
             Apply Theme
@@ -701,7 +701,7 @@ export default function ThemeDetailPage({
           <Button
             onClick={downloadJson}
             variant="outline"
-            className="flex items-center gap-2 border-neutral-800 bg-neutral-900/50 text-neutral-300 hover:bg-neutral-800 hover:text-white"
+            className="flex items-center gap-2 border-border bg-card/70 text-foreground hover:bg-card"
           >
             <Icon icon="solar:file-download-linear" width={16} />
             Download JSON
@@ -709,9 +709,9 @@ export default function ThemeDetailPage({
           <Button
             onClick={handleLike}
             variant="outline"
-            className={`flex items-center gap-2 border-neutral-800 bg-neutral-900/50 ${
-              theme.isLiked ? "text-rose-500 border-rose-500/50" : "text-neutral-300 hover:text-rose-500"
-            } hover:bg-neutral-800`}
+            className={`flex items-center gap-2 border-border bg-card/70 ${
+              theme.isLiked ? "text-rose-500 border-rose-500/50" : "text-foreground hover:text-rose-500"
+            } hover:bg-card`}
           >
             <Icon
               icon={theme.isLiked ? "solar:heart-bold" : "solar:heart-linear"}
@@ -722,8 +722,8 @@ export default function ThemeDetailPage({
         </div>
 
         {/* Theme ID & Info */}
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900/20 p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Theme Information</h2>
+        <div className="modern-surface rounded-xl p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-4">Theme Information</h2>
           <div className="space-y-3">
             <div>
               <p className="text-xs text-neutral-500 uppercase tracking-wider mb-1">

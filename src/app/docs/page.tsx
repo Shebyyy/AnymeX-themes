@@ -92,9 +92,9 @@ export default function DocsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-300 font-sans antialiased">
+    <div className="min-h-screen bg-background text-foreground font-sans antialiased">
       {/* Navigation */}
-      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl rounded-full border border-neutral-800/60 bg-neutral-900/60 backdrop-blur-xl shadow-lg shadow-black/20 transition-all">
+      <nav className="modern-nav fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl rounded-full transition-all">
         <div className="px-4 sm:px-6 pl-2">
           <div className="flex h-14 items-center justify-between gap-4">
             {/* Logo */}
@@ -104,7 +104,7 @@ export default function DocsPage() {
                 alt="AnymeX"
                 className="w-8 h-8"
               />
-              <span className="text-sm font-semibold tracking-tight text-white">AnymeX</span>
+              <span className="text-sm font-semibold tracking-tight text-foreground">AnymeX</span>
             </div>
 
             {/* Right Actions */}
@@ -304,10 +304,10 @@ export default function DocsPage() {
       {/* Main Content */}
       <main className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="relative py-24 md:py-32 flex flex-col items-center text-center px-4">
-          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-white max-w-4xl mb-6">
+          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight modern-gradient-text max-w-4xl mb-6">
             Documentation
           </h1>
-          <p className="text-neutral-400 max-w-2xl text-base md:text-lg leading-relaxed">
+          <p className="text-muted-foreground max-w-2xl text-base md:text-lg leading-relaxed">
             Complete guide to creating, uploading, and applying themes for AnymeX.
           </p>
         </div>
@@ -324,7 +324,7 @@ export default function DocsPage() {
           </section>
 
           {/* Quick Start Guide */}
-          <section className="rounded-xl border border-neutral-800 bg-neutral-900/30 p-6">
+          <section className="modern-surface rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-4">Quick Start Guide</h2>
             <p className="text-neutral-400 mb-6">
               Get started with AnymeX themes in 3 simple steps:
@@ -361,7 +361,7 @@ export default function DocsPage() {
           </section>
 
           {/* Becoming a Creator Section */}
-          <section className="rounded-xl border border-neutral-800 bg-neutral-900/30 p-6">
+          <section className="modern-surface rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-4">Becoming a Theme Creator</h2>
             <p className="text-neutral-400 mb-4">
               To share your themes with the community, you'll need to register as a theme creator first. Here's how:
@@ -381,7 +381,7 @@ export default function DocsPage() {
           </section>
 
           {/* Theme Structure */}
-          <section className="rounded-xl border border-neutral-800 bg-neutral-900/30 p-6">
+          <section className="modern-surface rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-4">Theme Structure</h2>
             <p className="text-neutral-400 mb-4">
               A theme JSON must follow this structure with the following properties:
@@ -554,7 +554,7 @@ export default function DocsPage() {
           </section>
 
           {/* Best Practices */}
-          <section className="rounded-xl border border-neutral-800 bg-neutral-900/30 p-6">
+          <section className="modern-surface rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-4">Best Practices</h2>
             <ul className="space-y-3 text-neutral-400">
               <li className="flex items-start gap-3">
@@ -591,7 +591,7 @@ export default function DocsPage() {
           </section>
 
           {/* Testing Your Theme Section */}
-          <section className="rounded-xl border border-neutral-800 bg-neutral-900/30 p-6">
+          <section className="modern-surface rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-4">Testing Your Theme</h2>
             <p className="text-neutral-400 mb-6">
               Before submitting your theme, test it thoroughly in AnymeX to ensure it looks great and functions correctly:
@@ -714,7 +714,7 @@ export default function DocsPage() {
           </section>
 
           {/* Uploading Your Theme Section */}
-          <section className="rounded-xl border border-neutral-800 bg-neutral-900/30 p-6">
+          <section className="modern-surface rounded-xl p-6">
             <h2 className="text-2xl font-semibold text-white mb-4">Uploading Your Theme</h2>
             <p className="text-neutral-400 mb-4">
               Once you've created your theme JSON and registered as a creator, you can upload it through the Creator Dashboard:
@@ -821,7 +821,7 @@ export default function DocsPage() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-20 border-t border-neutral-900 bg-neutral-950 py-10">
+      <footer className="mt-20 border-t border-border/70 bg-card/20 py-10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-neutral-600">© 2024 AnymeX Inc. All rights reserved.</p>
           <div className="flex items-center gap-6">

@@ -725,12 +725,12 @@ export default function UnifiedDashboard() {
   
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-950">
+      <div className="min-h-screen bg-background">
         <DashboardHeader user={null} onLogout={handleLogout} />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {Array.from({ length: 4 }).map((_, i) => (
-              <Card key={i} className="border border-neutral-800 bg-neutral-900/40">
+              <Card key={i} className="modern-surface">
                 <CardHeader className="pb-3">
                   <Skeleton className="h-4 w-24" />
                 </CardHeader>
@@ -742,7 +742,7 @@ export default function UnifiedDashboard() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
-              <Card key={i} className="border border-neutral-800 bg-neutral-900/40">
+              <Card key={i} className="modern-surface">
                 <Skeleton className="h-48 w-full" />
               </Card>
             ))}
@@ -756,7 +756,7 @@ export default function UnifiedDashboard() {
   const quickActions = getQuickActions();
   
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-300">
+    <div className="min-h-screen bg-background text-foreground">
       <DashboardHeader user={user} onLogout={handleLogout} />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -765,7 +765,7 @@ export default function UnifiedDashboard() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold text-white">
+                <h1 className="text-3xl font-bold modern-gradient-text">
                   Welcome back, {user?.username}!
                 </h1>
                 {getRoleBadge()}
@@ -779,7 +779,7 @@ export default function UnifiedDashboard() {
             </div>
             <Button
               onClick={() => setUploadDialogOpen(true)}
-              className="bg-white text-black hover:bg-neutral-200"
+              className="bg-primary text-primary-foreground hover:opacity-90"
             >
               <Icon icon="solar:add-circle-bold" width={18} className="mr-2" />
               Upload New Theme
@@ -791,7 +791,7 @@ export default function UnifiedDashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {statCards.map((stat, index) => (
             <Link key={index} href={stat.href || "#"} className={stat.href ? "" : "pointer-events-none"}>
-              <Card className={`h-full ${stat.borderColor} bg-neutral-900/40 ${stat.href ? "hover:border-neutral-700 hover:bg-neutral-900/60 cursor-pointer" : ""} transition-shadow`}>
+              <Card className={`h-full border-border bg-card/70 ${stat.href ? "hover:border-primary/40 hover:bg-card/90 cursor-pointer" : ""} transition-shadow`}>
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-sm font-medium text-neutral-400">
@@ -814,13 +814,13 @@ export default function UnifiedDashboard() {
         
         {/* Quick Actions */}
         <div className="mb-8">
-          <h2 className="text-xl font-semibold text-white mb-4">Quick Actions</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-4">Quick Actions</h2>
           <div className={`grid gap-4 ${userRole === "ADMIN" || userRole === "SUPER_ADMIN" ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'}`}>
             {quickActions.map((action, index) => (
               <button
                 key={index}
                 onClick={action.action}
-                className="flex items-center gap-3 p-4 rounded-xl border border-neutral-800 bg-neutral-900/60 hover:border-neutral-700 hover:bg-neutral-800 transition-all text-left"
+                className="flex items-center gap-3 p-4 rounded-xl border border-border bg-card/70 hover:border-primary/40 hover:bg-card transition-all text-left"
               >
                 <div className={`p-2.5 rounded-lg ${action.color} shrink-0`}>
                   <Icon icon={action.icon} width={20} />
@@ -838,7 +838,7 @@ export default function UnifiedDashboard() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <h2 className="text-xl font-semibold text-white">
+              <h2 className="text-xl font-semibold text-foreground">
                 {userRole === "ADMIN" || userRole === "SUPER_ADMIN" ? "All Themes" : "My Themes"}
               </h2>
               {(userRole === "ADMIN" || userRole === "SUPER_ADMIN") && (
@@ -849,7 +849,7 @@ export default function UnifiedDashboard() {
               )}
             </div>
             <Link href="/themes">
-              <Button variant="outline" className="border-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-800">
+              <Button variant="outline" className="border-border text-muted-foreground hover:text-foreground hover:bg-card">
                 View All
                 <Icon icon="solar:alt-arrow-right-linear" width={16} className="ml-2" />
               </Button>
@@ -857,7 +857,7 @@ export default function UnifiedDashboard() {
           </div>
           
           {themes.length === 0 ? (
-            <Card className="border border-neutral-800 bg-neutral-900/40 p-12 text-center">
+            <Card className="modern-surface p-12 text-center">
               <div className="flex justify-center mb-4">
                 <div className="w-16 h-16 rounded-full bg-neutral-800 flex items-center justify-center">
                   <Icon icon="solar:gallery-wide-linear" className="text-neutral-400" width={32} />
@@ -872,7 +872,7 @@ export default function UnifiedDashboard() {
               </p>
               <Button
                 onClick={() => setUploadDialogOpen(true)}
-                className="bg-white text-black hover:bg-neutral-200"
+                className="bg-primary text-primary-foreground hover:opacity-90"
               >
                 <Icon icon="solar:add-circle-bold" width={18} className="mr-2" />
                 Upload Your First Theme
@@ -881,7 +881,7 @@ export default function UnifiedDashboard() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {themes.slice(0, 8).map((theme) => (
-                <Card key={theme.id} className="border border-neutral-800 bg-neutral-900/40 hover:border-neutral-700 hover:bg-neutral-900/60 transition-shadow">
+                <Card key={theme.id} className="border border-border bg-card/70 hover:border-primary/40 hover:bg-card transition-shadow">
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
@@ -1463,7 +1463,7 @@ function DashboardHeader({ user, onLogout }: { user: User | null; onLogout: () =
   }, [user]);
   
   return (
-    <header className="sticky top-0 z-50 bg-neutral-900/80 backdrop-blur-xl border-b border-neutral-800 shadow-lg">
+        <header className="sticky top-0 z-50 modern-nav border-b shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link href="/dashboard" className="flex items-center gap-2">

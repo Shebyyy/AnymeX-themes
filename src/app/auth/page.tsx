@@ -120,9 +120,9 @@ function AuthContent() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-300 font-sans antialiased">
+    <div className="min-h-screen bg-background text-foreground font-sans antialiased">
       {/* Navigation */}
-      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl rounded-full border border-neutral-800/60 bg-neutral-900/60 backdrop-blur-xl shadow-lg shadow-black/20 transition-all">
+      <nav className="modern-nav fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl rounded-full transition-all">
         <div className="px-4 sm:px-6 pl-2">
           <div className="flex h-14 items-center justify-between gap-4">
             <Link href="/" className="flex items-center gap-2 shrink-0 cursor-pointer pl-2">
@@ -131,7 +131,7 @@ function AuthContent() {
                 alt="AnymeX"
                 className="w-8 h-8"
               />
-              <span className="text-sm font-semibold tracking-tight text-white">
+              <span className="text-sm font-semibold tracking-tight text-foreground">
                 AnymeX
               </span>
             </Link>
@@ -156,22 +156,22 @@ function AuthContent() {
       {/* Main Content */}
       <main className="relative z-10 max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-2">
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight modern-gradient-text mb-2">
             Welcome
           </h1>
-          <p className="text-neutral-400">
+          <p className="text-muted-foreground">
             Sign in to access your account
           </p>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 p-1 bg-neutral-900 rounded-xl mb-6 border border-neutral-800">
+        <div className="flex gap-1 p-1 bg-card/70 rounded-xl mb-6 border border-border">
           <button
             onClick={() => setActiveTab("signin")}
             className={`flex-1 rounded-lg px-4 py-2.5 text-xs font-medium transition-all ${
               activeTab === "signin"
-                ? "bg-white text-black"
-                : "text-neutral-400 hover:text-white hover:bg-neutral-800"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground hover:bg-card"
             }`}
           >
             Sign In
@@ -180,8 +180,8 @@ function AuthContent() {
             onClick={() => setActiveTab("register")}
             className={`flex-1 rounded-lg px-4 py-2.5 text-xs font-medium transition-all ${
               activeTab === "register"
-                ? "bg-white text-black"
-                : "text-neutral-400 hover:text-white hover:bg-neutral-800"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground hover:bg-card"
             }`}
           >
             Register
@@ -190,7 +190,7 @@ function AuthContent() {
 
         {/* Sign In Form */}
         {activeTab === "signin" && (
-          <div className="rounded-xl border border-neutral-800 bg-neutral-900/30 p-6">
+          <div className="modern-surface rounded-xl p-6">
             <form onSubmit={handleSignIn} className="space-y-4">
               <div>
                 <Label htmlFor="signin-username">Username</Label>
@@ -199,7 +199,7 @@ function AuthContent() {
                   type="text"
                   value={signinUsername}
                   onChange={(e) => setSigninUsername(e.target.value)}
-                  className="bg-neutral-800 border-neutral-700 text-white"
+                  className="bg-card border-border text-foreground"
                   placeholder="Enter your username"
                   required
                 />
@@ -211,7 +211,7 @@ function AuthContent() {
                   type="password"
                   value={signinPassword}
                   onChange={(e) => setSigninPassword(e.target.value)}
-                  className="bg-neutral-800 border-neutral-700 text-white"
+                  className="bg-card border-border text-foreground"
                   placeholder="Enter your password"
                   required
                 />
@@ -219,7 +219,7 @@ function AuthContent() {
               <Button
                 type="submit"
                 disabled={signinLoading}
-                className="w-full bg-white text-black hover:bg-neutral-200"
+                className="w-full bg-primary text-primary-foreground hover:opacity-90"
               >
                 {signinLoading ? "Signing in..." : "Sign In"}
               </Button>
@@ -238,7 +238,7 @@ function AuthContent() {
 
         {/* Register Form */}
         {activeTab === "register" && (
-          <div className="rounded-xl border border-neutral-800 bg-neutral-900/30 p-6">
+          <div className="modern-surface rounded-xl p-6">
             <form onSubmit={handleRegister} className="space-y-4">
               <div>
                 <Label htmlFor="register-username">Username</Label>
@@ -247,7 +247,7 @@ function AuthContent() {
                   type="text"
                   value={registerUsername}
                   onChange={(e) => setRegisterUsername(e.target.value)}
-                  className="bg-neutral-800 border-neutral-700 text-white"
+                  className="bg-card border-border text-foreground"
                   placeholder="Choose a username"
                   required
                   minLength={3}
@@ -263,7 +263,7 @@ function AuthContent() {
                   type="password"
                   value={registerPassword}
                   onChange={(e) => setRegisterPassword(e.target.value)}
-                  className="bg-neutral-800 border-neutral-700 text-white"
+                  className="bg-card border-border text-foreground"
                   placeholder="Create a password"
                   required
                   minLength={6}
@@ -279,7 +279,7 @@ function AuthContent() {
                   type="url"
                   value={registerProfileUrl}
                   onChange={(e) => setRegisterProfileUrl(e.target.value)}
-                  className="bg-neutral-800 border-neutral-700 text-white"
+                  className="bg-card border-border text-foreground"
                   placeholder="https://github.com/yourusername"
                 />
                 <p className="text-xs text-neutral-500 mt-1">
@@ -289,7 +289,7 @@ function AuthContent() {
               <Button
                 type="submit"
                 disabled={registerLoading}
-                className="w-full bg-white text-black hover:bg-neutral-200"
+                className="w-full bg-primary text-primary-foreground hover:opacity-90"
               >
                 {registerLoading ? "Creating account..." : "Register"}
               </Button>
@@ -323,7 +323,7 @@ function AuthContent() {
 export default function AuthPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <p className="text-neutral-400">Loading...</p>
       </div>
     }>

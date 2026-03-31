@@ -127,7 +127,7 @@ export default function CreatorLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Icon icon="solar:loading-circle-linear" className="animate-spin text-white" width={48} />
       </div>
     );
@@ -163,9 +163,9 @@ export default function CreatorLayout({
   ];
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-300 font-sans antialiased">
+    <div className="min-h-screen bg-background text-foreground font-sans antialiased">
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 bottom-0 w-64 border-r border-neutral-800 bg-neutral-900/60 backdrop-blur-xl z-40 hidden lg:block">
+      <aside className="fixed left-0 top-0 bottom-0 w-64 border-r border-border bg-card/70 backdrop-blur-xl z-40 hidden lg:block">
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center gap-2 p-6 border-b border-neutral-800">
@@ -195,8 +195,8 @@ export default function CreatorLayout({
                       : isAdmin
                         ? "text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10 border border-indigo-500/20"
                         : isActive
-                          ? "bg-white text-black"
-                          : "text-neutral-400 hover:text-white hover:bg-neutral-800"
+                          ? "bg-primary text-primary-foreground"
+                          : "text-muted-foreground hover:text-foreground hover:bg-card"
                   }`}
                 >
                   <Icon icon={item.icon} width={18} />
@@ -247,7 +247,7 @@ export default function CreatorLayout({
       {/* Main Content */}
       <div className="lg:pl-64">
         {/* Mobile Header */}
-        <header className="sticky top-0 z-30 border-b border-neutral-800 bg-neutral-900/80 backdrop-blur-xl lg:hidden">
+        <header className="sticky top-0 z-30 border-b border-border bg-card/80 backdrop-blur-xl lg:hidden">
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center gap-2">
               <img

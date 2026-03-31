@@ -311,9 +311,9 @@ export default function UserProfilePage() {
   const totalCategories = Object.values(userStats?.categories || {}).reduce((a, b) => a + b, 0);
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-300 font-sans antialiased flex flex-col">
+    <div className="min-h-screen bg-background text-foreground font-sans antialiased flex flex-col">
       {/* Navigation */}
-      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl rounded-full border border-neutral-800/60 bg-neutral-900/60 backdrop-blur-xl shadow-lg shadow-black/20 transition-all">
+      <nav className="modern-nav fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl rounded-full transition-all">
         <div className="px-4 sm:px-6 pl-2">
           <div className="flex h-14 items-center justify-between gap-4">
             {/* Logo */}
@@ -323,7 +323,7 @@ export default function UserProfilePage() {
                 alt="AnymeX"
                 className="w-8 h-8"
               />
-              <span className="text-sm font-semibold tracking-tight text-white">
+              <span className="text-sm font-semibold tracking-tight text-foreground">
                 AnymeX
               </span>
             </Link>
@@ -549,7 +549,7 @@ export default function UserProfilePage() {
           <div className="mb-8">
             {/* Gradient Banner */}
             <div
-              className={`bg-gradient-to-br ${getRoleGradient(userProfile.role)} h-48 sm:h-56 rounded-2xl relative mb-0 overflow-hidden`}
+              className={`bg-gradient-to-br ${getRoleGradient(userProfile.role)} h-48 sm:h-56 rounded-2xl relative mb-0 overflow-hidden shadow-xl shadow-black/30`}
             >
               {/* Subtle pattern overlay */}
               <div
@@ -564,7 +564,7 @@ export default function UserProfilePage() {
             <div className="px-4 sm:px-6 -mt-16 sm:-mt-20 relative z-10">
               <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start sm:items-end">
                 {/* Avatar */}
-                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden shadow-2xl border-4 border-neutral-950 bg-neutral-950 flex-shrink-0">
+                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden shadow-2xl border-4 border-background bg-background flex-shrink-0">
                   <img
                     src={getAvatarUrl(userProfile.username, userProfile.profileUrl)}
                     alt={`${userProfile.username}'s avatar`}
@@ -668,7 +668,7 @@ export default function UserProfilePage() {
           {userStats && (
             <div className="mb-8">
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-                <div className="bg-neutral-900/50 border border-neutral-800 rounded-xl p-4 sm:p-5 transition-all hover:translate-y-[-2px] hover:shadow-lg hover:shadow-black/30">
+                <div className="modern-surface rounded-xl p-4 sm:p-5 transition-all hover:translate-y-[-2px]">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
                       <Icon icon="solar:palette-bold" width={16} className="sm:w-5 sm:h-5 text-purple-400" />
@@ -680,7 +680,7 @@ export default function UserProfilePage() {
                   <div className="text-xs sm:text-sm text-neutral-500">Total Themes</div>
                 </div>
 
-                <div className="bg-neutral-900/50 border border-neutral-800 rounded-xl p-4 sm:p-5 transition-all hover:translate-y-[-2px] hover:shadow-lg hover:shadow-black/30">
+                <div className="modern-surface rounded-xl p-4 sm:p-5 transition-all hover:translate-y-[-2px]">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-pink-500/10 flex items-center justify-center">
                       <Icon icon="solar:heart-bold" width={16} className="sm:w-5 sm:h-5 text-pink-400" />
@@ -692,7 +692,7 @@ export default function UserProfilePage() {
                   <div className="text-xs sm:text-sm text-neutral-500">Total Likes</div>
                 </div>
 
-                <div className="bg-neutral-900/50 border border-neutral-800 rounded-xl p-4 sm:p-5 transition-all hover:translate-y-[-2px] hover:shadow-lg hover:shadow-black/30">
+                <div className="modern-surface rounded-xl p-4 sm:p-5 transition-all hover:translate-y-[-2px]">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
                       <Icon icon="solar:eye-bold" width={16} className="sm:w-5 sm:h-5 text-blue-400" />
@@ -704,7 +704,7 @@ export default function UserProfilePage() {
                   <div className="text-xs sm:text-sm text-neutral-500">Total Views</div>
                 </div>
 
-                <div className="bg-neutral-900/50 border border-neutral-800 rounded-xl p-4 sm:p-5 transition-all hover:translate-y-[-2px] hover:shadow-lg hover:shadow-black/30">
+                <div className="modern-surface rounded-xl p-4 sm:p-5 transition-all hover:translate-y-[-2px]">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
                       <Icon icon="solar:check-circle-bold" width={16} className="sm:w-5 sm:h-5 text-green-400" />
@@ -716,7 +716,7 @@ export default function UserProfilePage() {
                   <div className="text-xs sm:text-sm text-neutral-500">Approved</div>
                 </div>
 
-                <div className="bg-neutral-900/50 border border-neutral-800 rounded-xl p-4 sm:p-5 transition-all hover:translate-y-[-2px] hover:shadow-lg hover:shadow-black/30">
+                <div className="modern-surface rounded-xl p-4 sm:p-5 transition-all hover:translate-y-[-2px]">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-yellow-500/10 flex items-center justify-center">
                       <Icon icon="solar:clock-circle-bold" width={16} className="sm:w-5 sm:h-5 text-yellow-400" />
@@ -952,7 +952,7 @@ export default function UserProfilePage() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto border-t border-neutral-900 bg-neutral-950 py-10">
+      <footer className="mt-auto border-t border-border/70 bg-card/20 py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-neutral-600">
             © 2024 AnymeX Inc. All rights reserved.

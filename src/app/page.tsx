@@ -306,12 +306,12 @@ export default function Home() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-neutral-950 text-neutral-300 font-sans antialiased selection:bg-neutral-200 selection:text-black flex flex-col">
+        <div className="min-h-screen bg-background text-foreground font-sans antialiased selection:bg-primary/30 selection:text-foreground flex flex-col">
             {/* Ambient Background Glow */}
-            <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-96 bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none z-0" />
+            <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-96 bg-primary/20 blur-[120px] rounded-full pointer-events-none z-0" />
 
             {/* Navigation */}
-            <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-5xl rounded-full border border-neutral-800/60 bg-neutral-900/60 backdrop-blur-xl shadow-lg shadow-black/20 transition-all sm:w-[95%]">
+            <nav className="modern-nav fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-5xl rounded-full transition-all sm:w-[95%]">
                 <div className="px-4 sm:px-6 pl-2">
                     <div className="flex h-14 items-center justify-between gap-4">
                         {/* Logo */}
@@ -321,7 +321,7 @@ export default function Home() {
                                 alt="AnymeX"
                                 className="w-8 h-8"
                             />
-                            <span className="text-sm font-semibold tracking-tight text-white">AnymeX</span>
+                            <span className="text-sm font-semibold tracking-tight text-foreground">AnymeX</span>
                         </div>
 
                         {/* Right Actions */}
@@ -330,7 +330,7 @@ export default function Home() {
                             <div className="hidden md:flex items-center gap-1">
                                 <a
                                     href="/docs"
-                                    className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
+                                    className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
                                 >
                                     Docs
                                 </a>
@@ -340,7 +340,7 @@ export default function Home() {
                                         {/* Logged in: Show Profile and Dashboard */}
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <button className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors">
+                                                <button className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
                                                     <div className="w-6 h-6 rounded-full overflow-hidden border border-neutral-700 bg-neutral-800">
                                                         {user ? (
                                                             <img
@@ -356,7 +356,7 @@ export default function Home() {
                                                             />
                                                         ) : null}
                                                         <div className="w-full h-full hidden items-center justify-center">
-                                                            <Icon icon="solar:user-bold" width={14} className="text-neutral-400" />
+                                                            <Icon icon="solar:user-bold" width={14} className="text-muted-foreground" />
                                                         </div>
                                                     </div>
                                                     {user?.username || "Profile"}
@@ -365,12 +365,12 @@ export default function Home() {
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent
                                                 align="end"
-                                                className="bg-neutral-900 border-neutral-800 min-w-[180px]"
+                                                className="bg-card border-border min-w-[180px]"
                                             >
                                                 <DropdownMenuItem asChild>
                                                     <Link
                                                         href="/profile"
-                                                        className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
+                                                        className="cursor-pointer text-foreground/85 hover:text-foreground flex items-center gap-2"
                                                     >
                                                         <Icon icon="solar:user-linear" width={14} />
                                                         My Profile
@@ -423,7 +423,7 @@ export default function Home() {
                                         {/* Logged out: Show unified Auth */}
                                         <Link
                                             href="/auth"
-                                            className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
+                                        className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
                                         >
                                             <Icon icon="solar:palette-bold" width={16} />
                                             Sign In
@@ -435,7 +435,7 @@ export default function Home() {
                                     href="https://github.com/RyanYuuki/AnymeX"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="rounded-full bg-neutral-800 px-5 py-2 text-xs font-semibold text-white hover:bg-neutral-700 border border-neutral-700 transition-colors inline-flex items-center justify-center"
+                                    className="rounded-full bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground hover:opacity-90 border border-primary/40 transition-colors inline-flex items-center justify-center"
                                 >
                                     Get App
                                 </a>
@@ -553,7 +553,7 @@ export default function Home() {
                 <div className="relative py-24 md:py-32 flex flex-col items-center text-center">
                     <Badge
                         variant="outline"
-                        className="inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900/50 px-3 py-1 text-xs font-medium text-neutral-400 mb-6 backdrop-blur-sm"
+                        className="inline-flex items-center gap-2 rounded-full border border-border bg-card/70 px-3 py-1 text-xs font-medium text-muted-foreground mb-6 backdrop-blur-sm"
                     >
                         <span className="relative flex h-2 w-2">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
@@ -561,10 +561,10 @@ export default function Home() {
                         </span>
                         New themes added weekly
                     </Badge>
-                    <h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-white max-w-4xl mb-6 bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">
+                    <h1 className="text-4xl md:text-6xl font-semibold tracking-tight max-w-4xl mb-6 modern-gradient-text">
                         Customize your visual experience
                     </h1>
-                    <p className="text-neutral-400 max-w-2xl text-base md:text-lg leading-relaxed">
+                    <p className="text-muted-foreground max-w-2xl text-base md:text-lg leading-relaxed">
                         Discover community-crafted themes to personalize your AnymeX.
                         <br className="hidden md:block" />
                         From minimalist dark modes to vibrant neon aesthetics.
@@ -572,8 +572,8 @@ export default function Home() {
                 </div>
 
                 {/* Search & Filters */}
-                <div className="sticky top-24 z-40 mb-10 backdrop-blur-md md:backdrop-blur-none bg-neutral-950/80 md:bg-transparent border-b border-neutral-800 md:border-none -mx-4 md:mx-0 px-4 md:px-0 md:py-0">
-                    <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-neutral-900/30 md:bg-neutral-900/20 md:border border-neutral-800/50 md:p-1.5 md:rounded-2xl backdrop-blur-sm py-4">
+                <div className="sticky top-24 z-40 mb-10 backdrop-blur-md md:backdrop-blur-none bg-background/80 md:bg-transparent border-b border-border md:border-none -mx-4 md:mx-0 px-4 md:px-0 md:py-0">
+                    <div className="modern-surface flex flex-col md:flex-row gap-4 justify-between items-center md:p-1.5 md:rounded-2xl py-4">
                         {/* Search */}
                         <div className="relative w-full md:max-w-sm group">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-500 group-focus-within:text-neutral-300 transition-colors">
@@ -625,7 +625,7 @@ export default function Home() {
                         ? Array.from({ length: 8 }).map((_, i) => (
                               <div
                                   key={i}
-                                  className="flex flex-col rounded-xl border border-neutral-800 bg-neutral-900/20 p-2"
+                                  className="modern-surface flex flex-col rounded-xl p-2"
                               >
                                   <Skeleton className="aspect-video w-full rounded-lg" />
                                   <div className="flex flex-col gap-3 p-3">
@@ -641,7 +641,7 @@ export default function Home() {
                         : themes.map(theme => (
                               <div
                                   key={theme.id}
-                                  className="group relative flex flex-col rounded-xl border border-neutral-800 bg-neutral-900/20 p-2 transition-all hover:border-neutral-700 hover:bg-neutral-900/40 hover:shadow-lg hover:shadow-black/50"
+                                  className="group relative flex flex-col rounded-xl border border-border bg-card/60 p-2 transition-all hover:border-primary/40 hover:bg-card/85 hover:shadow-lg hover:shadow-black/40"
                               >
                                   {/* Clickable area for theme detail - wraps preview and info */}
                                   {theme.themeId ? (
@@ -867,7 +867,7 @@ export default function Home() {
             </main>
 
             {/* Footer */}
-            <footer className="mt-auto border-t border-neutral-900 bg-neutral-950 py-10">
+            <footer className="mt-auto border-t border-border/70 bg-card/20 py-10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="text-xs text-neutral-600">© 2024 AnymeX Inc. All rights reserved.</p>
                     <div className="flex items-center gap-6">
