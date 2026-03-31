@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "migrate:github-db": "node scripts/migrate-supabase-export.mjs"
+    "migrate:github-db": "node scripts/migrate-supabase-export.mjs",
+    "migrate:from-supabase": "node scripts/migrate-from-supabase-direct.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
