@@ -21,14 +21,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const normalizedUsername = username.trim();
+
     // Check if username already exists
-    const { data: existingUser } = await supabase
+    const { data: existingUsers, error: existingUserError } = await supabase
       .from('User')
       .select('id')
-      .eq('username', username)
-      .single();
+      .eq('username', normalizedUsername);
 
-    if (existingUser) {
+    if (existingUserError) {
+      console.error('Error checking existing username:', existingUserError);
+      return NextResponse.json(
+        { error: existingUserError.message || 'Failed to validate username' },
+        { status: 500 }
+      );
+    }
+
+    if (Array.isArray(existingUsers) && existingUsers.length > 0) {
       return NextResponse.json(
         { error: 'Username already exists' },
         { status: 409 }
@@ -38,10 +47,10 @@ export async function POST(request: NextRequest) {
     // Validate role - only USER and THEME_CREATOR can be registered
     // ADMIN and SUPER_ADMIN can only be created by existing admins
     const allowedRoles = ['USER', 'THEME_CREATOR'];
-    let userRole = role || 'THEME_CREATOR';  // Default to THEME_CREATOR
-    
+    let userRole = role || 'THEME_CREATOR'; // Default to THEME_CREATOR
+
     if (!allowedRoles.includes(userRole)) {
-      userRole = 'THEME_CREATOR';  // Default to THEME_CREATOR if invalid role provided
+      userRole = 'THEME_CREATOR'; // Default to THEME_CREATOR if invalid role provided
     }
 
     const passwordHash = await hashPassword(password);
@@ -50,7 +59,7 @@ export async function POST(request: NextRequest) {
       .from('User')
       .insert({
         id: generateId(),
-        username,
+        username: normalizedUsername,
         passwordHash,
         profileUrl,
         role: userRole,
@@ -59,10 +68,10 @@ export async function POST(request: NextRequest) {
       .select('id, username, role, isActive, createdAt')
       .single();
 
-    if (error) {
+    if (error || !user) {
       console.error('Error creating user:', error);
       return NextResponse.json(
-        { error: 'Failed to create user' },
+        { error: error?.message || 'Failed to create user' },
         { status: 500 }
       );
     }
@@ -70,16 +79,19 @@ export async function POST(request: NextRequest) {
     // Create session
     const token = await createSession(user.id);
 
-    return NextResponse.json({
-      success: true,
-      user,
-      token,
-      message: 'Account created successfully!',
-    }, { status: 201 });
+    return NextResponse.json(
+      {
+        success: true,
+        user,
+        token,
+        message: 'Account created successfully!',
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error('Register error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }
     );
   }
