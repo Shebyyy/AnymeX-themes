@@ -55,26 +55,35 @@ export async function POST(request: NextRequest) {
 
     const passwordHash = await hashPassword(password);
 
-    const { data: user, error } = await supabase
-      .from('User')
-      .insert({
-        id: generateId(),
-        username: normalizedUsername,
-        passwordHash,
-        profileUrl,
-        role: userRole,
-        isActive: true,
-      })
-      .select('id, username, role, isActive, createdAt')
-      .single();
+    const newUser = {
+      id: generateId(),
+      username: normalizedUsername,
+      passwordHash,
+      profileUrl,
+      role: userRole,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+    };
 
-    if (error || !user) {
+    const { error } = await supabase
+      .from('User')
+      .insert(newUser);
+
+    if (error) {
       console.error('Error creating user:', error);
       return NextResponse.json(
         { error: error?.message || 'Failed to create user' },
         { status: 500 }
       );
     }
+
+    const user = {
+      id: newUser.id,
+      username: newUser.username,
+      role: newUser.role,
+      isActive: newUser.isActive,
+      createdAt: newUser.createdAt,
+    };
 
     // Create session
     const token = await createSession(user.id);
