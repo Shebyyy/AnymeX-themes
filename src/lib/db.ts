@@ -19,6 +19,7 @@ class QueryBuilder {
   private insertPayload: any[] = [];
   private updatePayload: Record<string, any> = {};
   private selectOpts: any;
+  private limitCount: number | null = null;
 
   constructor(table: string) {
     this.table = table;
@@ -65,6 +66,11 @@ class QueryBuilder {
 
   single() {
     this.singleRow = true;
+    return this;
+  }
+
+  limit(count: number) {
+    this.limitCount = count;
     return this;
   }
 
@@ -155,6 +161,10 @@ class QueryBuilder {
 
         let data = await this.attachRelations(matched);
         data = this.project(data);
+
+        if (this.limitCount !== null) {
+          data = data.slice(0, this.limitCount);
+        }
 
         if (this.singleRow) {
           if (data.length !== 1) {

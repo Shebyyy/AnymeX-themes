@@ -140,10 +140,7 @@ export default function UnifiedDashboard() {
   
   useEffect(() => {
     checkAuth();
-    if (user) {
-      fetchDashboardData();
-    }
-  }, [user]);
+  }, []); // Run only once on mount
   
   const checkAuth = async () => {
     const creatorToken = localStorage.getItem("creator_token");
@@ -161,6 +158,7 @@ export default function UnifiedDashboard() {
           const data = await response.json();
           setUser(data.user);
           setUserRole(data.user.role);
+          fetchDashboardData();
         } else {
           localStorage.clear();
           router.push("/auth");
