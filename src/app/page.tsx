@@ -636,7 +636,7 @@ export default function Home() {
                                     <button
                                         key={category}
                                         onClick={() => handleCategoryFilter(category)}
-                                        className={`cursor-pointer px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
+                                        className={`cursor-pointer px-3.5 py-2 text-xs font-medium transition-all duration-200 ${
                                             selectedCategory === category
                                                 ? "bg-primary/15 text-primary border-primary/20"
                                                 : "text-muted-foreground hover:text-foreground hover:bg-card/60"
