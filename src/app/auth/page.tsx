@@ -60,7 +60,7 @@ function AuthContent() {
       localStorage.setItem("creator_user", JSON.stringify(data.user));
 
       toast({
-        title: "Welcome back! 👋",
+        title: "Welcome back!",
         description: `Signed in as ${data.user.username}`,
       });
 
@@ -103,7 +103,7 @@ function AuthContent() {
       localStorage.setItem("creator_user", JSON.stringify(data.user));
 
       toast({
-        title: "Welcome to AnymeX! 🎉",
+        title: "Welcome to AnymeX!",
         description: "Your creator account has been created",
       });
 
@@ -121,11 +121,17 @@ function AuthContent() {
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans antialiased">
+      {/* Ambient Glow Orbs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
+        <div className="glow-orb glow-orb-violet w-[500px] h-[350px] top-[10%] left-[20%] animate-float-slow" />
+        <div className="glow-orb glow-orb-cyan w-[400px] h-[300px] top-[20%] right-[15%] animate-float-slow" style={{ animationDelay: "3s" }} />
+      </div>
+
       {/* Navigation */}
-      <nav className="modern-nav fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl rounded-full transition-all">
+      <nav className="glass-nav fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[94%] max-w-5xl rounded-2xl transition-all">
         <div className="px-4 sm:px-6 pl-2">
           <div className="flex h-14 items-center justify-between gap-4">
-            <Link href="/" className="flex items-center gap-2 shrink-0 cursor-pointer pl-2">
+            <Link href="/" className="flex items-center gap-2.5 shrink-0 cursor-pointer pl-2">
               <img
                 src="https://raw.githubusercontent.com/Shebyyy/AnymeX-themes/main/public/logo/anymex-logo.png"
                 alt="AnymeX"
@@ -138,13 +144,13 @@ function AuthContent() {
             <div className="flex items-center gap-1">
               <Link
                 href="/"
-                className="hidden sm:flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
+                className="hidden sm:flex items-center gap-2 px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
               >
                 Themes
               </Link>
               <Link
                 href="/docs"
-                className="hidden sm:flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
+                className="hidden sm:flex items-center gap-2 px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
               >
                 Docs
               </Link>
@@ -154,9 +160,9 @@ function AuthContent() {
       </nav>
 
       {/* Main Content */}
-      <main className="relative z-10 max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight modern-gradient-text mb-2">
+      <main className="relative z-10 max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-28">
+        <div className="mb-8 text-center animate-fade-in-up">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight gradient-text mb-3">
             Welcome
           </h1>
           <p className="text-muted-foreground">
@@ -165,23 +171,23 @@ function AuthContent() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 p-1 bg-card/70 rounded-xl mb-6 border border-border">
+        <div className="flex gap-1 p-1 bg-card/40 backdrop-blur-sm rounded-xl mb-6 border border-border/40 animate-fade-in-up" style={{ animationDelay: "100ms" }}>
           <button
             onClick={() => setActiveTab("signin")}
-            className={`flex-1 rounded-lg px-4 py-2.5 text-xs font-medium transition-all ${
+            className={`flex-1 rounded-lg px-4 py-2.5 text-xs font-medium transition-all duration-200 cursor-pointer ${
               activeTab === "signin"
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground hover:bg-card"
+                ? "btn-violet shadow-md"
+                : "text-muted-foreground hover:text-foreground hover:bg-card/50"
             }`}
           >
             Sign In
           </button>
           <button
             onClick={() => setActiveTab("register")}
-            className={`flex-1 rounded-lg px-4 py-2.5 text-xs font-medium transition-all ${
+            className={`flex-1 rounded-lg px-4 py-2.5 text-xs font-medium transition-all duration-200 cursor-pointer ${
               activeTab === "register"
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground hover:bg-card"
+                ? "btn-violet shadow-md"
+                : "text-muted-foreground hover:text-foreground hover:bg-card/50"
             }`}
           >
             Register
@@ -190,28 +196,28 @@ function AuthContent() {
 
         {/* Sign In Form */}
         {activeTab === "signin" && (
-          <div className="modern-surface rounded-xl p-6">
-            <form onSubmit={handleSignIn} className="space-y-4">
-              <div>
+          <div className="glass-surface rounded-xl p-6 animate-fade-in-up" style={{ animationDelay: "150ms" }}>
+            <form onSubmit={handleSignIn} className="space-y-5">
+              <div className="space-y-1.5">
                 <Label htmlFor="signin-username">Username</Label>
                 <Input
                   id="signin-username"
                   type="text"
                   value={signinUsername}
                   onChange={(e) => setSigninUsername(e.target.value)}
-                  className="bg-card border-border text-foreground"
+                  className="bg-card/50 border-border/50 text-foreground input-glow"
                   placeholder="Enter your username"
                   required
                 />
               </div>
-              <div>
+              <div className="space-y-1.5">
                 <Label htmlFor="signin-password">Password</Label>
                 <Input
                   id="signin-password"
                   type="password"
                   value={signinPassword}
                   onChange={(e) => setSigninPassword(e.target.value)}
-                  className="bg-card border-border text-foreground"
+                  className="bg-card/50 border-border/50 text-foreground input-glow"
                   placeholder="Enter your password"
                   required
                 />
@@ -219,16 +225,16 @@ function AuthContent() {
               <Button
                 type="submit"
                 disabled={signinLoading}
-                className="w-full bg-primary text-primary-foreground hover:opacity-90"
+                className="w-full btn-violet cursor-pointer"
               >
                 {signinLoading ? "Signing in..." : "Sign In"}
               </Button>
             </form>
-            <p className="text-xs text-neutral-500 mt-4 text-center">
-              Don't have an account?{" "}
+            <p className="text-xs text-muted-foreground mt-4 text-center">
+              Don&apos;t have an account?{" "}
               <button
                 onClick={() => setActiveTab("register")}
-                className="text-white hover:underline cursor-pointer"
+                className="text-primary hover:underline cursor-pointer font-medium"
               >
                 Register as a Creator
               </button>
@@ -238,67 +244,67 @@ function AuthContent() {
 
         {/* Register Form */}
         {activeTab === "register" && (
-          <div className="modern-surface rounded-xl p-6">
-            <form onSubmit={handleRegister} className="space-y-4">
-              <div>
+          <div className="glass-surface rounded-xl p-6 animate-fade-in-up" style={{ animationDelay: "150ms" }}>
+            <form onSubmit={handleRegister} className="space-y-5">
+              <div className="space-y-1.5">
                 <Label htmlFor="register-username">Username</Label>
                 <Input
                   id="register-username"
                   type="text"
                   value={registerUsername}
                   onChange={(e) => setRegisterUsername(e.target.value)}
-                  className="bg-card border-border text-foreground"
+                  className="bg-card/50 border-border/50 text-foreground input-glow"
                   placeholder="Choose a username"
                   required
                   minLength={3}
                 />
-                <p className="text-xs text-neutral-500 mt-1">
+                <p className="text-xs text-muted-foreground/60 mt-1">
                   Minimum 3 characters
                 </p>
               </div>
-              <div>
+              <div className="space-y-1.5">
                 <Label htmlFor="register-password">Password</Label>
                 <Input
                   id="register-password"
                   type="password"
                   value={registerPassword}
                   onChange={(e) => setRegisterPassword(e.target.value)}
-                  className="bg-card border-border text-foreground"
+                  className="bg-card/50 border-border/50 text-foreground input-glow"
                   placeholder="Create a password"
                   required
                   minLength={6}
                 />
-                <p className="text-xs text-neutral-500 mt-1">
+                <p className="text-xs text-muted-foreground/60 mt-1">
                   Minimum 6 characters
                 </p>
               </div>
-              <div>
+              <div className="space-y-1.5">
                 <Label htmlFor="register-profileUrl">Profile URL (optional)</Label>
                 <Input
                   id="register-profileUrl"
                   type="url"
                   value={registerProfileUrl}
                   onChange={(e) => setRegisterProfileUrl(e.target.value)}
-                  className="bg-card border-border text-foreground"
+                  className="bg-card/50 border-border/50 text-foreground input-glow"
                   placeholder="https://github.com/yourusername"
                 />
-                <p className="text-xs text-neutral-500 mt-1">
+                <p className="text-xs text-muted-foreground/60 mt-1">
                   Link to your GitHub, social media, or website
                 </p>
               </div>
               <Button
                 type="submit"
                 disabled={registerLoading}
-                className="w-full bg-primary text-primary-foreground hover:opacity-90"
+                className="w-full btn-violet cursor-pointer"
               >
                 {registerLoading ? "Creating account..." : "Register"}
               </Button>
             </form>
-            <p className="text-xs text-neutral-500 mt-4 text-center">
+            <p className="text-xs text-muted-foreground mt-4 text-center">
               Already have an account?{" "}
               <button
                 onClick={() => setActiveTab("signin")}
-                className="text-white hover:underline cursor-pointer"
+                className="text-primary hover:underline cursor-pointer font-medium"
               >
                 Sign In
               </button>
@@ -310,9 +316,9 @@ function AuthContent() {
         <div className="mt-8 text-center">
           <Link
             href="/"
-            className="text-xs text-neutral-500 hover:text-neutral-300 transition-colors"
+            className="text-xs text-muted-foreground/60 hover:text-foreground/70 transition-colors duration-200"
           >
-            ← Back to Themes
+            &larr; Back to Themes
           </Link>
         </div>
       </main>
@@ -324,7 +330,7 @@ export default function AuthPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-neutral-400">Loading...</p>
+        <Icon icon="solar:loading-circle-linear" className="animate-spin text-primary" width={48} />
       </div>
     }>
       <AuthContent />

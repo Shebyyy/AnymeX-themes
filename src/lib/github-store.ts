@@ -21,7 +21,10 @@ function githubUrl(path: string) {
 
 async function githubRequest(url: string, init?: RequestInit) {
   assertGitHubConfig();
-  const response = await fetch(url, {
+  const connector = url.includes("?") ? "&" : "?";
+  const finalUrl = `${url}${connector}t=${Date.now()}`;
+
+  const response = await fetch(finalUrl, {
     ...init,
     headers: {
       Accept: "application/vnd.github+json",
@@ -144,20 +147,31 @@ export async function saveDb(db: DbShape, sha: string | null, message: string) {
   await writeRepoFile(DB_PATH, JSON.stringify(db, null, 2), message, sha);
 }
 
-export async function saveDbWithRetry(db: DbShape, sha: string | null, message: string, retries = 4) {
+export async function saveDbWithRetry(db: DbShape, sha: string | null, message: string, retries = 5) {
   let currentSha = sha;
   for (let attempt = 0; attempt <= retries; attempt += 1) {
     try {
+      if (attempt > 0) {
+        console.log(`[db] Retry attempt ${attempt}/${retries} with SHA: ${currentSha?.substring(0, 7)}`);
+      }
       await saveDb(db, currentSha, message);
       return;
     } catch (error: any) {
       const isConflict = error?.status === 409 || String(error?.message || "").toLowerCase().includes("sha");
       if (!isConflict || attempt === retries) {
+        if (isConflict) {
+          console.error(`[db] Conflict persistent after ${retries} retries. Final SHA was: ${currentSha?.substring(0, 7)}`);
+        }
         throw error;
       }
+      
+      console.warn(`[db] Conflict detected (409), reloading DB to get latest SHA...`);
       const latest = await loadDb();
       currentSha = latest.sha;
-      await new Promise((resolve) => setTimeout(resolve, 120 * (attempt + 1)));
+      
+      // Exponential backoff
+      const delay = Math.min(200 * (attempt + 1), 1000);
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
 }

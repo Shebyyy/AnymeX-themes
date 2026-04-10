@@ -19,6 +19,7 @@ class QueryBuilder {
   private insertPayload: any[] = [];
   private updatePayload: Record<string, any> = {};
   private selectOpts: any;
+  private limitCount: number | null = null;
 
   constructor(table: string) {
     this.table = table;
@@ -65,6 +66,11 @@ class QueryBuilder {
 
   single() {
     this.singleRow = true;
+    return this;
+  }
+
+  limit(count: number) {
+    this.limitCount = count;
     return this;
   }
 
@@ -156,6 +162,10 @@ class QueryBuilder {
         let data = await this.attachRelations(matched);
         data = this.project(data);
 
+        if (this.limitCount !== null) {
+          data = data.slice(0, this.limitCount);
+        }
+
         if (this.singleRow) {
           if (data.length !== 1) {
             return { data: null, error: { message: "Expected single row" } };
@@ -209,8 +219,11 @@ class QueryBuilder {
     }
   }
 
-  then(resolve: any, reject: any) {
-    return this.execute().then(resolve, reject);
+  then<TResult1 = any, TResult2 = never>(
+    onfulfilled?: ((value: any) => TResult1 | PromiseLike<TResult1>) | undefined | null,
+    onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null
+  ): Promise<TResult1 | TResult2> {
+    return this.execute().then(onfulfilled, onrejected);
   }
 }
 

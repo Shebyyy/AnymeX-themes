@@ -15,7 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { getAvatarUrl } from "@/lib/avatar";
 
 const ENABLE_THEME_PREVIEW = false;
@@ -47,6 +47,34 @@ interface Maintainer {
     name: string | null;
     avatar_url: string;
     html_url: string;
+}
+
+/* -----------------------------------------------------------
+   Helper: extract up to 6 hex colors from a theme JSON string
+   ----------------------------------------------------------- */
+function extractThemeColors(jsonStr: string): string[] {
+    try {
+        const parsed = JSON.parse(jsonStr);
+        const colors: string[] = [];
+        const seen = new Set<string>();
+
+        const walk = (obj: Record<string, unknown>) => {
+            for (const val of Object.values(obj)) {
+                if (colors.length >= 6) return;
+                if (typeof val === "string" && /^#[0-9a-fA-F]{6}$/.test(val) && !seen.has(val.toLowerCase())) {
+                    seen.add(val.toLowerCase());
+                    colors.push(val);
+                } else if (typeof val === "object" && val !== null) {
+                    walk(val as Record<string, unknown>);
+                }
+            }
+        };
+
+        walk(parsed);
+        return colors;
+    } catch {
+        return [];
+    }
 }
 
 export default function Home() {
@@ -183,7 +211,7 @@ export default function Home() {
             );
 
             toast({
-                title: data.isLiked ? "Theme liked! ❤️" : "Like removed",
+                title: data.isLiked ? "Theme liked!" : "Like removed",
             });
         } catch (error) {
             toast({
@@ -307,15 +335,23 @@ export default function Home() {
 
     return (
         <div className="min-h-screen bg-background text-foreground font-sans antialiased selection:bg-primary/30 selection:text-foreground flex flex-col">
-            {/* Ambient Background Glow */}
-            <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-96 bg-primary/20 blur-[120px] rounded-full pointer-events-none z-0" />
+            {/* ============================================ */}
+            {/* Ambient Background Glow Orbs                 */}
+            {/* ============================================ */}
+            <div className="fixed inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
+                <div className="glow-orb glow-orb-violet w-[600px] h-[400px] top-[-10%] left-[10%] animate-float-slow" />
+                <div className="glow-orb glow-orb-cyan w-[500px] h-[350px] top-[-5%] right-[5%] animate-float-slow" style={{ animationDelay: "2s" }} />
+                <div className="glow-orb glow-orb-rose w-[400px] h-[300px] top-[50%] left-[50%] -translate-x-1/2 animate-float-slow" style={{ animationDelay: "4s", opacity: 0.3 }} />
+            </div>
 
-            {/* Navigation */}
-            <nav className="modern-nav fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-5xl rounded-full transition-all sm:w-[95%]">
+            {/* ============================================ */}
+            {/* Navigation                                    */}
+            {/* ============================================ */}
+            <nav className="glass-nav fixed top-5 left-1/2 -translate-x-1/2 z-50 w-full max-w-5xl rounded-2xl transition-all sm:w-[94%]">
                 <div className="px-4 sm:px-6 pl-2">
                     <div className="flex h-14 items-center justify-between gap-4">
                         {/* Logo */}
-                        <div className="flex items-center gap-2 shrink-0 cursor-pointer pl-2">
+                        <div className="flex items-center gap-2.5 shrink-0 cursor-pointer pl-2">
                             <img
                                 src="https://raw.githubusercontent.com/Shebyyy/AnymeX-themes/main/public/logo/anymex-logo.png"
                                 alt="AnymeX"
@@ -330,7 +366,7 @@ export default function Home() {
                             <div className="hidden md:flex items-center gap-1">
                                 <a
                                     href="/docs"
-                                    className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                                    className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
                                 >
                                     Docs
                                 </a>
@@ -340,8 +376,8 @@ export default function Home() {
                                         {/* Logged in: Show Profile and Dashboard */}
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <button className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
-                                                    <div className="w-6 h-6 rounded-full overflow-hidden border border-neutral-700 bg-neutral-800">
+                                                <button className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 cursor-pointer">
+                                                    <div className="w-6 h-6 rounded-full overflow-hidden border border-border bg-card">
                                                         {user ? (
                                                             <img
                                                                 src={getAvatarUrl(user.username, user.profileUrl)}
@@ -365,12 +401,12 @@ export default function Home() {
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent
                                                 align="end"
-                                                className="bg-card border-border min-w-[180px]"
+                                                className="glass-surface min-w-[180px] border-border/50"
                                             >
                                                 <DropdownMenuItem asChild>
                                                     <Link
                                                         href="/profile"
-                                                        className="cursor-pointer text-foreground/85 hover:text-foreground flex items-center gap-2"
+                                                        className="cursor-pointer text-foreground/80 hover:text-foreground flex items-center gap-2"
                                                     >
                                                         <Icon icon="solar:user-linear" width={14} />
                                                         My Profile
@@ -379,7 +415,7 @@ export default function Home() {
                                                 <DropdownMenuItem asChild>
                                                     <Link
                                                         href="/dashboard"
-                                                        className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
+                                                        className="cursor-pointer text-foreground/80 hover:text-foreground flex items-center gap-2"
                                                     >
                                                         <Icon icon="solar:palette-bold" width={14} />
                                                         Dashboard
@@ -390,7 +426,7 @@ export default function Home() {
                                                         <DropdownMenuItem asChild>
                                                             <Link
                                                                 href="/admin/users"
-                                                                className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
+                                                                className="cursor-pointer text-foreground/80 hover:text-foreground flex items-center gap-2"
                                                             >
                                                                 <Icon icon="solar:users-group-rounded-bold" width={14} />
                                                                 Manage Users
@@ -399,7 +435,7 @@ export default function Home() {
                                                         <DropdownMenuItem asChild>
                                                             <Link
                                                                 href="/admin/themes"
-                                                                className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
+                                                                className="cursor-pointer text-foreground/80 hover:text-foreground flex items-center gap-2"
                                                             >
                                                                 <Icon icon="solar:gallery-wide-bold" width={14} />
                                                                 Theme Approvals
@@ -407,10 +443,10 @@ export default function Home() {
                                                         </DropdownMenuItem>
                                                     </>
                                                 )}
-                                                <DropdownMenuSeparator className="bg-neutral-800" />
+                                                <DropdownMenuSeparator className="bg-border/50" />
                                                 <DropdownMenuItem
                                                     onClick={handleLogout}
-                                                    className="cursor-pointer text-red-400 hover:text-red-300 flex items-center gap-2"
+                                                    className="cursor-pointer text-destructive hover:text-destructive flex items-center gap-2"
                                                 >
                                                     <Icon icon="solar:logout-2-linear" width={14} />
                                                     Logout
@@ -423,19 +459,19 @@ export default function Home() {
                                         {/* Logged out: Show unified Auth */}
                                         <Link
                                             href="/auth"
-                                        className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                                        className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
                                         >
-                                            <Icon icon="solar:palette-bold" width={16} />
+                                            <Icon icon="solar:login-3-linear" width={16} />
                                             Sign In
                                         </Link>
                                     </>
                                 )}
-                                <div className="h-4 w-px bg-neutral-800 mx-2"></div>
+                                <div className="h-4 w-px bg-border/50 mx-2"></div>
                                 <a
                                     href="https://github.com/RyanYuuki/AnymeX"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="rounded-full bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground hover:opacity-90 border border-primary/40 transition-colors inline-flex items-center justify-center"
+                                    className="btn-violet rounded-full px-5 py-2 text-xs font-semibold inline-flex items-center justify-center cursor-pointer"
                                 >
                                     Get App
                                 </a>
@@ -445,18 +481,18 @@ export default function Home() {
                             <div className="flex md:hidden">
                                 <DropdownMenu open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                                     <DropdownMenuTrigger asChild>
-                                        <button className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors">
+                                        <button className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
                                             <Icon icon="solar:hamburger-menu-linear" width={20} />
                                         </button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent
                                         align="end"
-                                        className="bg-neutral-900 border-neutral-800 min-w-[200px]"
+                                        className="glass-surface min-w-[200px] border-border/50"
                                     >
                                         <DropdownMenuItem asChild>
                                             <Link
                                                 href="/docs"
-                                                className="cursor-pointer text-neutral-300 hover:text-white"
+                                                className="cursor-pointer text-foreground/80 hover:text-foreground"
                                             >
                                                 Docs
                                             </Link>
@@ -464,11 +500,11 @@ export default function Home() {
 
                                         {authChecked && isLoggedIn ? (
                                             <>
-                                                <DropdownMenuSeparator className="bg-neutral-800" />
+                                                <DropdownMenuSeparator className="bg-border/50" />
                                                 <DropdownMenuItem asChild>
                                                     <Link
                                                         href="/profile"
-                                                        className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
+                                                        className="cursor-pointer text-foreground/80 hover:text-foreground flex items-center gap-2"
                                                     >
                                                         <Icon icon="solar:user-linear" width={14} />
                                                         My Profile
@@ -477,7 +513,7 @@ export default function Home() {
                                                 <DropdownMenuItem asChild>
                                                     <Link
                                                         href="/dashboard"
-                                                        className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
+                                                        className="cursor-pointer text-foreground/80 hover:text-foreground flex items-center gap-2"
                                                     >
                                                         <Icon icon="solar:palette-bold" width={14} />
                                                         Dashboard
@@ -488,7 +524,7 @@ export default function Home() {
                                                         <DropdownMenuItem asChild>
                                                             <Link
                                                                 href="/admin/users"
-                                                                className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
+                                                                className="cursor-pointer text-foreground/80 hover:text-foreground flex items-center gap-2"
                                                             >
                                                                 <Icon icon="solar:users-group-rounded-bold" width={14} />
                                                                 Manage Users
@@ -497,7 +533,7 @@ export default function Home() {
                                                         <DropdownMenuItem asChild>
                                                             <Link
                                                                 href="/admin/themes"
-                                                                className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
+                                                                className="cursor-pointer text-foreground/80 hover:text-foreground flex items-center gap-2"
                                                             >
                                                                 <Icon icon="solar:gallery-wide-bold" width={14} />
                                                                 Theme Approvals
@@ -505,10 +541,10 @@ export default function Home() {
                                                         </DropdownMenuItem>
                                                     </>
                                                 )}
-                                                <DropdownMenuSeparator className="bg-neutral-800" />
+                                                <DropdownMenuSeparator className="bg-border/50" />
                                                 <DropdownMenuItem
                                                     onClick={handleLogout}
-                                                    className="cursor-pointer text-red-400 hover:text-red-300 flex items-center gap-2"
+                                                    className="cursor-pointer text-destructive hover:text-destructive flex items-center gap-2"
                                                 >
                                                     <Icon icon="solar:logout-2-linear" width={14} />
                                                     Logout
@@ -516,25 +552,25 @@ export default function Home() {
                                             </>
                                         ) : (
                                             <>
-                                                <DropdownMenuSeparator className="bg-neutral-800" />
+                                                <DropdownMenuSeparator className="bg-border/50" />
                                                 <DropdownMenuItem asChild>
                                                     <Link
                                                         href="/auth"
-                                                        className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
+                                                        className="cursor-pointer text-foreground/80 hover:text-foreground flex items-center gap-2"
                                                     >
-                                                        <Icon icon="solar:palette-bold" width={14} />
+                                                        <Icon icon="solar:login-3-linear" width={14} />
                                                         Sign In / Register
                                                     </Link>
                                                 </DropdownMenuItem>
                                             </>
                                         )}
-                                        <DropdownMenuSeparator className="bg-neutral-800" />
+                                        <DropdownMenuSeparator className="bg-border/50" />
                                         <DropdownMenuItem asChild>
                                             <a
                                                 href="https://github.com/RyanYuuki/AnymeX"
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="cursor-pointer text-white font-medium bg-white/5 hover:bg-white/10"
+                                                className="cursor-pointer text-foreground font-medium"
                                             >
                                                 Get App
                                             </a>
@@ -547,21 +583,23 @@ export default function Home() {
                 </div>
             </nav>
 
-            {/* Main Content */}
+            {/* ============================================ */}
+            {/* Main Content                                  */}
+            {/* ============================================ */}
             <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1">
                 {/* Hero Section */}
-                <div className="relative py-24 md:py-32 flex flex-col items-center text-center">
+                <div className="relative py-24 md:py-36 flex flex-col items-center text-center">
                     <Badge
                         variant="outline"
-                        className="inline-flex items-center gap-2 rounded-full border border-border bg-card/70 px-3 py-1 text-xs font-medium text-muted-foreground mb-6 backdrop-blur-sm"
+                        className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/40 backdrop-blur-sm px-4 py-1.5 text-xs font-medium text-muted-foreground mb-7"
                     >
                         <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary/60 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                         </span>
                         New themes added weekly
                     </Badge>
-                    <h1 className="text-4xl md:text-6xl font-semibold tracking-tight max-w-4xl mb-6 modern-gradient-text">
+                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight max-w-4xl mb-6 gradient-text leading-[1.1]">
                         Customize your visual experience
                     </h1>
                     <p className="text-muted-foreground max-w-2xl text-base md:text-lg leading-relaxed">
@@ -572,44 +610,44 @@ export default function Home() {
                 </div>
 
                 {/* Search & Filters */}
-                <div className="sticky top-24 z-40 mb-10 backdrop-blur-md md:backdrop-blur-none bg-background/80 md:bg-transparent border-b border-border md:border-none -mx-4 md:mx-0 px-4 md:px-0 md:py-0">
-                    <div className="modern-surface flex flex-col md:flex-row gap-4 justify-between items-center md:p-1.5 rounded-2xl py-4">
+                <div className="sticky top-24 z-40 mb-10 backdrop-blur-md md:backdrop-blur-none bg-background/60 md:bg-transparent border-b border-border/30 md:border-none -mx-4 md:mx-0 px-4 md:px-0 md:py-0">
+                    <div className="glass-surface flex flex-col md:flex-row gap-4 justify-between items-center md:p-1.5 rounded-2xl py-4">
                         {/* Search */}
                         <div className="relative w-full md:max-w-sm group">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-500 group-focus-within:text-neutral-300 transition-colors">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-foreground/70 transition-colors duration-200">
                                 <Icon icon="solar:magnifer-linear" width={18} />
                             </div>
                             <Input
                                 type="text"
                                 value={searchQuery}
                                 onChange={e => handleSearch(e.target.value)}
-                                className="block w-full rounded-xl md:rounded-xl border border-neutral-800 md:border-transparent bg-neutral-900 md:bg-transparent py-2.5 pl-10 pr-4 text-sm text-neutral-200 placeholder-neutral-500 focus:border-neutral-700 focus:bg-neutral-800 md:focus:bg-neutral-800/50 focus:ring-0 transition-all"
+                                className="block w-full rounded-xl md:rounded-xl border border-border/50 md:border-transparent bg-card/50 md:bg-transparent py-2.5 pl-10 pr-4 text-sm text-foreground placeholder-muted-foreground focus:border-border focus:bg-card/60 md:focus:bg-card/40 focus:ring-0 transition-all duration-200 input-glow"
                                 placeholder="Search themes..."
                             />
                             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                <span className="text-[10px] text-neutral-600 font-mono">CMD+K</span>
+                                <span className="text-[10px] text-muted-foreground/50 font-mono">CMD+K</span>
                             </div>
                         </div>
 
                         {/* Filters & Sort */}
                         <div className="flex items-center w-full md:w-auto overflow-x-auto no-scrollbar pb-1 md:pb-0">
-                            <div className="flex items-center rounded-2xl bg-card/60 border border-border/70 overflow-hidden">
+                            <div className="flex items-center rounded-xl bg-card/40 border border-border/40 overflow-hidden">
                                 {["All", "Dark", "Light", "AMOLED"].map(category => (
                                     <button
                                         key={category}
                                         onClick={() => handleCategoryFilter(category)}
-                                        className={`cursor-pointer px-3 py-1.5 text-xs font-medium transition-colors duration-200 ${
+                                        className={`cursor-pointer px-3.5 py-2 text-xs font-medium transition-all duration-200 ${
                                             selectedCategory === category
-                                                ? "bg-card text-foreground"
-                                                : "text-muted-foreground hover:text-foreground hover:bg-card/70"
+                                                ? "bg-primary/15 text-primary border-primary/20"
+                                                : "text-muted-foreground hover:text-foreground hover:bg-card/60"
                                         }`}
                                     >
                                         {category}
                                     </button>
                                 ))}
-                                <div className="h-6 w-px bg-border/70 mx-1 hidden md:block" />
+                                <div className="h-6 w-px bg-border/40 mx-1 hidden md:block" />
                                 <button
-                                    className="shrink-0 cursor-pointer flex items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-card/70 transition-colors duration-200 ml-auto md:ml-0"
+                                    className="shrink-0 cursor-pointer flex items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-card/60 transition-colors duration-200 ml-auto md:ml-0"
                                     // NOTE: current API sorts by likes count; this button is visual until backend sort is wired.
                                     onClick={() => handleCategoryFilter(selectedCategory)}
                                 >
@@ -627,7 +665,8 @@ export default function Home() {
                         ? Array.from({ length: 8 }).map((_, i) => (
                               <div
                                   key={i}
-                                  className="modern-surface flex flex-col rounded-xl p-2"
+                                  className="glass-surface flex flex-col rounded-xl p-2 animate-fade-in-up"
+                                  style={{ animationDelay: `${i * 60}ms` }}
                               >
                                   <Skeleton className="aspect-video w-full rounded-lg" />
                                   <div className="flex flex-col gap-3 p-3">
@@ -640,10 +679,11 @@ export default function Home() {
                                   </div>
                               </div>
                           ))
-                        : themes.map(theme => (
+                        : themes.map((theme, idx) => (
                               <div
                                   key={theme.id}
-                                  className="group relative flex flex-col rounded-xl border border-border bg-card/60 p-2 transition-all hover:border-primary/40 hover:bg-card/85 hover:shadow-lg hover:shadow-black/40"
+                                  className="group relative flex flex-col rounded-xl border border-border/40 bg-card/40 p-2 transition-all duration-300 hover:border-primary/30 hover:bg-card/65 hover:shadow-xl hover:shadow-primary/5 animate-fade-in-up"
+                                  style={{ animationDelay: `${idx * 40}ms` }}
                               >
                                   {/* Clickable area for theme detail - wraps preview and info */}
                                   {theme.themeId ? (
@@ -665,16 +705,12 @@ export default function Home() {
                                                       style={undefined}
                                                   />
                                               ) : (
-                                                  <div className="w-full h-full bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-700 flex items-center justify-center">
-                                                      <span className="text-xs md:text-sm text-neutral-300 font-medium tracking-wide">
-                                                          Preview coming soon
-                                                      </span>
-                                                  </div>
+                                                  <ThemeColorPreview themeJson={theme.themeJson} />
                                               )}
                                           </div>
                                       </Link>
                                   ) : (
-                                      <div onClick={() => handleView(theme.id)} className="flex-1 flex flex-col">
+                                      <div onClick={() => handleView(theme.id)} className="flex-1 flex flex-col cursor-pointer">
                                           {/* Preview */}
                                           <div className="aspect-video w-full overflow-hidden rounded-lg relative">
                                               {ENABLE_THEME_PREVIEW ? (
@@ -688,11 +724,7 @@ export default function Home() {
                                                       style={undefined}
                                                   />
                                               ) : (
-                                                  <div className="w-full h-full bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-700 flex items-center justify-center">
-                                                      <span className="text-xs md:text-sm text-neutral-300 font-medium tracking-wide">
-                                                          Preview coming soon
-                                                      </span>
-                                                  </div>
+                                                  <ThemeColorPreview themeJson={theme.themeJson} />
                                               )}
                                           </div>
                                       </div>
@@ -707,16 +739,16 @@ export default function Home() {
                                                   onClick={e => e.stopPropagation()}
                                                   className="flex-1"
                                               >
-                                                  <h3 className="text-sm font-medium text-neutral-100 group-hover:text-white">
+                                                  <h3 className="text-sm font-semibold text-foreground/90 group-hover:text-foreground transition-colors duration-200">
                                                       {theme.name}
                                                   </h3>
                                                   <div className="flex items-center gap-1 mt-0.5">
-                                                      <span className="text-xs text-neutral-500">by</span>
+                                                      <span className="text-xs text-muted-foreground/60">by</span>
                                                       {theme.creator ? (
                                                           <Link
                                                               href={`/users/${theme.creator.username}`}
                                                               onClick={e => e.stopPropagation()}
-                                                              className="text-xs text-neutral-400 hover:text-neutral-200 cursor-pointer hover:underline"
+                                                              className="text-xs text-muted-foreground hover:text-foreground/80 cursor-pointer hover:underline transition-colors duration-200"
                                                           >
                                                               {theme.creatorName}
                                                           </Link>
@@ -726,12 +758,12 @@ export default function Home() {
                                                               target="_blank"
                                                               rel="noopener noreferrer"
                                                               onClick={e => e.stopPropagation()}
-                                                              className="text-xs text-neutral-400 hover:text-neutral-200 cursor-pointer hover:underline"
+                                                              className="text-xs text-muted-foreground hover:text-foreground/80 cursor-pointer hover:underline transition-colors duration-200"
                                                           >
                                                               {theme.creatorName}
                                                           </a>
                                                       ) : (
-                                                          <span className="text-xs text-neutral-400">
+                                                          <span className="text-xs text-muted-foreground">
                                                               {theme.creatorName}
                                                           </span>
                                                       )}
@@ -739,17 +771,17 @@ export default function Home() {
                                               </Link>
                                           ) : (
                                               <div className="flex-1">
-                                                  <h3 className="text-sm font-medium text-neutral-100 group-hover:text-white">
+                                                  <h3 className="text-sm font-semibold text-foreground/90 group-hover:text-foreground transition-colors duration-200">
                                                       {theme.name}
                                                   </h3>
                                                   <div className="flex items-center gap-1 mt-0.5">
-                                                      <span className="text-xs text-neutral-500">by</span>
+                                                      <span className="text-xs text-muted-foreground/60">by</span>
                                                       {theme.creator ? (
-                                                          <span className="text-xs text-neutral-400">
+                                                          <span className="text-xs text-muted-foreground">
                                                               {theme.creatorName}
                                                           </span>
                                                       ) : (
-                                                          <span className="text-xs text-neutral-400">
+                                                          <span className="text-xs text-muted-foreground">
                                                               {theme.creatorName}
                                                           </span>
                                                       )}
@@ -759,8 +791,8 @@ export default function Home() {
                                           <div className="flex items-center gap-1">
                                               {theme.themeId && (
                                                   <button
-                                                      onClick={e => handleShare(theme.themeId, e)}
-                                                      className="flex items-center gap-1 text-xs p-1.5 rounded-full border border-neutral-800 bg-neutral-900/50 transition-colors text-neutral-500 hover:text-blue-400 hover:bg-neutral-800"
+                                                      onClick={e => handleShare(theme.themeId!, e)}
+                                                      className="flex items-center gap-1 text-xs p-1.5 rounded-full border border-border/40 bg-card/30 transition-all duration-200 text-muted-foreground hover:text-primary hover:border-primary/30 hover:bg-primary/5 cursor-pointer"
                                                       title="Share"
                                                   >
                                                       <Icon icon="solar:share-linear" width={14} />
@@ -768,15 +800,15 @@ export default function Home() {
                                               )}
                                               <button
                                                   onClick={e => handleLike(theme.id, e)}
-                                                  className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full border border-neutral-800 bg-neutral-900/50 transition-colors ${
+                                                  className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full border transition-all duration-200 cursor-pointer ${
                                                       theme.isLiked
-                                                          ? "text-rose-500"
-                                                          : "text-neutral-500 hover:text-rose-500"
+                                                          ? "text-rose-400 border-rose-500/30 bg-rose-500/10"
+                                                          : "text-muted-foreground border-border/40 bg-card/30 hover:text-rose-400 hover:border-rose-500/30 hover:bg-rose-500/5"
                                                   }`}
                                               >
                                                   <Icon
-                                                      icon="solar:heart-linear"
-                                                      className={theme.isLiked ? "text-rose-500" : ""}
+                                                      icon={theme.isLiked ? "solar:heart-bold" : "solar:heart-linear"}
+                                                      className={theme.isLiked ? "text-rose-400" : ""}
                                                   />
                                                   {theme.likesCount}
                                               </button>
@@ -790,7 +822,7 @@ export default function Home() {
                                                   e.preventDefault();
                                                   applyTheme(theme.id);
                                               }}
-                                              className="flex items-center justify-center gap-2 rounded-lg bg-neutral-100 py-2 text-xs font-medium text-black hover:bg-white transition-colors"
+                                              className="btn-violet flex items-center justify-center gap-2 rounded-lg py-2 text-xs font-medium cursor-pointer"
                                           >
                                               <Icon icon="solar:magic-stick-3-linear" width={14} />
                                               Apply
@@ -802,7 +834,7 @@ export default function Home() {
                                                   e.preventDefault();
                                                   downloadJson(theme);
                                               }}
-                                              className="flex items-center justify-center gap-2 rounded-lg border border-neutral-700 bg-transparent py-2 text-xs font-medium text-neutral-300 hover:bg-neutral-800 hover:text-white transition-colors"
+                                              className="flex items-center justify-center gap-2 rounded-lg border border-border/50 bg-card/30 py-2 text-xs font-medium text-foreground/70 hover:bg-card/60 hover:text-foreground transition-all duration-200 cursor-pointer"
                                           >
                                               <Icon icon="solar:file-download-linear" width={14} />
                                               JSON
@@ -815,10 +847,10 @@ export default function Home() {
 
                 {/* Load More */}
                 {!loading && themes.length > 0 && (
-                    <div className="mt-12 flex justify-center">
+                    <div className="mt-14 flex justify-center">
                         <Button
                             variant="outline"
-                            className="flex items-center gap-2 rounded-lg border border-neutral-800 bg-neutral-900/50 px-6 py-3 text-sm font-medium text-neutral-300 hover:border-neutral-700 hover:bg-neutral-900 hover:text-white transition-all"
+                            className="flex items-center gap-2 rounded-xl border border-border/50 bg-card/30 px-7 py-3 text-sm font-medium text-foreground/70 hover:border-primary/30 hover:bg-card/50 hover:text-foreground transition-all duration-300 cursor-pointer"
                         >
                             <span>Load more themes</span>
                             <Icon icon="solar:refresh-linear" width={16} />
@@ -827,13 +859,13 @@ export default function Home() {
                 )}
 
                 {/* Maintainers */}
-                <div className="mt-20 w-full max-w-2xl mx-auto px-4 flex flex-col items-center">
+                <div className="mt-24 w-full max-w-2xl mx-auto px-4 flex flex-col items-center">
                     <div className="flex items-center gap-3 mb-6">
-                        <div className="h-px w-12 bg-gradient-to-r from-transparent to-neutral-800"></div>
-                        <span className="text-xs font-medium uppercase tracking-widest text-neutral-500">
+                        <div className="h-px w-12 bg-gradient-to-r from-transparent to-border"></div>
+                        <span className="text-xs font-medium uppercase tracking-widest text-muted-foreground/60">
                             Maintained by
                         </span>
-                        <div className="h-px w-12 bg-gradient-to-l from-transparent to-neutral-800"></div>
+                        <div className="h-px w-12 bg-gradient-to-l from-transparent to-border"></div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
                         {maintainers.map(maintainer => (
@@ -842,25 +874,25 @@ export default function Home() {
                                 href={maintainer.html_url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="group flex items-center gap-3 rounded-xl border border-neutral-800 bg-neutral-900/20 p-3 transition-all hover:border-neutral-700 hover:bg-neutral-900/40 hover:shadow-lg hover:shadow-black/50"
+                                className="group flex items-center gap-3 rounded-xl border border-border/40 bg-card/30 p-3.5 transition-all duration-300 hover:border-primary/30 hover:bg-card/50 hover:shadow-lg hover:shadow-primary/5 cursor-pointer"
                             >
                                 <img
                                     src={maintainer.avatar_url}
                                     alt={maintainer.login}
-                                    className="h-10 w-10 rounded-full border border-neutral-800 object-cover transition-colors group-hover:border-neutral-600"
+                                    className="h-10 w-10 rounded-full border border-border/50 object-cover transition-all duration-300 group-hover:border-primary/40"
                                 />
                                 <div className="flex flex-col min-w-0">
-                                    <span className="text-sm font-semibold text-neutral-200 transition-colors group-hover:text-white truncate">
+                                    <span className="text-sm font-semibold text-foreground/85 transition-colors duration-200 group-hover:text-foreground truncate">
                                         {maintainer.name || maintainer.login}
                                     </span>
-                                    <span className="text-xs text-neutral-500 group-hover:text-neutral-400 truncate">
+                                    <span className="text-xs text-muted-foreground group-hover:text-muted-foreground/80 truncate">
                                         @{maintainer.login}
                                     </span>
                                 </div>
                                 <Icon
                                     icon="lucide:github"
                                     width={18}
-                                    className="ml-auto text-neutral-600 transition-colors group-hover:text-white shrink-0"
+                                    className="ml-auto text-muted-foreground/40 transition-colors duration-200 group-hover:text-foreground shrink-0"
                                 />
                             </a>
                         ))}
@@ -869,22 +901,76 @@ export default function Home() {
             </main>
 
             {/* Footer */}
-            <footer className="mt-auto border-t border-border/70 bg-card/20 py-10">
+            <footer className="mt-auto border-t border-border/30 bg-card/10 backdrop-blur-sm py-10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p className="text-xs text-neutral-600">© 2024 AnymeX Inc. All rights reserved.</p>
+                    <p className="text-xs text-muted-foreground/50">&copy; 2025 AnymeX. All rights reserved.</p>
                     <div className="flex items-center gap-6">
-                        <a href="/docs" className="text-xs text-neutral-500 hover:text-neutral-300 transition-colors">
+                        <a href="/docs" className="text-xs text-muted-foreground/50 hover:text-foreground/70 transition-colors duration-200">
                             Documentation
                         </a>
-                        <a href="#" className="text-xs text-neutral-500 hover:text-neutral-300 transition-colors">
+                        <a href="#" className="text-xs text-muted-foreground/50 hover:text-foreground/70 transition-colors duration-200">
                             Privacy
                         </a>
-                        <a href="#" className="text-xs text-neutral-500 hover:text-neutral-300 transition-colors">
+                        <a href="#" className="text-xs text-muted-foreground/50 hover:text-foreground/70 transition-colors duration-200">
                             Terms
                         </a>
                     </div>
                 </div>
             </footer>
+        </div>
+    );
+}
+
+/* -----------------------------------------------------------
+   Theme Color Preview Component
+   Shows extracted colors as a visual palette instead of
+   a generic "Preview coming soon" placeholder.
+   ----------------------------------------------------------- */
+function ThemeColorPreview({ themeJson }: { themeJson: string }) {
+    const colors = useMemo(() => extractThemeColors(themeJson), [themeJson]);
+
+    if (colors.length === 0) {
+        return (
+            <div className="w-full h-full bg-gradient-to-br from-card via-card/80 to-background flex items-center justify-center">
+                <span className="text-xs text-muted-foreground/50 font-medium tracking-wide">
+                    No preview
+                </span>
+            </div>
+        );
+    }
+
+    // Build a gradient background from the theme's own colors
+    const bgGradient = `linear-gradient(135deg, ${colors[0]}15, ${colors[colors.length > 1 ? 1 : 0]}10)`;
+
+    return (
+        <div
+            className="w-full h-full flex flex-col items-center justify-center gap-3 relative"
+            style={{ background: bgGradient }}
+        >
+            {/* Subtle mesh using the theme's primary color */}
+            <div
+                className="absolute inset-0 opacity-20"
+                style={{
+                    background: `radial-gradient(circle at 30% 40%, ${colors[0]}40, transparent 70%)`,
+                }}
+            />
+            {/* Color palette dots */}
+            <div className="relative flex items-center gap-2">
+                {colors.map((color, i) => (
+                    <div
+                        key={i}
+                        className="w-7 h-7 rounded-full border-2 border-white/10 shadow-lg transition-transform duration-200 hover:scale-110"
+                        style={{
+                            backgroundColor: color,
+                            boxShadow: `0 2px 8px ${color}40`,
+                        }}
+                        title={color}
+                    />
+                ))}
+            </div>
+            <span className="relative text-[10px] text-white/40 font-medium tracking-wide">
+                {colors.length} colors
+            </span>
         </div>
     );
 }

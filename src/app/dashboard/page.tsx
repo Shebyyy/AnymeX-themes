@@ -140,10 +140,7 @@ export default function UnifiedDashboard() {
   
   useEffect(() => {
     checkAuth();
-    if (user) {
-      fetchDashboardData();
-    }
-  }, [user]);
+  }, []); // Run only once on mount
   
   const checkAuth = async () => {
     const creatorToken = localStorage.getItem("creator_token");
@@ -161,6 +158,7 @@ export default function UnifiedDashboard() {
           const data = await response.json();
           setUser(data.user);
           setUserRole(data.user.role);
+          fetchDashboardData();
         } else {
           localStorage.clear();
           router.push("/auth");
@@ -543,9 +541,9 @@ export default function UnifiedDashboard() {
   
   const getRoleBadge = () => {
     const badges = {
-      THEME_CREATOR: { text: "Creator", color: "bg-purple-500/10 text-purple-500 border-purple-500/20" },
-      ADMIN: { text: "Admin", color: "bg-blue-500/10 text-blue-500 border-blue-500/20" },
-      SUPER_ADMIN: { text: "Super Admin", color: "bg-indigo-500/10 text-indigo-500 border-indigo-500/20" },
+      THEME_CREATOR: { text: "Creator", color: "bg-primary/10 text-primary border-primary/20" },
+      ADMIN: { text: "Admin", color: "bg-primary/15 text-primary border-primary/25" },
+      SUPER_ADMIN: { text: "Super Admin", color: "bg-primary/20 text-primary border-primary/30" },
     };
     const badge = badges[userRole as keyof typeof badges] || badges.THEME_CREATOR;
     return (
@@ -757,6 +755,11 @@ export default function UnifiedDashboard() {
   
   return (
     <div className="min-h-screen bg-background text-foreground">
+      {/* Ambient Glow */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
+        <div className="glow-orb glow-orb-violet w-[500px] h-[350px] top-[-5%] left-[20%] animate-float-slow" />
+        <div className="glow-orb glow-orb-cyan w-[400px] h-[250px] top-[5%] right-[10%] animate-float-slow" style={{ animationDelay: "3s" }} />
+      </div>
       <DashboardHeader user={user} onLogout={handleLogout} />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -765,12 +768,12 @@ export default function UnifiedDashboard() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold modern-gradient-text">
+                <h1 className="text-3xl font-bold gradient-text">
                   Welcome back, {user?.username}!
                 </h1>
                 {getRoleBadge()}
               </div>
-              <p className="text-neutral-400">
+              <p className="text-muted-foreground">
                 {userRole === "ADMIN" || userRole === "SUPER_ADMIN"
                   ? `${stats?.pendingThemes || 0} themes are pending review. Platform is running smoothly!`
                   : `You have ${stats?.myThemes || 0} themes with ${stats?.totalViews || 0} total views!`
@@ -779,7 +782,7 @@ export default function UnifiedDashboard() {
             </div>
             <Button
               onClick={() => setUploadDialogOpen(true)}
-              className="bg-primary text-primary-foreground hover:opacity-90"
+              className="btn-violet cursor-pointer"
             >
               <Icon icon="solar:add-circle-bold" width={18} className="mr-2" />
               Upload New Theme
@@ -791,10 +794,10 @@ export default function UnifiedDashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {statCards.map((stat, index) => (
             <Link key={index} href={stat.href || "#"} className={stat.href ? "" : "pointer-events-none"}>
-              <Card className={`h-full border-border bg-card/70 ${stat.href ? "hover:border-primary/40 hover:bg-card/90 cursor-pointer" : ""} transition-shadow`}>
+              <Card className={`h-full glass-surface ${stat.href ? "hover:border-primary/30 cursor-pointer" : ""} transition-all duration-300`}>
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-medium text-neutral-400">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
                       {stat.title}
                     </CardTitle>
                     <div className={`p-2.5 rounded-lg ${stat.color}`}>
@@ -803,7 +806,7 @@ export default function UnifiedDashboard() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-white">
+                  <div className="text-3xl font-bold text-foreground">
                     {stat.value}
                   </div>
                 </CardContent>
@@ -820,14 +823,14 @@ export default function UnifiedDashboard() {
               <button
                 key={index}
                 onClick={action.action}
-                className="flex items-center gap-3 p-4 rounded-xl border border-border bg-card/70 hover:border-primary/40 hover:bg-card transition-all text-left"
+                className="flex items-center gap-3 p-4 rounded-xl border border-border/40 bg-card/30 hover:border-primary/30 hover:bg-card/50 transition-all duration-300 text-left cursor-pointer"
               >
                 <div className={`p-2.5 rounded-lg ${action.color} shrink-0`}>
                   <Icon icon={action.icon} width={20} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-white truncate">{action.label}</p>
-                  <p className="text-xs text-neutral-500 truncate">{action.description}</p>
+                  <p className="text-sm font-medium text-foreground truncate">{action.label}</p>
+                  <p className="text-xs text-muted-foreground truncate">{action.description}</p>
                 </div>
               </button>
             ))}
@@ -857,14 +860,14 @@ export default function UnifiedDashboard() {
           </div>
           
           {themes.length === 0 ? (
-            <Card className="modern-surface p-12 text-center">
+            <Card className="glass-surface p-12 text-center">
               <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 rounded-full bg-neutral-800 flex items-center justify-center">
-                  <Icon icon="solar:gallery-wide-linear" className="text-neutral-400" width={32} />
+                <div className="w-16 h-16 rounded-full bg-card/60 flex items-center justify-center">
+                  <Icon icon="solar:gallery-wide-linear" className="text-muted-foreground" width={32} />
                 </div>
               </div>
-              <h3 className="text-xl font-semibold text-white mb-2">No themes yet</h3>
-              <p className="text-neutral-400 mb-6">
+              <h3 className="text-xl font-semibold text-foreground mb-2">No themes yet</h3>
+              <p className="text-muted-foreground mb-6">
                 {userRole === "ADMIN" || userRole === "SUPER_ADMIN"
                   ? "There are no themes in the platform yet"
                   : "Upload your first theme to get started"
@@ -872,7 +875,7 @@ export default function UnifiedDashboard() {
               </p>
               <Button
                 onClick={() => setUploadDialogOpen(true)}
-                className="bg-primary text-primary-foreground hover:opacity-90"
+                className="btn-violet cursor-pointer"
               >
                 <Icon icon="solar:add-circle-bold" width={18} className="mr-2" />
                 Upload Your First Theme
@@ -881,11 +884,11 @@ export default function UnifiedDashboard() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {themes.slice(0, 8).map((theme) => (
-                <Card key={theme.id} className="border border-border bg-card/70 hover:border-primary/40 hover:bg-card transition-shadow">
+                <Card key={theme.id} className="border border-border/40 bg-card/30 hover:border-primary/30 hover:bg-card/50 transition-all duration-300">
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-white mb-1">
+                        <h3 className="text-lg font-semibold text-foreground mb-1">
                           {theme.name}
                         </h3>
                         <p className="text-xs text-neutral-500 font-mono mb-2">
@@ -1463,31 +1466,31 @@ function DashboardHeader({ user, onLogout }: { user: User | null; onLogout: () =
   }, [user]);
   
   return (
-        <header className="sticky top-0 z-50 modern-nav border-b shadow-lg">
+        <header className="sticky top-0 z-50 glass-nav border-b border-border/30 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <Link href="/dashboard" className="flex items-center gap-2">
+          <Link href="/dashboard" className="flex items-center gap-2.5">
             <img
               src="https://raw.githubusercontent.com/Shebyyy/AnymeX-themes/main/public/logo/anymex-logo.png"
               alt="AnymeX"
               className="w-8 h-8"
             />
-            <span className="text-lg font-semibold text-white">AnymeX Themes</span>
+            <span className="text-lg font-semibold text-foreground">AnymeX Themes</span>
           </Link>
           
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="/" className="text-sm text-neutral-400 hover:text-white transition-colors">
+            <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
               Browse Themes
             </Link>
-            <Link href="/docs" className="text-sm text-neutral-400 hover:text-white transition-colors">
+            <Link href="/docs" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
               Docs
             </Link>
             {(user?.role === "ADMIN" || user?.role === "SUPER_ADMIN") && (
               <>
-                <Link href="/admin/users" className="text-sm text-neutral-400 hover:text-white transition-colors">
+                <Link href="/admin/users" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
                   Manage Users
                 </Link>
-                <Link href="/admin/themes" className="text-sm text-neutral-400 hover:text-white transition-colors">
+                <Link href="/admin/themes" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
                   Theme Approvals
                 </Link>
               </>
@@ -1497,7 +1500,7 @@ function DashboardHeader({ user, onLogout }: { user: User | null; onLogout: () =
           <div className="flex items-center gap-3">
             {(user?.role === "ADMIN" || user?.role === "SUPER_ADMIN") && (
               <Link href="/admin/themes?status=PENDING" className="relative">
-                <Button variant="ghost" size="icon" className="text-neutral-400 hover:text-white hover:bg-neutral-800">
+                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground hover:bg-card/50 cursor-pointer">
                   <Icon icon="solar:bell-bold" width={20} />
                 </Button>
                 {pendingCount > 0 && (
@@ -1510,28 +1513,28 @@ function DashboardHeader({ user, onLogout }: { user: User | null; onLogout: () =
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="gap-2 text-neutral-300 hover:bg-neutral-800">
-                  <div className="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center">
-                    <Icon icon="solar:user-circle-bold" width={20} className="text-neutral-400" />
+                <Button variant="ghost" className="gap-2 text-foreground/80 hover:bg-card/50 cursor-pointer">
+                  <div className="w-8 h-8 rounded-full bg-card/60 flex items-center justify-center">
+                    <Icon icon="solar:user-circle-bold" width={20} className="text-muted-foreground" />
                   </div>
                   <span className="hidden sm:inline text-sm font-medium">{user?.username}</span>
-                  <Icon icon="solar:alt-arrow-down-linear" width={16} className="text-neutral-500" />
+                  <Icon icon="solar:alt-arrow-down-linear" width={16} className="text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-neutral-900 border border-neutral-800 w-56">
-                <div className="px-3 py-2 border-b border-neutral-800">
-                  <p className="text-sm font-medium text-white">{user?.username}</p>
-                  <p className="text-xs text-neutral-500 capitalize">{user?.role?.toLowerCase().replace("_", " ")}</p>
+              <DropdownMenuContent align="end" className="glass-surface border-border/50 w-56">
+                <div className="px-3 py-2 border-b border-border/50">
+                  <p className="text-sm font-medium text-foreground">{user?.username}</p>
+                  <p className="text-xs text-muted-foreground capitalize">{user?.role?.toLowerCase().replace("_", " ")}</p>
                 </div>
-                <DropdownMenuSeparator className="bg-neutral-800" />
+                <DropdownMenuSeparator className="bg-border/50" />
                 <DropdownMenuItem asChild>
-                  <Link href="/" className="cursor-pointer text-neutral-300 hover:text-white hover:bg-neutral-800">
+                    <Link href="/" className="cursor-pointer text-foreground/80 hover:text-foreground">
                     <Icon icon="solar:home-2-linear" width={16} className="mr-2" />
                     Browse Themes
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/profile" className="cursor-pointer text-neutral-300 hover:text-white hover:bg-neutral-800">
+                    <Link href="/profile" className="cursor-pointer text-foreground/80 hover:text-foreground">
                     <Icon icon="solar:user-linear" width={16} className="mr-2" />
                     Profile
                   </Link>
@@ -1539,23 +1542,23 @@ function DashboardHeader({ user, onLogout }: { user: User | null; onLogout: () =
                 {(user?.role === "ADMIN" || user?.role === "SUPER_ADMIN") && (
                   <>
                     <DropdownMenuItem asChild>
-                      <Link href="/admin/users" className="cursor-pointer text-neutral-300 hover:text-white hover:bg-neutral-800">
+                      <Link href="/admin/users" className="cursor-pointer text-foreground/80 hover:text-foreground">
                         <Icon icon="solar:users-group-rounded-bold" width={16} className="mr-2" />
                         Manage Users
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/admin/themes" className="cursor-pointer text-neutral-300 hover:text-white hover:bg-neutral-800">
+                      <Link href="/admin/themes" className="cursor-pointer text-foreground/80 hover:text-foreground">
                         <Icon icon="solar:gallery-wide-bold" width={16} className="mr-2" />
                         Theme Approvals
                       </Link>
                     </DropdownMenuItem>
                   </>
                 )}
-                <DropdownMenuSeparator className="bg-neutral-800" />
+                <DropdownMenuSeparator className="bg-border/50" />
                 <DropdownMenuItem
                   onClick={onLogout}
-                  className="cursor-pointer text-red-400 hover:text-red-300 hover:bg-red-900/30"
+                  className="cursor-pointer text-destructive hover:text-destructive"
                 >
                   <Icon icon="solar:logout-2-linear" width={16} className="mr-2" />
                   Logout
