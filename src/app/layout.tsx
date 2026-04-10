@@ -1,17 +1,17 @@
-import type { Metadata } from "next";
-import { Fira_Code, Fira_Sans } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { DM_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
-const firaSans = Fira_Sans({
-  variable: "--font-fira-sans",
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
 
-const firaCode = Fira_Code({
-  variable: "--font-fira-code",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   display: "swap",
@@ -22,6 +22,10 @@ export const metadata: Metadata = {
   description: "Browse and share themes for AnymeX app",
 };
 
+export const viewport: Viewport = {
+  themeColor: "#0d0b14",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -30,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${firaSans.variable} ${firaCode.variable} antialiased bg-background text-foreground`}
+        className={`${dmSans.variable} ${jetbrainsMono.variable} antialiased bg-background text-foreground`}
       >
         {children}
         <Toaster />

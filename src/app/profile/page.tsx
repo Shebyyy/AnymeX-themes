@@ -157,7 +157,7 @@ export default function ProfilePage() {
 
       setUser(data.user);
       toast({
-        title: "Profile updated successfully! ✨",
+        title: "Profile updated successfully!",
         description: "Your changes have been saved",
       });
     } catch (error) {
@@ -199,7 +199,7 @@ export default function ProfilePage() {
       }
 
       toast({
-        title: "Password changed successfully! 🔒",
+        title: "Password changed successfully!",
         description: "Your password has been updated",
       });
 
@@ -220,7 +220,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background text-foreground font-sans antialiased flex items-center justify-center">
-        <Icon icon="solar:loading-circle-linear" className="animate-spin text-white" width={48} />
+        <Icon icon="solar:loading-circle-linear" className="animate-spin text-primary" width={48} />
       </div>
     );
   }
@@ -230,13 +230,19 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans antialiased">
+    <div className="min-h-screen bg-background text-foreground font-sans antialiased flex flex-col">
+      {/* Ambient Glow */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
+        <div className="glow-orb glow-orb-violet w-[500px] h-[350px] top-[-5%] left-[15%] animate-float-slow" />
+        <div className="glow-orb glow-orb-cyan w-[400px] h-[300px] top-[10%] right-[10%] animate-float-slow" style={{ animationDelay: "3s" }} />
+      </div>
+
       {/* Navigation */}
-      <nav className="modern-nav fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl rounded-full transition-all">
+      <nav className="glass-nav fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[94%] max-w-5xl rounded-2xl transition-all">
         <div className="px-4 sm:px-6 pl-2">
           <div className="flex h-14 items-center justify-between gap-4">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 shrink-0 cursor-pointer pl-2">
+            <Link href="/" className="flex items-center gap-2.5 shrink-0 cursor-pointer pl-2">
               <img
                 src="https://raw.githubusercontent.com/Shebyyy/AnymeX-themes/main/public/logo/anymex-logo.png"
                 alt="AnymeX"
@@ -253,13 +259,13 @@ export default function ProfilePage() {
               <div className="hidden md:flex items-center gap-1">
               <a
                 href="/"
-                className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
               >
                 Themes
               </a>
               <a
                 href="/docs"
-                className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
               >
                 Docs
               </a>
@@ -267,21 +273,21 @@ export default function ProfilePage() {
               {/* Profile Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors">
+                  <button className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 cursor-pointer">
                     <Icon icon="solar:user-circle-linear" width={16} />
                     {user?.username || "Profile"}
                     <Icon icon="solar:alt-arrow-down-linear" width={14} />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-neutral-900 border-neutral-800 min-w-[180px]">
+                <DropdownMenuContent align="end" className="glass-surface min-w-[180px] border-border/50">
                   <DropdownMenuItem asChild>
-                    <Link href="/profile" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                    <Link href="/profile" className="cursor-pointer text-foreground/80 hover:text-foreground flex items-center gap-2">
                       <Icon icon="solar:user-linear" width={14} />
                       My Profile
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/dashboard" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                    <Link href="/dashboard" className="cursor-pointer text-foreground/80 hover:text-foreground flex items-center gap-2">
                       <Icon icon="solar:palette-bold" width={14} />
                       Dashboard
                     </Link>
@@ -289,35 +295,35 @@ export default function ProfilePage() {
                   {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') && (
                     <>
                       <DropdownMenuItem asChild>
-                        <Link href="/admin/users" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                        <Link href="/admin/users" className="cursor-pointer text-foreground/80 hover:text-foreground flex items-center gap-2">
                           <Icon icon="solar:users-group-rounded-bold" width={14} />
                           Manage Users
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href="/admin/themes" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                        <Link href="/admin/themes" className="cursor-pointer text-foreground/80 hover:text-foreground flex items-center gap-2">
                           <Icon icon="solar:gallery-wide-bold" width={14} />
                           Theme Approvals
                         </Link>
                       </DropdownMenuItem>
                     </>
                   )}
-                  <DropdownMenuSeparator className="bg-neutral-800" />
+                  <DropdownMenuSeparator className="bg-border/50" />
                   <DropdownMenuItem
                     onClick={handleLogout}
-                    className="cursor-pointer text-red-400 hover:text-red-300 flex items-center gap-2"
+                    className="cursor-pointer text-destructive hover:text-destructive flex items-center gap-2"
                   >
                     <Icon icon="solar:logout-2-linear" width={14} />
                     Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <div className="h-4 w-px bg-neutral-800 mx-2"></div>
+              <div className="h-4 w-px bg-border/50 mx-2"></div>
               <a
                 href="https://github.com/RyanYuuki/AnymeX"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-full bg-neutral-800 px-5 py-2 text-xs font-semibold text-white hover:bg-neutral-700 border border-neutral-700 transition-colors inline-flex items-center justify-center"
+                className="btn-violet rounded-full px-5 py-2 text-xs font-semibold inline-flex items-center justify-center cursor-pointer"
               >
                 Get App
               </a>
@@ -327,25 +333,25 @@ export default function ProfilePage() {
               <div className="flex md:hidden">
                 <DropdownMenu open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                   <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors">
+                    <button className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
                       <Icon icon="solar:hamburger-menu-linear" width={20} />
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="bg-neutral-900 border-neutral-800 min-w-[200px]">
+                  <DropdownMenuContent align="end" className="glass-surface min-w-[200px] border-border/50">
                     <DropdownMenuItem asChild>
-                      <a href="/docs" className="cursor-pointer text-neutral-300 hover:text-white">
+                      <a href="/docs" className="cursor-pointer text-foreground/80 hover:text-foreground">
                         Docs
                       </a>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator className="bg-neutral-800" />
+                    <DropdownMenuSeparator className="bg-border/50" />
                     <DropdownMenuItem asChild>
-                      <Link href="/profile" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                      <Link href="/profile" className="cursor-pointer text-foreground/80 hover:text-foreground flex items-center gap-2">
                         <Icon icon="solar:user-linear" width={14} />
                         My Profile
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/dashboard" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                      <Link href="/dashboard" className="cursor-pointer text-foreground/80 hover:text-foreground flex items-center gap-2">
                         <Icon icon="solar:palette-bold" width={14} />
                         Dashboard
                       </Link>
@@ -353,34 +359,34 @@ export default function ProfilePage() {
                     {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') && (
                       <>
                         <DropdownMenuItem asChild>
-                          <Link href="/admin/users" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                          <Link href="/admin/users" className="cursor-pointer text-foreground/80 hover:text-foreground flex items-center gap-2">
                             <Icon icon="solar:users-group-rounded-bold" width={14} />
                             Manage Users
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link href="/admin/themes" className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2">
+                          <Link href="/admin/themes" className="cursor-pointer text-foreground/80 hover:text-foreground flex items-center gap-2">
                             <Icon icon="solar:gallery-wide-bold" width={14} />
                             Theme Approvals
                           </Link>
                         </DropdownMenuItem>
                       </>
                     )}
-                    <DropdownMenuSeparator className="bg-neutral-800" />
+                    <DropdownMenuSeparator className="bg-border/50" />
                     <DropdownMenuItem
                       onClick={handleLogout}
-                      className="cursor-pointer text-red-400 hover:text-red-300 flex items-center gap-2"
+                      className="cursor-pointer text-destructive hover:text-destructive flex items-center gap-2"
                     >
                       <Icon icon="solar:logout-2-linear" width={14} />
                       Logout
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator className="bg-neutral-800" />
+                    <DropdownMenuSeparator className="bg-border/50" />
                     <DropdownMenuItem asChild>
                       <a
                         href="https://github.com/RyanYuuki/AnymeX"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="cursor-pointer text-white font-medium bg-white/5 hover:bg-white/10"
+                        className="cursor-pointer text-foreground font-medium"
                       >
                         Get App
                       </a>
@@ -394,9 +400,9 @@ export default function ProfilePage() {
       </nav>
 
       {/* Main Content */}
-      <main className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-24">
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight modern-gradient-text mb-2">
+      <main className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pt-28 flex-1">
+        <div className="mb-8 animate-fade-in-up">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight gradient-text mb-3">
             Profile Settings
           </h1>
           <p className="text-muted-foreground">
@@ -406,10 +412,10 @@ export default function ProfilePage() {
 
         <div className="space-y-6">
           {/* Profile Information Card */}
-          <Card className="modern-surface">
+          <Card className="glass-surface animate-fade-in-up" style={{ animationDelay: "100ms" }}>
             <CardHeader>
-              <CardTitle className="text-white">Profile Information</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-foreground">Profile Information</CardTitle>
+              <CardDescription className="text-muted-foreground">
                 Update your public profile information
               </CardDescription>
             </CardHeader>
@@ -422,11 +428,11 @@ export default function ProfilePage() {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="bg-neutral-800 border-neutral-700 text-white"
+                    className="bg-card/50 border-border/50 text-foreground input-glow"
                     required
                     minLength={3}
                   />
-                  <p className="text-xs text-neutral-500 mt-1">
+                  <p className="text-xs text-muted-foreground/60 mt-1">
                     Your unique username for the platform (min. 3 characters)
                   </p>
                 </div>
@@ -437,20 +443,20 @@ export default function ProfilePage() {
                     type="url"
                     value={profileUrl}
                     onChange={(e) => setProfileUrl(e.target.value)}
-                    className="bg-neutral-800 border-neutral-700 text-white"
+                    className="bg-card/50 border-border/50 text-foreground input-glow"
                     placeholder="https://github.com/yourusername"
                   />
-                  <p className="text-xs text-neutral-500 mt-1">
+                  <p className="text-xs text-muted-foreground/60 mt-1">
                     Link to your GitHub, social media, or personal website
                   </p>
                   {user.profileUrl && (
-                    <p className="text-xs text-neutral-400 mt-2">
+                    <p className="text-xs text-muted-foreground mt-2">
                       Current URL:{" "}
                       <a
                         href={user.profileUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-400 hover:text-blue-300 underline"
+                        className="text-primary hover:text-primary/80 underline"
                       >
                         {user.profileUrl}
                       </a>
@@ -461,7 +467,7 @@ export default function ProfilePage() {
                   <Button
                     type="submit"
                     disabled={saving}
-                    className="bg-neutral-800 text-white hover:bg-neutral-700"
+                    className="btn-violet cursor-pointer"
                   >
                     {saving ? "Saving..." : "Save Changes"}
                   </Button>
@@ -471,21 +477,21 @@ export default function ProfilePage() {
           </Card>
 
           {/* Account Information Card */}
-          <Card className="modern-surface">
+          <Card className="glass-surface animate-fade-in-up" style={{ animationDelay: "200ms" }}>
             <CardHeader>
-              <CardTitle className="text-white">Account Information</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-foreground">Account Information</CardTitle>
+              <CardDescription className="text-muted-foreground">
                 Your account details (read-only)
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label className="text-neutral-400">Role</Label>
-                <p className="text-white mt-1">{user.role.replace(/_/g, ' ')}</p>
+                <Label className="text-muted-foreground">Role</Label>
+                <p className="text-foreground mt-1">{user.role.replace(/_/g, ' ')}</p>
               </div>
               <div>
-                <Label className="text-neutral-400">Account Created</Label>
-                <p className="text-white mt-1">
+                <Label className="text-muted-foreground">Account Created</Label>
+                <p className="text-foreground mt-1">
                   {new Date(user.createdAt).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
@@ -494,17 +500,17 @@ export default function ProfilePage() {
                 </p>
               </div>
               <div>
-                <Label className="text-neutral-400">User ID</Label>
-                <p className="text-white mt-1 font-mono text-sm">{user.id}</p>
+                <Label className="text-muted-foreground">User ID</Label>
+                <p className="text-foreground mt-1 font-mono text-sm">{user.id}</p>
               </div>
             </CardContent>
           </Card>
 
           {/* Security Card */}
-          <Card className="modern-surface">
+          <Card className="glass-surface animate-fade-in-up" style={{ animationDelay: "300ms" }}>
             <CardHeader>
-              <CardTitle className="text-white">Security</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-foreground">Security</CardTitle>
+              <CardDescription className="text-muted-foreground">
                 Manage your account security settings
               </CardDescription>
             </CardHeader>
@@ -512,7 +518,7 @@ export default function ProfilePage() {
               <Button
                 variant="outline"
                 onClick={() => setChangePasswordDialogOpen(true)}
-                className="border-neutral-700 text-neutral-300 hover:bg-neutral-800"
+                className="border-border/50 text-foreground/70 hover:bg-card/50 hover:text-foreground cursor-pointer"
               >
                 <Icon icon="solar:lock-keyhole-linear" width={16} className="mr-2" />
                 Change Password
@@ -524,10 +530,10 @@ export default function ProfilePage() {
 
       {/* Change Password Dialog */}
       <Dialog open={changePasswordDialogOpen} onOpenChange={setChangePasswordDialogOpen}>
-        <DialogContent className="bg-card border-border text-foreground">
+        <DialogContent className="glass-surface border-border/50 text-foreground">
           <DialogHeader>
-            <DialogTitle className="text-white">Change Password</DialogTitle>
-            <DialogDescription className="text-neutral-400">
+            <DialogTitle className="text-foreground">Change Password</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               Update your account password
             </DialogDescription>
           </DialogHeader>
@@ -539,7 +545,7 @@ export default function ProfilePage() {
                 type="password"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
-                className="bg-neutral-800 border-neutral-700 text-white"
+                className="bg-card/50 border-border/50 text-foreground input-glow"
                 required
               />
             </div>
@@ -550,11 +556,11 @@ export default function ProfilePage() {
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="bg-neutral-800 border-neutral-700 text-white"
+                className="bg-card/50 border-border/50 text-foreground input-glow"
                 minLength={6}
                 required
               />
-              <p className="text-xs text-neutral-500 mt-1">
+              <p className="text-xs text-muted-foreground/60 mt-1">
                 Must be at least 6 characters
               </p>
             </div>
@@ -563,14 +569,14 @@ export default function ProfilePage() {
                 type="button"
                 variant="outline"
                 onClick={() => setChangePasswordDialogOpen(false)}
-                className="border-neutral-700 text-neutral-300 hover:bg-neutral-800"
+                className="border-border/50 text-foreground/70 hover:bg-card/50 cursor-pointer"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={changingPassword}
-                className="bg-neutral-800 text-white hover:bg-neutral-700"
+                className="btn-violet cursor-pointer"
               >
                 {changingPassword ? "Changing..." : "Change Password"}
               </Button>
@@ -580,15 +586,15 @@ export default function ProfilePage() {
       </Dialog>
 
       {/* Footer */}
-      <footer className="mt-auto border-t border-border/70 bg-card/20 py-10">
+      <footer className="mt-auto border-t border-border/30 bg-card/10 backdrop-blur-sm py-10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-neutral-600">
-            © 2024 AnymeX Inc. All rights reserved.
+          <p className="text-xs text-muted-foreground/50">
+            &copy; 2025 AnymeX. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
             <Link
               href="/"
-              className="text-xs text-neutral-500 hover:text-neutral-300 transition-colors"
+              className="text-xs text-muted-foreground/50 hover:text-foreground/70 transition-colors duration-200"
             >
               Back to Themes
             </Link>

@@ -92,13 +92,19 @@ export default function DocsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans antialiased">
+    <div className="min-h-screen bg-background text-foreground font-sans antialiased flex flex-col">
+      {/* Ambient Glow Orbs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
+        <div className="glow-orb glow-orb-violet w-[500px] h-[350px] top-[-5%] left-[15%] animate-float-slow" />
+        <div className="glow-orb glow-orb-cyan w-[400px] h-[300px] top-[5%] right-[10%] animate-float-slow" style={{ animationDelay: "3s" }} />
+      </div>
+
       {/* Navigation */}
-      <nav className="modern-nav fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl rounded-full transition-all">
+      <nav className="glass-nav fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[94%] max-w-5xl rounded-2xl transition-all">
         <div className="px-4 sm:px-6 pl-2">
           <div className="flex h-14 items-center justify-between gap-4">
             {/* Logo */}
-            <div className="flex items-center gap-2 shrink-0 cursor-pointer pl-2">
+            <div className="flex items-center gap-2.5 shrink-0 cursor-pointer pl-2">
               <img
                 src="https://raw.githubusercontent.com/Shebyyy/AnymeX-themes/main/public/logo/anymex-logo.png"
                 alt="AnymeX"
@@ -113,7 +119,7 @@ export default function DocsPage() {
               <div className="hidden md:flex items-center gap-1">
                 <a
                   href="/"
-                  className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
                 >
                   Themes
                 </a>
@@ -123,7 +129,7 @@ export default function DocsPage() {
                     {/* Profile Dropdown */}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <button className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors">
+                        <button className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 cursor-pointer">
                           <Icon icon="solar:user-circle-linear" width={16} />
                           {user?.username || "Profile"}
                           <Icon icon="solar:alt-arrow-down-linear" width={14} />
@@ -131,12 +137,12 @@ export default function DocsPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent
                         align="end"
-                        className="bg-neutral-900 border-neutral-800 min-w-[180px]"
+                        className="glass-surface min-w-[180px] border-border/50"
                       >
                         <DropdownMenuItem asChild>
                           <Link
                             href="/profile"
-                            className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
+                            className="cursor-pointer text-foreground/80 hover:text-foreground flex items-center gap-2"
                           >
                             <Icon icon="solar:user-linear" width={14} />
                             My Profile
@@ -145,7 +151,7 @@ export default function DocsPage() {
                         <DropdownMenuItem asChild>
                           <Link
                             href="/dashboard"
-                            className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
+                            className="cursor-pointer text-foreground/80 hover:text-foreground flex items-center gap-2"
                           >
                             <Icon icon="solar:palette-bold" width={14} />
                             Dashboard
@@ -156,7 +162,7 @@ export default function DocsPage() {
                             <DropdownMenuItem asChild>
                               <Link
                                 href="/admin/users"
-                                className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
+                                className="cursor-pointer text-foreground/80 hover:text-foreground flex items-center gap-2"
                               >
                                 <Icon icon="solar:users-group-rounded-bold" width={14} />
                                 Manage Users
@@ -165,7 +171,7 @@ export default function DocsPage() {
                             <DropdownMenuItem asChild>
                               <Link
                                 href="/admin/themes"
-                                className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
+                                className="cursor-pointer text-foreground/80 hover:text-foreground flex items-center gap-2"
                               >
                                 <Icon icon="solar:gallery-wide-bold" width={14} />
                                 Theme Approvals
@@ -173,10 +179,10 @@ export default function DocsPage() {
                             </DropdownMenuItem>
                           </>
                         )}
-                        <DropdownMenuSeparator className="bg-neutral-800" />
+                        <DropdownMenuSeparator className="bg-border/50" />
                         <DropdownMenuItem
                           onClick={handleLogout}
-                          className="cursor-pointer text-red-400 hover:text-red-300 flex items-center gap-2"
+                          className="cursor-pointer text-destructive hover:text-destructive flex items-center gap-2"
                         >
                           <Icon icon="solar:logout-2-linear" width={14} />
                           Logout
@@ -189,7 +195,7 @@ export default function DocsPage() {
                     {/* Logged out: Show unified Auth */}
                     <Link
                       href="/auth"
-                      className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
                     >
                       <Icon icon="solar:palette-bold" width={16} />
                       Sign In
@@ -201,7 +207,7 @@ export default function DocsPage() {
                   href="https://github.com/RyanYuuki/AnymeX"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-full bg-neutral-800 px-5 py-2 text-xs font-semibold text-white hover:bg-neutral-700 border border-neutral-700 transition-colors inline-flex items-center justify-center"
+                  className="btn-violet rounded-full px-5 py-2 text-xs font-semibold inline-flex items-center justify-center cursor-pointer"
                 >
                   Get App
                 </a>
@@ -211,18 +217,18 @@ export default function DocsPage() {
               <div className="flex md:hidden">
                 <DropdownMenu open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                   <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors">
+                    <button className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
                       <Icon icon="solar:hamburger-menu-linear" width={20} />
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     align="end"
-                    className="bg-neutral-900 border-neutral-800 min-w-[200px]"
+                    className="glass-surface min-w-[200px] border-border/50"
                   >
                     <DropdownMenuItem asChild>
                       <Link
                         href="/"
-                        className="cursor-pointer text-neutral-300 hover:text-white"
+                        className="cursor-pointer text-foreground/80 hover:text-foreground"
                       >
                         Themes
                       </Link>
@@ -274,7 +280,7 @@ export default function DocsPage() {
                         <DropdownMenuItem asChild>
                           <Link
                             href="/auth"
-                            className="cursor-pointer text-neutral-300 hover:text-white flex items-center gap-2"
+                            className="cursor-pointer text-foreground/80 hover:text-foreground flex items-center gap-2"
                           >
                             <Icon icon="solar:palette-bold" width={14} />
                             Sign In / Register
@@ -288,7 +294,7 @@ export default function DocsPage() {
                         href="https://github.com/RyanYuuki/AnymeX"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="cursor-pointer text-white font-medium bg-white/5 hover:bg-white/10"
+                        className="cursor-pointer text-foreground font-medium"
                       >
                         Get App
                       </a>
@@ -302,9 +308,9 @@ export default function DocsPage() {
       </nav>
 
       {/* Main Content */}
-      <main className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <main className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1">
         <div className="relative py-24 md:py-32 flex flex-col items-center text-center px-4">
-          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight modern-gradient-text max-w-4xl mb-6">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight gradient-text max-w-4xl mb-6">
             Documentation
           </h1>
           <p className="text-muted-foreground max-w-2xl text-base md:text-lg leading-relaxed">
@@ -315,8 +321,8 @@ export default function DocsPage() {
         <div className="space-y-12">
           {/* Overview Section */}
           <section className="prose prose-invert max-w-none">
-            <h2 className="text-2xl font-semibold text-white mb-4">What is a Theme?</h2>
-            <p className="text-neutral-400 leading-relaxed">
+            <h2 className="text-2xl font-semibold text-foreground mb-4">What is a Theme?</h2>
+            <p className="text-muted-foreground leading-relaxed">
               An AnymeX theme is a JSON configuration that defines the visual appearance of AnymeX.
               It includes colors, fonts, sizes, and other styling properties that determine how AnymeX
               looks and feels.
@@ -324,36 +330,36 @@ export default function DocsPage() {
           </section>
 
           {/* Quick Start Guide */}
-          <section className="modern-surface rounded-xl p-6">
-            <h2 className="text-2xl font-semibold text-white mb-4">Quick Start Guide</h2>
-            <p className="text-neutral-400 mb-6">
+          <section className="glass-surface rounded-xl p-6">
+            <h2 className="text-2xl font-semibold text-foreground mb-4">Quick Start Guide</h2>
+            <p className="text-muted-foreground mb-6">
               Get started with AnymeX themes in 3 simple steps:
             </p>
             <div className="grid md:grid-cols-3 gap-4">
-              <div className="rounded-lg border border-neutral-800 bg-neutral-950/50 p-4 text-center">
-                <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center mx-auto mb-3">
+              <div className="rounded-lg border border-border/40 bg-card/30 p-4 text-center">
+                <div className="w-10 h-10 rounded-full bg-primary/15 text-primary flex items-center justify-center mx-auto mb-3">
                   <span className="text-xl font-bold">1</span>
                 </div>
-                <h3 className="text-base font-medium text-white mb-2">Register</h3>
-                <p className="text-sm text-neutral-400">
+                <h3 className="text-base font-medium text-foreground mb-2">Register</h3>
+                <p className="text-sm text-muted-foreground">
                   Sign up as a creator in the Creator Hub
                 </p>
               </div>
-              <div className="rounded-lg border border-neutral-800 bg-neutral-950/50 p-4 text-center">
-                <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center mx-auto mb-3">
+              <div className="rounded-lg border border-border/40 bg-card/30 p-4 text-center">
+                <div className="w-10 h-10 rounded-full bg-primary/15 text-primary flex items-center justify-center mx-auto mb-3">
                   <span className="text-xl font-bold">2</span>
                 </div>
-                <h3 className="text-base font-medium text-white mb-2">Upload</h3>
-                <p className="text-sm text-neutral-400">
+                <h3 className="text-base font-medium text-foreground mb-2">Upload</h3>
+                <p className="text-sm text-muted-foreground">
                   Upload your theme JSON through Creator Dashboard
                 </p>
               </div>
-              <div className="rounded-lg border border-neutral-800 bg-neutral-950/50 p-4 text-center">
-                <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center mx-auto mb-3">
+              <div className="rounded-lg border border-border/40 bg-card/30 p-4 text-center">
+                <div className="w-10 h-10 rounded-full bg-primary/15 text-primary flex items-center justify-center mx-auto mb-3">
                   <span className="text-xl font-bold">3</span>
                 </div>
-                <h3 className="text-base font-medium text-white mb-2">Share</h3>
-                <p className="text-sm text-neutral-400">
+                <h3 className="text-base font-medium text-foreground mb-2">Share</h3>
+                <p className="text-sm text-muted-foreground">
                   Your theme goes live immediately!
                 </p>
               </div>
@@ -361,9 +367,9 @@ export default function DocsPage() {
           </section>
 
           {/* Becoming a Creator Section */}
-          <section className="modern-surface rounded-xl p-6">
-            <h2 className="text-2xl font-semibold text-white mb-4">Becoming a Theme Creator</h2>
-            <p className="text-neutral-400 mb-4">
+          <section className="glass-surface rounded-xl p-6">
+            <h2 className="text-2xl font-semibold text-foreground mb-4">Becoming a Theme Creator</h2>
+            <p className="text-muted-foreground mb-4">
               To share your themes with the community, you'll need to register as a theme creator first. Here's how:
             </p>
             <ol className="space-y-3 text-neutral-300 list-decimal list-inside">
@@ -381,13 +387,13 @@ export default function DocsPage() {
           </section>
 
           {/* Theme Structure */}
-          <section className="modern-surface rounded-xl p-6">
-            <h2 className="text-2xl font-semibold text-white mb-4">Theme Structure</h2>
-            <p className="text-neutral-400 mb-4">
+          <section className="glass-surface rounded-xl p-6">
+            <h2 className="text-2xl font-semibold text-foreground mb-4">Theme Structure</h2>
+            <p className="text-muted-foreground mb-4">
               A theme JSON must follow this structure with the following properties:
             </p>
 
-            <div className="bg-neutral-950 rounded-lg p-4 overflow-x-auto">
+            <div className="bg-background/50 rounded-lg p-4 overflow-x-auto border border-border/30">
               <pre className="text-sm text-neutral-300 font-mono">
 {`{
   "name": "Theme Name",
@@ -426,11 +432,11 @@ export default function DocsPage() {
 
           {/* Properties Guide */}
           <section>
-            <h2 className="text-2xl font-semibold text-white mb-6">Properties Guide</h2>
+            <h2 className="text-2xl font-semibold text-foreground mb-6">Properties Guide</h2>
 
             <div className="space-y-4">
-              <div className="rounded-lg border border-neutral-800 bg-neutral-900/30 p-4">
-                <h3 className="text-lg font-medium text-white mb-2">colors</h3>
+              <div className="rounded-lg border border-border/40 bg-card/30 p-4">
+                <h3 className="text-lg font-medium text-foreground mb-2">colors</h3>
                 <p className="text-neutral-400 text-sm mb-3">
                   Defines the color palette used throughout the theme.
                 </p>
@@ -445,8 +451,8 @@ export default function DocsPage() {
                 </ul>
               </div>
 
-              <div className="rounded-lg border border-neutral-800 bg-neutral-900/30 p-4">
-                <h3 className="text-lg font-medium text-white mb-2">typography</h3>
+              <div className="rounded-lg border border-border/40 bg-card/30 p-4">
+                <h3 className="text-lg font-medium text-foreground mb-2">typography</h3>
                 <p className="text-neutral-400 text-sm mb-3">
                   Controls font families and sizes.
                 </p>
@@ -456,8 +462,8 @@ export default function DocsPage() {
                 </ul>
               </div>
 
-              <div className="rounded-lg border border-neutral-800 bg-neutral-900/30 p-4">
-                <h3 className="text-lg font-medium text-white mb-2">effects</h3>
+              <div className="rounded-lg border border-border/40 bg-card/30 p-4">
+                <h3 className="text-lg font-medium text-foreground mb-2">effects</h3>
                 <p className="text-neutral-400 text-sm mb-3">
                   Visual effects applied to elements.
                 </p>
@@ -472,11 +478,11 @@ export default function DocsPage() {
 
           {/* Example Themes */}
           <section>
-            <h2 className="text-2xl font-semibold text-white mb-6">Example Themes</h2>
+            <h2 className="text-2xl font-semibold text-foreground mb-6">Example Themes</h2>
 
             <div className="grid md:grid-cols-2 gap-6">
-              <div className="rounded-xl border border-neutral-800 bg-neutral-900/30 p-4">
-                <h3 className="text-lg font-medium text-white mb-3">Dark Theme</h3>
+              <div className="rounded-xl border border-border/40 bg-card/30 p-4">
+                <h3 className="text-lg font-medium text-foreground mb-3">Dark Theme</h3>
                 <div className="bg-neutral-950 rounded-lg p-4 overflow-x-auto max-h-80 overflow-y-auto">
                   <pre className="text-xs text-neutral-300 font-mono">
 {`{
@@ -513,8 +519,8 @@ export default function DocsPage() {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-neutral-800 bg-neutral-900/30 p-4">
-                <h3 className="text-lg font-medium text-white mb-3">Neon Theme</h3>
+              <div className="rounded-xl border border-border/40 bg-card/30 p-4">
+                <h3 className="text-lg font-medium text-foreground mb-3">Neon Theme</h3>
                 <div className="bg-neutral-950 rounded-lg p-4 overflow-x-auto max-h-80 overflow-y-auto">
                   <pre className="text-xs text-neutral-300 font-mono">
 {`{
@@ -554,8 +560,8 @@ export default function DocsPage() {
           </section>
 
           {/* Best Practices */}
-          <section className="modern-surface rounded-xl p-6">
-            <h2 className="text-2xl font-semibold text-white mb-4">Best Practices</h2>
+          <section className="glass-surface rounded-xl p-6">
+            <h2 className="text-2xl font-semibold text-foreground mb-4">Best Practices</h2>
             <ul className="space-y-3 text-neutral-400">
               <li className="flex items-start gap-3">
                 <Icon icon="solar:check-circle-linear" className="text-green-500 shrink-0 mt-0.5" />
@@ -591,9 +597,9 @@ export default function DocsPage() {
           </section>
 
           {/* Testing Your Theme Section */}
-          <section className="modern-surface rounded-xl p-6">
-            <h2 className="text-2xl font-semibold text-white mb-4">Testing Your Theme</h2>
-            <p className="text-neutral-400 mb-6">
+          <section className="glass-surface rounded-xl p-6">
+            <h2 className="text-2xl font-semibold text-foreground mb-4">Testing Your Theme</h2>
+            <p className="text-muted-foreground mb-6">
               Before submitting your theme, test it thoroughly in AnymeX to ensure it looks great and functions correctly:
             </p>
 
@@ -601,7 +607,7 @@ export default function DocsPage() {
               {/* Step 1: Validate JSON */}
               <div>
                 <h3 className="text-lg font-medium text-white mb-3 flex items-center gap-2">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-white text-black text-sm font-bold">1</span>
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/15 text-primary text-sm font-bold">1</span>
                   Validate Your JSON
                 </h3>
                 <p className="text-neutral-400 mb-3">
@@ -618,7 +624,7 @@ export default function DocsPage() {
               {/* Step 2: Test in AnymeX */}
               <div>
                 <h3 className="text-lg font-medium text-white mb-3 flex items-center gap-2">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-white text-black text-sm font-bold">2</span>
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/15 text-primary text-sm font-bold">2</span>
                   Test in AnymeX
                 </h3>
                 <p className="text-neutral-400 mb-3">
@@ -637,7 +643,7 @@ export default function DocsPage() {
               {/* Step 3: Check Items */}
               <div>
                 <h3 className="text-lg font-medium text-white mb-3 flex items-center gap-2">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-white text-black text-sm font-bold">3</span>
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/15 text-primary text-sm font-bold">3</span>
                   Checklist for Quality
                 </h3>
                 <p className="text-neutral-400 mb-3">
@@ -674,7 +680,7 @@ export default function DocsPage() {
               {/* Step 4: Lighting Test */}
               <div>
                 <h3 className="text-lg font-medium text-white mb-3 flex items-center gap-2">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-white text-black text-sm font-bold">4</span>
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/15 text-primary text-sm font-bold">4</span>
                   Test in Different Lighting
                 </h3>
                 <p className="text-neutral-400 mb-3">
@@ -714,9 +720,9 @@ export default function DocsPage() {
           </section>
 
           {/* Uploading Your Theme Section */}
-          <section className="modern-surface rounded-xl p-6">
-            <h2 className="text-2xl font-semibold text-white mb-4">Uploading Your Theme</h2>
-            <p className="text-neutral-400 mb-4">
+          <section className="glass-surface rounded-xl p-6">
+            <h2 className="text-2xl font-semibold text-foreground mb-4">Uploading Your Theme</h2>
+            <p className="text-muted-foreground mb-4">
               Once you've created your theme JSON and registered as a creator, you can upload it through the Creator Dashboard:
             </p>
             <ol className="space-y-3 text-neutral-300 list-decimal list-inside">
@@ -821,11 +827,11 @@ export default function DocsPage() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-20 border-t border-border/70 bg-card/20 py-10">
+      <footer className="mt-auto border-t border-border/30 bg-card/10 backdrop-blur-sm py-10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-neutral-600">© 2024 AnymeX Inc. All rights reserved.</p>
+          <p className="text-xs text-muted-foreground/50">&copy; 2025 AnymeX. All rights reserved.</p>
           <div className="flex items-center gap-6">
-            <Link href="/" className="text-xs text-neutral-500 hover:text-neutral-300 transition-colors">
+            <Link href="/" className="text-xs text-muted-foreground/50 hover:text-foreground/70 transition-colors duration-200">
               Back to Themes
             </Link>
           </div>
