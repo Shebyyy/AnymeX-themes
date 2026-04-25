@@ -26,7 +26,11 @@ class QueryBuilder {
   }
 
   select(columns = "*", options?: any) {
-    this.op = "select";
+    // Don't override write operations — in Supabase, `.insert({...}).select()`
+    // specifies which fields to *return* from the insert, not switch to a read.
+    if (this.op !== "insert" && this.op !== "update" && this.op !== "delete") {
+      this.op = "select";
+    }
     this.selected = columns;
     this.selectOpts = options;
     return this;
