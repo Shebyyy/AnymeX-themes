@@ -168,7 +168,12 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (createError) {
-      throw createError;
+      const msg = createError?.message || 'Failed to create theme';
+      console.error('Create theme DB error:', msg);
+      return NextResponse.json(
+        { error: `Failed to create theme: ${msg}` },
+        { status: 500 }
+      );
     }
 
     // Post to Discord - all themes are posted directly without approval
@@ -187,7 +192,7 @@ export async function POST(request: NextRequest) {
             `${appUrl}/themes/${themeId}`, // themeUrl
             appUrl // appUrl for profile link
           ),
-          imageUrl: previewImage.startsWith('http') ? previewImage : `${appUrl}${previewImage}`,
+          imageUrl: typeof previewImage === 'string' && previewImage.startsWith('http') ? previewImage : `${appUrl}${previewImage}`,
         });
 
         if (discordResult.success && discordResult.threadId) {

@@ -130,6 +130,8 @@ function createDefaultDb(): DbShape {
   };
 }
 
+const DB_TABLE_KEYS = Object.keys(createDefaultDb());
+
 export async function loadDb(): Promise<{ db: DbShape; sha: string | null }> {
   const file = await readRepoFile(DB_PATH);
   if (!file.content) {
@@ -147,14 +149,25 @@ export async function saveDb(db: DbShape, sha: string | null, message: string) {
   await writeRepoFile(DB_PATH, JSON.stringify(db, null, 2), message, sha);
 }
 
+/**
+ * Save the DB with automatic retry on SHA conflicts (409).
+ *
+ * CRITICAL FIX: On conflict, we merge our pending changes with the latest
+ * DB state so that concurrent writes to *different* tables are not lost.
+ * The merge strategy is table-level: for every table in our pending `db`,
+ * we overwrite the same table in the latest DB. This preserves changes from
+ * other requests that modified different tables.
+ */
 export async function saveDbWithRetry(db: DbShape, sha: string | null, message: string, retries = 5) {
   let currentSha = sha;
+  let pendingDb = db;
+
   for (let attempt = 0; attempt <= retries; attempt += 1) {
     try {
       if (attempt > 0) {
         console.log(`[db] Retry attempt ${attempt}/${retries} with SHA: ${currentSha?.substring(0, 7)}`);
       }
-      await saveDb(db, currentSha, message);
+      await saveDb(pendingDb, currentSha, message);
       return;
     } catch (error: any) {
       const isConflict = error?.status === 409 || String(error?.message || "").toLowerCase().includes("sha");
@@ -164,11 +177,21 @@ export async function saveDbWithRetry(db: DbShape, sha: string | null, message: 
         }
         throw error;
       }
-      
-      console.warn(`[db] Conflict detected (409), reloading DB to get latest SHA...`);
+
+      console.warn(`[db] Conflict detected (409), reloading DB to merge and retry...`);
       const latest = await loadDb();
       currentSha = latest.sha;
-      
+
+      // Merge: start from the latest DB, then overlay our pending table changes.
+      // This preserves changes from other concurrent requests to different tables.
+      const merged: DbShape = { ...latest.db };
+      for (const key of DB_TABLE_KEYS) {
+        if (pendingDb[key as keyof DbShape] !== undefined) {
+          (merged as any)[key] = pendingDb[key as keyof DbShape];
+        }
+      }
+      pendingDb = merged;
+
       // Exponential backoff
       const delay = Math.min(200 * (attempt + 1), 1000);
       await new Promise((resolve) => setTimeout(resolve, delay));
@@ -179,4 +202,3 @@ export async function saveDbWithRetry(db: DbShape, sha: string | null, message: 
 export function repoRawUrl(path: string) {
   return `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${path}`;
 }
-

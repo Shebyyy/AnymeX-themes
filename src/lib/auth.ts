@@ -78,11 +78,12 @@ export async function validateSession(token: string) {
     return null;
   }
 
-  // Update last login
-  await supabase
-    .from('User')
-    .update({ lastLoginAt: new Date().toISOString() })
-    .eq('id', session.userId);
+  // NOTE: lastLoginAt update removed from here to avoid a DB write on every
+  // authenticated request. With a GitHub-backed JSON store, each write
+  // creates a commit and changes the SHA, which causes race conditions with
+  // other concurrent writes (e.g. theme insert). If lastLoginAt tracking is
+  // needed, it should be done in a dedicated fire-and-forget path or
+  // debounced to avoid contention.
 
   return user;
 }
