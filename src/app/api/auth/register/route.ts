@@ -5,7 +5,7 @@ import { hashPassword, createSession } from '@/lib/auth';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { username, password, profileUrl, role } = body;
+    const { username, password, profileUrl, role, discordUserId } = body;
 
     if (!username || !password) {
       return NextResponse.json(
@@ -60,6 +60,7 @@ export async function POST(request: NextRequest) {
       username: normalizedUsername,
       passwordHash,
       profileUrl,
+      discordUserId: discordUserId || null,
       role: userRole,
       isActive: true,
       createdAt: new Date().toISOString(),

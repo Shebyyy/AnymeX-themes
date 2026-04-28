@@ -192,17 +192,37 @@ export default function ThemeDetailPage({
     }
   };
 
+  const getJsonUrl = () => {
+    if (!theme) return '';
+    // Use themeId for clean URL, fallback to database id
+    const id = theme.themeId || theme.id;
+    return `${window.location.origin}/api/themes/${id}/json`;
+  };
+
   const applyTheme = () => {
     if (!theme) return;
 
-    // Construct the JSON URL for the theme
-    const jsonUrl = `${window.location.origin}/api/themes/${theme.id}/json`;
-
-    // Create the deep link URL
+    const jsonUrl = getJsonUrl();
     const deepLink = `anymex://theme?type=player&url=${encodeURIComponent(jsonUrl)}`;
-
-    // Open the deep link
     window.location.href = deepLink;
+  };
+
+  const copyJsonLink = () => {
+    const jsonUrl = getJsonUrl();
+    navigator.clipboard.writeText(jsonUrl);
+    toast({
+      title: "JSON link copied!",
+      description: "Direct download link copied to clipboard.",
+    });
+  };
+
+  const copyJsonLinkForDiscord = () => {
+    const jsonUrl = getJsonUrl();
+    navigator.clipboard.writeText(`\`${jsonUrl}\``);
+    toast({
+      title: "Copied for Discord!",
+      description: "JSON link formatted as code block copied.",
+    });
   };
 
   const downloadJson = () => {
@@ -719,6 +739,36 @@ export default function ThemeDetailPage({
             />
             {theme.isLiked ? "Liked" : "Like"}
           </Button>
+        </div>
+
+        {/* Direct JSON Link */}
+        <div className="modern-surface rounded-xl p-6">
+          <div className="flex items-center gap-2 mb-2">
+            <Icon icon="solar:link-round-linear" width={18} className="text-neutral-400" />
+            <h2 className="text-lg font-semibold text-foreground">Direct JSON Link</h2>
+          </div>
+          <p className="text-sm text-neutral-400 mb-4">
+            If the Apply button isn&apos;t working, copy this link and use it as the URL in the AnymeX app.
+          </p>
+          <div className="flex items-center gap-2">
+            <code className="text-sm font-mono text-neutral-300 bg-neutral-900/50 px-3 py-2 rounded-lg flex-1 truncate break-all">
+              {getJsonUrl()}
+            </code>
+            <button
+              onClick={copyJsonLink}
+              className="text-neutral-500 hover:text-neutral-300 transition-colors shrink-0 p-1"
+              title="Copy link"
+            >
+              <Icon icon="solar:copy-linear" width={16} />
+            </button>
+            <button
+              onClick={copyJsonLinkForDiscord}
+              className="text-neutral-500 hover:text-neutral-300 transition-colors shrink-0 p-1"
+              title="Copy for Discord"
+            >
+              <Icon icon="simple-icons:discord" width={16} />
+            </button>
+          </div>
         </div>
 
         {/* Theme ID & Info */}

@@ -7,6 +7,7 @@ import {
   generateDiscordPostContent,
   generateDiscordPostTitle,
   sendModLog,
+  assignCreatorRole,
 } from '@/lib/discord';
 
 // GET /api/creator/themes/[id] - Get a single theme
@@ -208,6 +209,18 @@ export async function PUT(
         console.error('Failed to update Discord post:', discordError);
         // Don't fail the request if Discord update fails
       }
+    }
+
+    // Assign Discord Creator role if user has discordUserId
+    try {
+      if (currentUser.discordUserId) {
+        const roleResult = await assignCreatorRole(currentUser.discordUserId);
+        if (roleResult.success) {
+          console.log(`Discord role assigned to ${currentUser.username}${roleResult.alreadyHadRole ? ' (already had role)' : ''}`);
+        }
+      }
+    } catch (roleError) {
+      console.error('Error during Discord role assignment:', roleError);
     }
 
     // Send mod log

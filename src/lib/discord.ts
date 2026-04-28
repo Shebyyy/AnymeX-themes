@@ -7,6 +7,8 @@ const DISCORD_API_BASE = 'https://discord.com/api/v10';
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 const DISCORD_CHANNEL_ID = process.env.DISCORD_CHANNEL_ID || '1474764166752370840';
 const MOD_LOGS_CHANNEL_ID = process.env.MOD_LOGS_CHANNEL_ID || '1313094347524411392';
+const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID || '1496377698837069875';
+const DISCORD_CREATOR_ROLE_ID = process.env.DISCORD_CREATOR_ROLE_ID || '1497632045986222271';
 
 export interface DiscordPostData {
   title: string;
@@ -357,15 +359,19 @@ export function generateDiscordPostContent(
   const baseUrl = appUrl || 'https://anymex-themes.vercel.app';
   const themeLink = themeId ? `${baseUrl}/themes/${themeId}` : themeUrl;
   const creatorProfileLink = `${baseUrl}/users/${creatorUsername}`;
+  const jsonLink = themeId ? `${baseUrl}/api/themes/${themeId}/json` : null;
 
-  return `🔗 **Theme Page:** <${themeLink}>
+  let content = `Theme Page: <${themeLink}>\n`;
 
-📝 **Description:** ${description || 'No description provided'}
+  if (jsonLink) {
+    content += `JSON Link: \`${jsonLink}\`\n`;
+  }
 
-✨ **Created by:** [${creatorName}](${creatorProfileLink})
+  content += `\nDescription: ${description || 'No description provided'}\n`;
+  content += `\nCreated by: [${creatorName}](<${creatorProfileLink}>)\n`;
+  content += `\n---\nUploaded via AnymeX Theme Creator Hub`;
 
----
-_Uploaded via AnymeX Theme Creator Hub_`;
+  return content;
 }
 
 /**
@@ -464,6 +470,83 @@ export async function sendModLog(
     };
   } catch (error) {
     console.error('Error sending mod log:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
+ * Assign the Creator role to a Discord user
+ * Only assigns if the user doesn't already have the role
+ */
+export async function assignCreatorRole(
+  discordUserId: string
+): Promise<{ success: boolean; error?: string; alreadyHadRole?: boolean }> {
+  if (!DISCORD_BOT_TOKEN) {
+    return { success: false, error: 'Discord bot token not configured' };
+  }
+
+  if (!discordUserId) {
+    return { success: false, error: 'No Discord user ID provided' };
+  }
+
+  try {
+    // Check if user is in the guild
+    const memberResponse = await fetch(
+      `${DISCORD_API_BASE}/guilds/${DISCORD_GUILD_ID}/members/${discordUserId}`,
+      {
+        headers: {
+          'Authorization': `Bot ${DISCORD_BOT_TOKEN}`,
+        },
+      }
+    );
+
+    if (memberResponse.status === 404) {
+      return {
+        success: false,
+        error: 'User is not in the Discord server. They must join first.',
+      };
+    }
+
+    if (!memberResponse.ok) {
+      return {
+        success: false,
+        error: `Failed to check guild member: ${memberResponse.status}`,
+      };
+    }
+
+    const member = await memberResponse.json();
+
+    // Check if user already has the role
+    if (member.roles && member.roles.includes(DISCORD_CREATOR_ROLE_ID)) {
+      return { success: true, alreadyHadRole: true };
+    }
+
+    // Assign the role
+    const assignResponse = await fetch(
+      `${DISCORD_API_BASE}/guilds/${DISCORD_GUILD_ID}/members/${discordUserId}/roles/${DISCORD_CREATOR_ROLE_ID}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bot ${DISCORD_BOT_TOKEN}`,
+        },
+      }
+    );
+
+    if (!assignResponse.ok) {
+      const errorText = await assignResponse.text();
+      console.error('Discord role assignment error:', errorText);
+      return {
+        success: false,
+        error: `Failed to assign role: ${assignResponse.status}`,
+      };
+    }
+
+    return { success: true, alreadyHadRole: false };
+  } catch (error) {
+    console.error('Error assigning Discord role:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',

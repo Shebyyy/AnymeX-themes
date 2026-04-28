@@ -6,6 +6,7 @@ import {
   generateDiscordPostContent,
   generateDiscordPostTitle,
   sendModLog,
+  assignCreatorRole,
 } from '@/lib/discord';
 
 // GET /api/creator/themes - List themes (own themes for creators, all for admins)
@@ -211,6 +212,27 @@ export async function POST(request: NextRequest) {
         console.error('Failed to post to Discord:', discordError);
         // Don't fail the request if Discord posting fails
       }
+    }
+
+    // Assign Discord Creator role if user has discordUserId
+    try {
+      const { data: userData } = await supabase
+        .from('User')
+        .select('discordUserId')
+        .eq('id', currentUser.id)
+        .single();
+
+      if (userData?.discordUserId) {
+        const roleResult = await assignCreatorRole(userData.discordUserId);
+        if (roleResult.success) {
+          console.log(`Discord role assigned to ${currentUser.username}${roleResult.alreadyHadRole ? ' (already had role)' : ''}`);
+        } else {
+          console.warn(`Failed to assign Discord role: ${roleResult.error}`);
+        }
+      }
+    } catch (roleError) {
+      console.error('Error during Discord role assignment:', roleError);
+      // Don't fail the request if role assignment fails
     }
 
     // Send mod log

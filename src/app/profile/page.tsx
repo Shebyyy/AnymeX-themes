@@ -30,6 +30,7 @@ interface User {
   email?: string | null;
   role: string;
   profileUrl?: string | null;
+  discordUserId?: string | null;
   createdAt: string;
 }
 
@@ -41,6 +42,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [username, setUsername] = useState("");
   const [profileUrl, setProfileUrl] = useState("");
+  const [discordUserId, setDiscordUserId] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Password change states
@@ -84,6 +86,7 @@ export default function ProfilePage() {
       setUser(data.user);
       setUsername(data.user.username);
       setProfileUrl(data.user.profileUrl || "");
+      setDiscordUserId(data.user.discordUserId || "");
     } catch (error) {
       console.error("Auth check error:", error);
       router.push("/");
@@ -135,6 +138,7 @@ export default function ProfilePage() {
         body: JSON.stringify({
           username: username.trim(),
           profileUrl: profileUrl.trim() || null,
+          discordUserId: discordUserId.trim() || null,
         }),
       });
 
@@ -152,6 +156,7 @@ export default function ProfilePage() {
           ...user,
           username: data.user.username,
           profileUrl: data.user.profileUrl,
+          discordUserId: data.user.discordUserId,
         })
       );
 
@@ -462,6 +467,20 @@ export default function ProfilePage() {
                       </a>
                     </p>
                   )}
+                </div>
+                <div>
+                  <Label htmlFor="discordUserId">Discord User ID <span className="text-muted-foreground/40 font-normal">(optional)</span></Label>
+                  <Input
+                    id="discordUserId"
+                    type="text"
+                    value={discordUserId}
+                    onChange={(e) => setDiscordUserId(e.target.value.replace(/[^0-9]/g, ''))}
+                    className="bg-card/50 border-border/50 text-foreground input-glow"
+                    placeholder="e.g. 123456789012345678"
+                  />
+                  <p className="text-xs text-muted-foreground/60 mt-1">
+                    Used to assign the Creator role when you upload a theme
+                  </p>
                 </div>
                 <div className="flex justify-end pt-4">
                   <Button

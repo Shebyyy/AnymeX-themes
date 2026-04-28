@@ -32,6 +32,7 @@ function AuthContent() {
   const [registerUsername, setRegisterUsername] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
   const [registerProfileUrl, setRegisterProfileUrl] = useState("");
+  const [registerDiscordUserId, setRegisterDiscordUserId] = useState("");
   const [registerLoading, setRegisterLoading] = useState(false);
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -90,6 +91,7 @@ function AuthContent() {
           username: registerUsername.trim(),
           password: registerPassword,
           profileUrl: registerProfileUrl.trim() || null,
+          discordUserId: registerDiscordUserId.trim() || null,
         }),
       });
 
@@ -290,6 +292,20 @@ function AuthContent() {
                 />
                 <p className="text-xs text-muted-foreground/60 mt-1">
                   Link to your GitHub, social media, or website
+                </p>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="register-discordUserId">Discord User ID <span className="text-muted-foreground/40 font-normal">(optional)</span></Label>
+                <Input
+                  id="register-discordUserId"
+                  type="text"
+                  value={registerDiscordUserId}
+                  onChange={(e) => setRegisterDiscordUserId(e.target.value.replace(/[^0-9]/g, ''))}
+                  className="bg-card/50 border-border/50 text-foreground input-glow"
+                  placeholder="e.g. 123456789012345678"
+                />
+                <p className="text-xs text-muted-foreground/60 mt-1">
+                  Used to assign the Creator role when you upload a theme
                 </p>
               </div>
               <Button

@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
         username: user.username,
         role: user.role,
         profileUrl: user.profileUrl,
+        discordUserId: user.discordUserId,
         lastLoginAt: user.lastLoginAt,
         createdAt: user.createdAt,
       },

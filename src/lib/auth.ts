@@ -69,7 +69,7 @@ export async function validateSession(token: string) {
   // Get user separately
   const { data: user, error: userError } = await supabase
     .from('User')
-    .select('id, username, passwordHash, role, profileUrl, isActive, createdAt, updatedAt, lastLoginAt')
+    .select('id, username, passwordHash, role, profileUrl, discordUserId, isActive, createdAt, updatedAt, lastLoginAt')
     .eq('id', session.userId)
     .single();
 

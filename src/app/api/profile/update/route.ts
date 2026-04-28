@@ -17,7 +17,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { username, profileUrl } = body;
+    const { username, profileUrl, discordUserId } = body;
 
     // Validate username
     if (username && username.trim().length < 3) {
@@ -59,12 +59,13 @@ export async function PATCH(request: NextRequest) {
     const updateData: Record<string, unknown> = {};
     if (username) updateData.username = username.trim();
     if (profileUrl !== undefined) updateData.profileUrl = profileUrl.trim() || null;
+    if (discordUserId !== undefined) updateData.discordUserId = discordUserId.trim() || null;
 
     const { data: updatedUser, error } = await supabase
       .from("User")
       .update(updateData)
       .eq("id", user.id)
-      .select("id, username, role, profileUrl, isActive, createdAt, updatedAt, lastLoginAt")
+      .select("id, username, role, profileUrl, discordUserId, isActive, createdAt, updatedAt, lastLoginAt")
       .single();
 
     if (error) {
