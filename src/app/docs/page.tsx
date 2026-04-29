@@ -177,14 +177,14 @@ export default function DocsPage() {
         <div className="px-4 sm:px-6 pl-2">
           <div className="flex h-14 items-center justify-between gap-4">
             {/* Logo */}
-            <div className="flex items-center gap-2.5 shrink-0 cursor-pointer pl-2">
+            <Link href="/" className="flex items-center gap-2.5 shrink-0 cursor-pointer pl-2">
               <img
                 src="https://raw.githubusercontent.com/Shebyyy/AnymeX-themes/main/public/logo/anymex-logo.png"
                 alt="AnymeX"
                 className="w-8 h-8"
               />
               <span className="text-sm font-semibold tracking-tight text-foreground">AnymeX</span>
-            </div>
+            </Link>
 
             {/* Right Actions */}
             <div className="flex items-center gap-1">

@@ -1469,7 +1469,7 @@ function DashboardHeader({ user, onLogout }: { user: User | null; onLogout: () =
         <header className="sticky top-0 z-50 glass-nav border-b border-border/30 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <Link href="/dashboard" className="flex items-center gap-2.5">
+          <Link href="/" className="flex items-center gap-2.5">
             <img
               src="https://raw.githubusercontent.com/Shebyyy/AnymeX-themes/main/public/logo/anymex-logo.png"
               alt="AnymeX"

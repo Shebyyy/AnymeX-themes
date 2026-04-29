@@ -168,7 +168,7 @@ export default function CreatorLayout({
       <aside className="fixed left-0 top-0 bottom-0 w-64 border-r border-border bg-card/70 backdrop-blur-xl z-40 hidden lg:block">
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="flex items-center gap-2 p-6 border-b border-neutral-800">
+          <Link href="/" className="flex items-center gap-2 p-6 border-b border-neutral-800">
             <img
               src="https://raw.githubusercontent.com/Shebyyy/AnymeX-themes/main/public/logo/anymex-logo.png"
               alt="AnymeX"
@@ -177,7 +177,7 @@ export default function CreatorLayout({
             <span className="text-sm font-semibold tracking-tight text-white">
               Creator Hub
             </span>
-          </div>
+          </Link>
 
           {/* Navigation */}
           <nav className="flex-1 p-4 space-y-1">
@@ -249,7 +249,7 @@ export default function CreatorLayout({
         {/* Mobile Header */}
         <header className="sticky top-0 z-30 border-b border-border bg-card/80 backdrop-blur-xl lg:hidden">
           <div className="flex items-center justify-between px-4 py-3">
-            <div className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2">
               <img
                 src="https://raw.githubusercontent.com/Shebyyy/AnymeX-themes/main/public/logo/anymex-logo.png"
                 alt="AnymeX"
@@ -258,7 +258,7 @@ export default function CreatorLayout({
               <span className="text-sm font-semibold tracking-tight text-white">
                 Creator Hub
               </span>
-            </div>
+            </Link>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="text-neutral-300">
