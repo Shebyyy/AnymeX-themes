@@ -1007,16 +1007,18 @@ export default function CreatorDashboard() {
               key={theme.id}
               className="bg-neutral-900/40 border-neutral-800 hover:border-neutral-700 transition-all overflow-hidden"
             >
-              {theme.previewImage && (
-                <div className="aspect-video w-full overflow-hidden bg-neutral-900">
+              <div className="aspect-video w-full overflow-hidden bg-neutral-900 flex items-center justify-center">
+                {theme.previewImage ? (
                   <img
                     src={theme.previewImage}
                     alt={theme.name}
                     className="w-full h-full object-contain"
                     loading="lazy"
                   />
-                </div>
-              )}
+                ) : (
+                  <Icon icon="solar:palette-bold" width={40} className="text-neutral-500" />
+                )}
+              </div>
               <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">

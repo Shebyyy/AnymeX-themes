@@ -32,6 +32,7 @@ interface Theme {
   themeJson: string;
   category: string | null;
   previewData: string | null;
+  previewImage: string | null;
   likesCount: number;
   viewsCount: number;
   createdAt: string;
@@ -752,13 +753,21 @@ export default function ThemeDetailPage({
           <p className="text-neutral-400 mb-8 text-lg">{theme.description}</p>
         )}
 
-        {/* Preview - Disabled */}
+        {/* Preview */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-foreground mb-4">Live Preview</h2>
-          <div className="modern-surface aspect-video w-full overflow-hidden rounded-xl flex items-center justify-center">
-            <span className="text-xs md:text-sm text-muted-foreground font-medium tracking-wide">
-              Preview coming soon
-            </span>
+          <div className="modern-surface aspect-video w-full overflow-hidden rounded-xl flex items-center justify-center bg-card">
+            {theme.previewImage ? (
+              <img
+                src={theme.previewImage}
+                alt={theme.name}
+                className="w-full h-full object-contain"
+              />
+            ) : (
+              <span className="text-xs md:text-sm text-muted-foreground font-medium tracking-wide">
+                Preview coming soon
+              </span>
+            )}
           </div>
         </div>
 
