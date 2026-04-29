@@ -742,34 +742,38 @@ export default function Home() {
                                                   <h3 className="text-sm font-semibold text-foreground/90 group-hover:text-foreground transition-colors duration-200">
                                                       {theme.name}
                                                   </h3>
-                                                  <div className="flex items-center gap-1 mt-0.5">
+                                                  <div className="flex items-center gap-1.5 mt-0.5">
                                                       <span className="text-xs text-muted-foreground/60">by</span>
-                                                      {theme.creator ? (
-                                                          <div className="flex items-center gap-1">
-                                                              <Link
-                                                                  href={`/users/${theme.creator.username}`}
-                                                                  onClick={e => e.stopPropagation()}
-                                                                  className="text-xs text-muted-foreground hover:text-foreground/80 cursor-pointer hover:underline transition-colors duration-200"
-                                                              >
-                                                                  {theme.creatorName}
-                                                              </Link>
-                                                              {theme.creator.profileUrl && (
-                                                                  <a
-                                                                      href={theme.creator.profileUrl}
-                                                                      target="_blank"
-                                                                      rel="noopener noreferrer"
-                                                                      onClick={e => e.stopPropagation()}
-                                                                      className="text-muted-foreground/50 hover:text-foreground/70 transition-colors duration-200"
-                                                                      title={theme.creator.profileUrl}
-                                                                  >
-                                                                      <Icon icon="lucide:github" width={12} />
-                                                                  </a>
-                                                              )}
-                                                          </div>
-                                                      ) : (
-                                                          <span className="text-xs text-muted-foreground">
-                                                              {theme.creatorName}
-                                                          </span>
+                                                      <a
+                                                          href={theme.creator ? `/users/${theme.creator.username}` : '#'}
+                                                          onClick={e => {
+                                                              e.preventDefault();
+                                                              e.stopPropagation();
+                                                              if (theme.creator) window.location.href = `/users/${theme.creator.username}`;
+                                                          }}
+                                                          className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground/80 cursor-pointer hover:underline transition-colors duration-200"
+                                                      >
+                                                          {theme.creator && (
+                                                              <img
+                                                                  src={getAvatarUrl(theme.creator.username, theme.creator.profileUrl)}
+                                                                  alt={theme.creator.username}
+                                                                  className="w-4 h-4 rounded-full"
+                                                                  loading="lazy"
+                                                              />
+                                                          )}
+                                                          {theme.creatorName}
+                                                      </a>
+                                                      {theme.creator?.profileUrl && (
+                                                          <a
+                                                              href={theme.creator.profileUrl}
+                                                              target="_blank"
+                                                              rel="noopener noreferrer"
+                                                              onClick={e => e.stopPropagation()}
+                                                              className="text-muted-foreground/50 hover:text-foreground/70 transition-colors duration-200"
+                                                              title={theme.creator.profileUrl}
+                                                          >
+                                                              <Icon icon="lucide:github" width={12} />
+                                                          </a>
                                                       )}
                                                   </div>
                                               </Link>
@@ -778,30 +782,38 @@ export default function Home() {
                                                   <h3 className="text-sm font-semibold text-foreground/90 group-hover:text-foreground transition-colors duration-200">
                                                       {theme.name}
                                                   </h3>
-                                                  <div className="flex items-center gap-1 mt-0.5">
+                                                  <div className="flex items-center gap-1.5 mt-0.5">
                                                       <span className="text-xs text-muted-foreground/60">by</span>
-                                                      {theme.creator ? (
-                                                          <div className="flex items-center gap-1">
-                                                              <span className="text-xs text-muted-foreground">
-                                                                  {theme.creatorName}
-                                                              </span>
-                                                              {theme.creator.profileUrl && (
-                                                                  <a
-                                                                      href={theme.creator.profileUrl}
-                                                                      target="_blank"
-                                                                      rel="noopener noreferrer"
-                                                                      onClick={e => e.stopPropagation()}
-                                                                      className="text-muted-foreground/50 hover:text-foreground/70 transition-colors duration-200"
-                                                                      title={theme.creator.profileUrl}
-                                                                  >
-                                                                      <Icon icon="lucide:github" width={12} />
-                                                                  </a>
-                                                              )}
-                                                          </div>
-                                                      ) : (
-                                                          <span className="text-xs text-muted-foreground">
-                                                              {theme.creatorName}
-                                                          </span>
+                                                      <a
+                                                          href={theme.creator ? `/users/${theme.creator.username}` : '#'}
+                                                          onClick={e => {
+                                                              e.preventDefault();
+                                                              e.stopPropagation();
+                                                              if (theme.creator) window.location.href = `/users/${theme.creator.username}`;
+                                                          }}
+                                                          className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground/80 cursor-pointer hover:underline transition-colors duration-200"
+                                                      >
+                                                          {theme.creator && (
+                                                              <img
+                                                                  src={getAvatarUrl(theme.creator.username, theme.creator.profileUrl)}
+                                                                  alt={theme.creator.username}
+                                                                  className="w-4 h-4 rounded-full"
+                                                                  loading="lazy"
+                                                              />
+                                                          )}
+                                                          {theme.creatorName}
+                                                      </a>
+                                                      {theme.creator?.profileUrl && (
+                                                          <a
+                                                              href={theme.creator.profileUrl}
+                                                              target="_blank"
+                                                              rel="noopener noreferrer"
+                                                              onClick={e => e.stopPropagation()}
+                                                              className="text-muted-foreground/50 hover:text-foreground/70 transition-colors duration-200"
+                                                              title={theme.creator.profileUrl}
+                                                          >
+                                                              <Icon icon="lucide:github" width={12} />
+                                                          </a>
                                                       )}
                                                   </div>
                                               </div>

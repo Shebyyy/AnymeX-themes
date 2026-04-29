@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
+import { getAvatarUrl } from "@/lib/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -665,8 +666,13 @@ export default function ThemeDetailPage({
                 <div className="flex items-center gap-1.5">
                   <Link
                     href={`/users/${theme.creator.username}`}
-                    className="text-neutral-300 hover:text-white cursor-pointer hover:underline"
+                    className="inline-flex items-center gap-1.5 text-neutral-300 hover:text-white cursor-pointer hover:underline"
                   >
+                    <img
+                      src={getAvatarUrl(theme.creator.username, theme.creator.profileUrl)}
+                      alt={theme.creator.username}
+                      className="w-4 h-4 rounded-full"
+                    />
                     {theme.creatorName}
                   </Link>
                   {theme.creator.profileUrl && (

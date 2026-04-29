@@ -163,8 +163,8 @@ class QueryBuilder {
           return { data: null, error: null, count: matched.length };
         }
 
-        let data = await this.attachRelations(matched);
-        data = this.project(data);
+        let data = this.project(matched);
+        data = await this.attachRelations(data);
 
         if (this.limitCount !== null) {
           data = data.slice(0, this.limitCount);
