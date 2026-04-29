@@ -18,7 +18,6 @@ export async function GET(
       .from("Theme")
       .select("id, name, description, creatorName, category, themeJson, createdAt, updatedAt, themeId, status")
       .eq("themeId", id)
-      .eq("status", "APPROVED")
       .single();
 
     if (resultByThemeId.data && !resultByThemeId.error) {
@@ -29,7 +28,6 @@ export async function GET(
         .from("Theme")
         .select("id, name, description, creatorName, category, themeJson, createdAt, updatedAt, themeId, status")
         .eq("id", id)
-        .eq("status", "APPROVED")
         .single();
 
       if (resultById.error || !resultById.data) {

@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
         themeJson,
         likesCount: 0,
         viewsCount: 0,
-        status: "PENDING",
+        status: "APPROVED",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       })
