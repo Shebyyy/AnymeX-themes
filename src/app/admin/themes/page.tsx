@@ -47,6 +47,7 @@ interface Theme {
   likesCount: number;
   viewsCount: number;
   createdAt: string;
+  previewImage?: string | null;
   creator?: {
     id: string;
     username: string;
@@ -304,8 +305,16 @@ export default function ThemesPage() {
                       className="border-neutral-800 hover:bg-neutral-800/50"
                     >
                       <TableCell>
-                        <div>
-                          <p className="font-medium text-white">{theme.name}</p>
+                        <div className="flex items-center gap-3">
+                          {theme.previewImage && (
+                            <img
+                              src={theme.previewImage}
+                              alt={theme.name}
+                              className="w-12 h-8 rounded object-contain bg-neutral-900 shrink-0"
+                            />
+                          )}
+                          <div className="min-w-0">
+                            <p className="font-medium text-white truncate">{theme.name}</p>
                           {theme.themeId && (
                             <p className="text-xs text-neutral-500 font-mono">
                               {theme.themeId}
@@ -316,6 +325,7 @@ export default function ThemesPage() {
                               {theme.description}
                             </p>
                           )}
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell>

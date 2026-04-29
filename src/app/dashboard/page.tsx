@@ -884,7 +884,17 @@ export default function UnifiedDashboard() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {themes.slice(0, 8).map((theme) => (
-                <Card key={theme.id} className="border border-border/40 bg-card/30 hover:border-primary/30 hover:bg-card/50 transition-all duration-300">
+                <Card key={theme.id} className="border border-border/40 bg-card/30 hover:border-primary/30 hover:bg-card/50 transition-all duration-300 overflow-hidden">
+                  {theme.previewImage && (
+                    <div className="aspect-video w-full overflow-hidden bg-card">
+                      <img
+                        src={theme.previewImage}
+                        alt={theme.name}
+                        className="w-full h-full object-contain"
+                        loading="lazy"
+                      />
+                    </div>
+                  )}
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">

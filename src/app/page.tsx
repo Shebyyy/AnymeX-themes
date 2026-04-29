@@ -35,6 +35,7 @@ interface Theme {
     themeJson: string;
     category: string | null;
     previewData: string | null;
+    previewImage: string | null;
     likesCount: number;
     viewsCount: number;
     createdAt: string;
@@ -693,8 +694,15 @@ export default function Home() {
                                           className="flex-1 flex flex-col"
                                       >
                                           {/* Preview */}
-                                          <div className="aspect-video w-full overflow-hidden rounded-lg relative">
-                                              {ENABLE_THEME_PREVIEW ? (
+                                          <div className="aspect-video w-full overflow-hidden rounded-lg relative bg-card">
+                                              {theme.previewImage ? (
+                                                  <img
+                                                      src={theme.previewImage}
+                                                      alt={theme.name}
+                                                      className="w-full h-full object-contain"
+                                                      loading="lazy"
+                                                  />
+                                              ) : ENABLE_THEME_PREVIEW ? (
                                                   <ThemePreviewRenderer
                                                       themeJson={theme.themeJson}
                                                       backgroundImage="/preview-bg.jpg"
@@ -712,8 +720,15 @@ export default function Home() {
                                   ) : (
                                       <div onClick={() => handleView(theme.id)} className="flex-1 flex flex-col cursor-pointer">
                                           {/* Preview */}
-                                          <div className="aspect-video w-full overflow-hidden rounded-lg relative">
-                                              {ENABLE_THEME_PREVIEW ? (
+                                          <div className="aspect-video w-full overflow-hidden rounded-lg relative bg-card">
+                                              {theme.previewImage ? (
+                                                  <img
+                                                      src={theme.previewImage}
+                                                      alt={theme.name}
+                                                      className="w-full h-full object-contain"
+                                                      loading="lazy"
+                                                  />
+                                              ) : ENABLE_THEME_PREVIEW ? (
                                                   <ThemePreviewRenderer
                                                       themeJson={theme.themeJson}
                                                       backgroundImage="/preview-bg.jpg"
@@ -909,7 +924,7 @@ export default function Home() {
                                 <img
                                     src={maintainer.avatar_url}
                                     alt={maintainer.login}
-                                    className="h-10 w-10 rounded-full border border-border/50 object-cover transition-all duration-300 group-hover:border-primary/40"
+                                    className="h-10 w-10 rounded-full border border-border/50 object-contain transition-all duration-300 group-hover:border-primary/40"
                                 />
                                 <div className="flex flex-col min-w-0">
                                     <span className="text-sm font-semibold text-foreground/85 transition-colors duration-200 group-hover:text-foreground truncate">

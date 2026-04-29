@@ -1005,8 +1005,18 @@ export default function CreatorDashboard() {
           {themes.map((theme) => (
             <Card
               key={theme.id}
-              className="bg-neutral-900/40 border-neutral-800 hover:border-neutral-700 transition-all"
+              className="bg-neutral-900/40 border-neutral-800 hover:border-neutral-700 transition-all overflow-hidden"
             >
+              {theme.previewImage && (
+                <div className="aspect-video w-full overflow-hidden bg-neutral-900">
+                  <img
+                    src={theme.previewImage}
+                    alt={theme.name}
+                    className="w-full h-full object-contain"
+                    loading="lazy"
+                  />
+                </div>
+              )}
               <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">

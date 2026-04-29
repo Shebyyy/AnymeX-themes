@@ -52,6 +52,7 @@ interface Theme {
   viewsCount: number;
   status: string;
   createdAt: string;
+  previewImage?: string | null;
 }
 
 export default function UserProfilePage() {
@@ -885,9 +886,18 @@ export default function UserProfilePage() {
                     >
                       {theme.themeId ? (
                         <Link href={`/themes/${theme.themeId}`} className="block">
-                          {/* Preview Placeholder */}
-                          <div className="aspect-video w-full bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-700 flex items-center justify-center">
-                            <Icon icon="solar:palette-bold" width={40} className="text-neutral-500" />
+                          {/* Preview */}
+                          <div className="aspect-video w-full bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-700 flex items-center justify-center overflow-hidden">
+                            {theme.previewImage ? (
+                              <img
+                                src={theme.previewImage}
+                                alt={theme.name}
+                                className="w-full h-full object-contain"
+                                loading="lazy"
+                              />
+                            ) : (
+                              <Icon icon="solar:palette-bold" width={40} className="text-neutral-500" />
+                            )}
                           </div>
 
                           <div className="p-4 space-y-3">

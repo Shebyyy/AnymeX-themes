@@ -29,7 +29,7 @@ export async function GET(
     // Build query
     let query = supabase
       .from('Theme')
-      .select('id, themeId, name, description, category, likesCount, viewsCount, status, createdAt')
+      .select('id, themeId, name, description, category, likesCount, viewsCount, status, createdAt, previewImage')
       .eq('createdBy', (user as any).id);
 
     // Determine sort order
