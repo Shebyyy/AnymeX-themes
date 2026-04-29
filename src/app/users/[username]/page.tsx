@@ -622,10 +622,21 @@ export default function UserProfilePage() {
                         href={userProfile.profileUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-purple-400 hover:text-purple-300"
+                        className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground/80 transition-colors duration-200"
                       >
-                        <Icon icon="solar:link-bold" width={16} />
-                        <span className="break-all">{userProfile.profileUrl}</span>
+                        {userProfile.profileUrl.includes('github.com') ? (
+                          <Icon icon="lucide:github" width={16} />
+                        ) : (
+                          <Icon icon="solar:link-bold" width={16} />
+                        )}
+                        <span className="text-sm">
+                          {userProfile.profileUrl.includes('github.com')
+                            ? (() => {
+                                const match = userProfile.profileUrl.match(/github\.com\/([^\/]+)/);
+                                return match ? `@${match[1]}` : userProfile.profileUrl;
+                              })()
+                            : userProfile.profileUrl}
+                        </span>
                       </a>
                     )}
                   </div>
