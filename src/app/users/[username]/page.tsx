@@ -350,7 +350,24 @@ export default function UserProfilePage() {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors">
-                          <Icon icon="solar:user-circle-linear" width={16} />
+                          <div className="w-6 h-6 rounded-full overflow-hidden border border-neutral-700 bg-neutral-800">
+                            {currentUser?.profileUrl ? (
+                              <img
+                                src={getAvatarUrl(currentUser.username, currentUser.profileUrl)}
+                                alt={currentUser.username}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  const icon = target.parentElement?.querySelector('div');
+                                  if (icon) icon.style.display = 'flex';
+                                }}
+                              />
+                            ) : null}
+                            <div className="w-full h-full hidden items-center justify-center">
+                              <Icon icon="solar:user-bold" width={14} className="text-neutral-400" />
+                            </div>
+                          </div>
                           {currentUser?.username || "Profile"}
                           <Icon icon="solar:alt-arrow-down-linear" width={14} />
                         </button>

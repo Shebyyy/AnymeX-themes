@@ -2,6 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import Link from "next/link";
+import { getAvatarUrl } from "@/lib/avatar";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   DropdownMenu,
@@ -203,7 +204,24 @@ export default function DocsPage() {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 cursor-pointer">
-                          <Icon icon="solar:user-circle-linear" width={16} />
+                          <div className="w-6 h-6 rounded-full overflow-hidden border border-border bg-card">
+                            {user?.profileUrl ? (
+                              <img
+                                src={getAvatarUrl(user.username, user.profileUrl)}
+                                alt={user.username}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  const icon = target.parentElement?.querySelector('div');
+                                  if (icon) icon.style.display = 'flex';
+                                }}
+                              />
+                            ) : null}
+                            <div className="w-full h-full hidden items-center justify-center">
+                              <Icon icon="solar:user-bold" width={14} className="text-muted-foreground" />
+                            </div>
+                          </div>
                           {user?.username || "Profile"}
                           <Icon icon="solar:alt-arrow-down-linear" width={14} />
                         </button>
